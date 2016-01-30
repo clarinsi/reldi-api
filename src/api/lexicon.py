@@ -13,11 +13,10 @@ def isRegex(s):
 class Lexicon(object,):
 	'''Class lexicon'''
 
-	def __init__(self, dc, lang):
+	def __init__(self, lang):
 		if lang is None:
 			raise ValueError("Language not set")
 
-		self.dc = dc
 		self.language = lang
 
 	def query_entry(self, surface = None, lemma = None, msd = None, rhymes_with = None, no_of_syllables = None):

@@ -7,8 +7,7 @@ from tokenizer import generate_tokenizer,tokenize,sentence_split,sentence_split_
 class Segmenter(object,):
 	'''Class segmenter'''
 
-	def __init__(self, dc, lang):
-		self.dc = dc
+	def __init__(self, lang):
 		self.lang = lang
 		self.tokenizer = generate_tokenizer(lang)
 

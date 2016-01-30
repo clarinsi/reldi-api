@@ -43,16 +43,16 @@ CORS(app)
 print 'Initializing models'
 dc = DependencyContainer(lazy = True)
 for lang in ['hr', 'sl', 'sr']:
-    dc.registerInstance('lematiser.' + lang, lambda: Lematiser(dc, lang))
-    dc.registerInstance('tagger.' + lang, lambda: Tagger(dc, lang))
-    dc.registerInstance('segmenter.' + lang, lambda: Segmenter(dc, lang))
-    dc.registerInstance('lexicon.' + lang, lambda: Lexicon(dc, lang))
+    dc['segmenter.' + lang] = lambda: Segmenter(lang)
+    dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
+    dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
+    dc['lexicon.' + lang] = lambda: Lexicon(lang)
 
     # Force initialization of models. We want everything initialized before we start serving requests
-    dc.getInstance('lematiser.' + lang)
-    dc.getInstance('tagger.' + lang)
-    dc.getInstance('segmenter.' + lang)
-    dc.getInstance('lexicon.' + lang)
+    tmp = dc['lemmatiser.' + lang]
+    tmp = dc['tagger.' + lang]
+    tmp = dc['segmenter.' + lang]
+    tmp = dc['lexicon.' + lang]
 
 print 'Initialization of models done'
 
@@ -67,14 +67,19 @@ def index():
 
 if __name__ == "__main__":
 
-    # format = 'json'
-    # if not isset(format):
-    #     raise ValueError('Please specify a format')
-    # lang = 'hr'
-    # text = '<text>Modeli su učitani! Vrlo uspješno</text>'
+    text = 'Modeli su učitani! Vrlo uspješno.'
 
-    
+    lemmatiser = dc['lemmatiser.hr']
+    tagger = dc['tagger.hr']
+    segmenter = dc['segmenter.hr']
+    lexicon = dc['lexicon.hr']
+
+    print lemmatiser.tagLemmatise(text)
+    print lemmatiser.lemmatise(text)
+    print tagger.tag(text)
+    print segmenter.segment(text)
 
     app.run(host='0.0.0.0', port=8080)
+    
 
 

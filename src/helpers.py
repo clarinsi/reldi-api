@@ -14,7 +14,7 @@ def empty(v):
 def isset(v):
     return v is not None and v.strip() != ''
 
-def jsonify(data, ensure_ascii=True, status=200, indent=4, sort_keys=True):
+def jsonify(data, ensure_ascii=False, status=200, indent=4, sort_keys=True):
     response = make_response(json.dumps(data, ensure_ascii=ensure_ascii, indent=indent, sort_keys=sort_keys))
     response.headers['Content-Type'] = 'application/json; charset=utf-8'
     response.headers['mimetype'] = 'application/json'

@@ -10,7 +10,7 @@ class DependencyContainer(object):
 		self.initializers = {}
 		self.instances = {}
 		
-	def registerInstance(self, key, function):
+	def __setitem__(self, key, function):
 		if key in self.initializers:
 			raise ValueError('Instance already defined')
 
@@ -18,7 +18,7 @@ class DependencyContainer(object):
 		if not self.lazy:
 			self.instances[key] = function()
 
-	def getInstance(self, key):
+	def __getitem__(self, key):
 		if (key not in self.instances):
 			function = self.initializers[key]
 			self.instances[key] = function()

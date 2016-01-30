@@ -10,36 +10,21 @@ from tokenizer import spaces_re
 class Tagger(object,):
     '''Class segmenter'''
 
-    def __init__(self, dc, lang):
-        self.dc = dc
+    def __init__(self, lang, segmenter):
         self.lang = lang
-        self.tagger = pycrfsuite.Tagger()
-        self.tagger.open('assets/' + lang + '.msd.model')
-        self.trie = pickle.load(open('assets/' + lang + '.marisa'))
+        self.model = pycrfsuite.Tagger()
+        self.model.open('assets/' + lang + '.msd.model')
+        self.marisaTrie = pickle.load(open('assets/' + lang + '.marisa'))
+        self.segmenter = segmenter
 
     def tag(self, sentence, vert=False):
         output=[]
         if not vert:
-            segmenter = self.dc.getInstance('segmenter.' + self.lang)
-            sentence = segmenter.segment(sentence)
+            sentence = self.segmenter.segment(sentence)
 
         for sent in sentence:
-            sent = [(e[0], e[1], e[2]) for e in sent if spaces_re.search(e[0]) == None]
+            sent = [(e[0], e[1] + 1, e[2] + 2) for e in sent if spaces_re.search(e[0]) == None]
             tokens = [e[0] for e in sent]
-            output.append([(a, b) for a, b in zip(sent, self.tagger.tag(extract_features_msd(tokens, self.trie)))])
-        return output
-
-    def tagLematise(self, sentence, vert=False):
-        lematiser = self.dc.getInstance('lematiser.' + self.lang)
-        segmenter = self.dc.getInstance('segmenter.' + self.lang)
-        output=[]
-        if not vert:
-            sentence = segmenter.segment(sentence)
-        for sent in sentence:
-            sent = [(e[0], e[1], e[2]) for e in sent if spaces_re.search(e[0]) == None]
-            tokens = [e[0] for e in sent]
-            outputtag=[(a,b) for a,b in zip(sent, self.tagger.tag(extract_features_msd(tokens, self.trie)))]
-            tag=[e[1] for e in outputtag]
-            output.append([(a,b,lematiser.getLemma(a[0],b)) for a,b in zip(sent,tag)])
+            output.append([(a, b) for a, b in zip(sent, self.model.tag(extract_features_msd(tokens, self.marisaTrie)))])
         return output
 
