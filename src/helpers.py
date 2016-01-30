@@ -1,6 +1,12 @@
 import json
 from flask import make_response
 import xml.dom.minidom
+import hashlib, uuid
+
+def hashPassword(password):
+    salt = uuid.uuid4().hex
+    hashed_password = hashlib.sha512(password + salt).hexdigest()
+    return salt + ':' + hashed_password
 
 def empty(v):
     return v == ''

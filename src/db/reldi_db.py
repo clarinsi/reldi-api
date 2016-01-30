@@ -12,7 +12,7 @@ class DB(object):
 	'''Reldi database class'''
 
 	# Object constructor
-	def __init__(self, database):
+	def __init__(self, database, row_factory=None):
 		'''Create connection and cursor'''
 		# Connect to file database
 		#fileConnection = sqlite3.connect(database)
@@ -25,6 +25,9 @@ class DB(object):
 		#self.connection.executescript(query)
 
 		self.connection = sqlite3.connect(database)
+		if (row_factory is not None):
+			self.connection.row_factory = row_factory
+
 		self.connection.create_function("REGEXP", 2, regexp)
 		self.connection.text_factory = str
 		self.client = self.connection.cursor()
@@ -53,11 +56,3 @@ class DB(object):
 
 		self.client.execute(sql, params)
 		self.connection.commit()
-
-class LexiconDB(DB):
-	# Object constructor
-	def __init__(self, language):
-		'''Override database'''
-		thispath = os.path.dirname(os.path.realpath(__file__))
-		database = os.path.realpath('assets/') + '/lexdb_' + language
-		DB.__init__(self, database)

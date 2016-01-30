@@ -4,7 +4,7 @@ import sys
 import os
 sys.path.append(os.path.realpath('src/db'))
 from query_expression import QueryExpression
-from reldi_db import LexiconDB
+from lexicon_db import LexiconDB
 
 def isRegex(s):
 	regexChars = ['[', ']', '-', '*', '+', '(', ')', '^', '$', '+']
@@ -13,10 +13,11 @@ def isRegex(s):
 class Lexicon(object,):
 	'''Class lexicon'''
 
-	def __init__(self, lang):
+	def __init__(self, dc, lang):
 		if lang is None:
 			raise ValueError("Language not set")
 
+		self.dc = dc
 		self.language = lang
 
 	def query_entry(self, surface = None, lemma = None, msd = None, rhymes_with = None, no_of_syllables = None):

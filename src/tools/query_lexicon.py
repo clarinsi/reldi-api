@@ -2,8 +2,9 @@
 import sys
 import os
 import re
-thispath = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, thispath + '/../reldi')
+
+apiPath = os.path.realpath('../api')
+sys.path.append(apiPath)
 
 from cleo import Command, InputArgument, InputOption
 from lexicon import Lexicon

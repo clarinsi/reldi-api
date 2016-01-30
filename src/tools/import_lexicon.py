@@ -4,12 +4,11 @@ import os
 import regex
 import codecs
 
-thispath = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, thispath + '/../reldi')
-
+dbpath = os.path.realpath('../db')
+sys.path.append(dbpath)
 
 from cleo import Command, InputArgument, InputOption
-from reldi_db import LexiconDB
+from lexicon_db import LexiconDB
 
 class ImportLexiconCommand(Command):
 
