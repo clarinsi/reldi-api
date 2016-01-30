@@ -1,2 +1,5 @@
 Flask
 regex
+python-crfsuite
+numpy
+cython
