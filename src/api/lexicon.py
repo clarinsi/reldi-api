@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import time
+import sys
+import os
+sys.path.append(os.path.realpath('src/db'))
 from query_expression import QueryExpression
 from reldi_db import LexiconDB
 

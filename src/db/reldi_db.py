@@ -12,7 +12,7 @@ class DB(object):
 	'''Reldi database class'''
 
 	# Object constructor
-	def __init__(self, database):	
+	def __init__(self, database):
 		'''Create connection and cursor'''
 		# Connect to file database
 		#fileConnection = sqlite3.connect(database)
@@ -56,8 +56,8 @@ class DB(object):
 
 class LexiconDB(DB):
 	# Object constructor
-	def __init__(self, language):	
+	def __init__(self, language):
 		'''Override database'''
 		thispath = os.path.dirname(os.path.realpath(__file__))
-		database = thispath + '/../assets/lexdb_' + language
+		database = os.path.realpath('assets/') + '/lexdb_' + language
 		DB.__init__(self, database)
