@@ -4,55 +4,52 @@ import sqlite3
 import re
 
 def regexp(expr, item):
-	reg = re.compile(expr)
-	return reg.search(item) is not None
+    reg = re.compile(expr)
+    return reg.search(item) is not None
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 # Main database class
 class DB(object):
-	'''Reldi database class'''
+    # Must be passed into the constructor. Ensures the constructor is private
+    _THE_MAGIC_WORD = object()
 
-	# Object constructor
-	def __init__(self, database, row_factory=None):
-		'''Create connection and cursor'''
-		# Connect to file database
-		#fileConnection = sqlite3.connect(database)
-		#fileConnection.text_factory = str
-		# Create an in-memory database
-		#self.connection = sqlite3.connect(':memory:')
+    # Private object constructor
+    def __init__(self, token):
+        self._connection = None
+        self._client = None
+        if (token is not self._THE_MAGIC_WORD):
+            raise ValueError('This is a private constructor. Plase use ::getInstance()')
 
-		# Copy file database to memory
-		#query = "".join(line for line in fileConnection.iterdump())
-		#self.connection.executescript(query)
+    @staticmethod
+    def set_row_factory(connection):
+        connection.row_factory = dict_factory
 
-		self.connection = sqlite3.connect(database)
-		if (row_factory is not None):
-			self.connection.row_factory = row_factory
+    @staticmethod
+    def defineRegexp(connection):
+        connection.create_function("REGEXP", 2, regexp)
 
-		self.connection.create_function("REGEXP", 2, regexp)
-		self.connection.text_factory = str
-		self.client = self.connection.cursor()
+    # Method to execute sql query
+    def query(self, sql):
+        '''Execute an SQL query'''
+        if not self._client:
+            raise ValueError("Client not initialized") 
+            return False
 
-	# Object destructor
-	def __del__(self):
-		'''Close the database connection'''
-		self.connection.close()
+        self._client.execute(sql)
+        self._connection.commit()
+        return self._client.fetchall()
 
-	# Method to execute sql query
-	def query(self, sql):
-		'''Execute an SQL query'''
-		if not self.client:
-			return False
+    # Method to execute sql command
+    def command(self, sql, params = ()):
+        '''Execute an SQL query'''
+        if not self._client:
+            raise ValueError("Client not initialized") 
+            return False
 
-		self.client.execute(sql)
-		self.connection.commit()
-		return self.client.fetchall()
-
-	# Method to execute sql command
-	def command(self, sql, params = ()):
-		'''Execute an SQL query'''
-		if not self.client:
-			raise ValueError("Client not initialized") 
-			return False
-
-		self.client.execute(sql, params)
-		self.connection.commit()
+        self._client.execute(sql, params)
+        self._connection.commit()

@@ -3,10 +3,17 @@ from flask import make_response
 import xml.dom.minidom
 import hashlib, uuid
 
-def hashPassword(password):
+def generate_token():
+    return uuid.uuid4().hex
+
+def hash_password(password):
     salt = uuid.uuid4().hex
     hashed_password = hashlib.sha512(password + salt).hexdigest()
     return salt + ':' + hashed_password
+
+def verify_password(password, hash):
+    salt, hashed_password = hash.split(':')
+    return hashed_password == hashlib.sha512(password + salt).hexdigest()
 
 def empty(v):
     return v == ''
