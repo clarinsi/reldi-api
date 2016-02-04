@@ -5,11 +5,10 @@ dbpath = os.path.realpath('..')
 dbpath = os.path.realpath('../models')
 sys.path.append(dbpath)
 import re
-import time
 from users_db import UsersDB
 from model import Model
 from query_expression import QueryExpression
-from helpers import hash_password, verify_password, generate_token
+from helpers import hash_password, verify_password, generate_token, get_unix_timestamp
 from datetime import datetime, timedelta
 
 class AuthTokenModel(Model):
@@ -18,7 +17,7 @@ class AuthTokenModel(Model):
     
     @classmethod
     def model_props(cls):
-        return ['user_id', 'token', 'token_expiration_timestamp']
+        return ['user_id', 'token', 'token_expiration_timestamp', 'is_long_lasting']
     
     @classmethod
     def table_name(cls):
@@ -34,28 +33,19 @@ class AuthTokenModel(Model):
 
         Model.__init__(self);
 
-    def isExpired(self):
-        if (self.token_expiration_timestamp is None):
-            return False
+    def isValid(self):
+        if self.is_long_lasting:
+            return True
+        
+        then = self.token_expiration_timestamp
+        now = datetime.now()
+
+        return then > now
 
     def toDbModel(self):
         dbModel = super(AuthTokenModel, self).toDbModel()
-        unixtime = time.mktime(dbModel['token_expiration_timestamp'].timetuple())
-        dbModel['token_expiration_timestamp'] = unixtime
+        dbModel['token_expiration_timestamp'] = get_unix_timestamp(dbModel['token_expiration_timestamp'])
         return dbModel
-
-    @staticmethod
-    def getByUserId(user_id):
-        db = UsersDB.getInstance()
-        expression = QueryExpression()
-        expression.fromTable('auth_tokens')
-        expression.where('user_id', '=', user_id)
-        result = db.query(expression.toSQL())
-
-        if (len(result) == 0):
-            return []
-
-        return map(lambda x: AuthTokenModel.fromDatabase(x), result)
 
     @staticmethod
     def generate(is_long_lasting):
@@ -65,7 +55,7 @@ class AuthTokenModel(Model):
         if (is_long_lasting):
             token.token_expiration_timestamp = None
         else:
-            token.token_expiration_timestamp = datetime.now() + timedelta(hours = 1)
+            token.token_expiration_timestamp = datetime.now() + timedelta(hours = AuthTokenModel.SHORT_LASTING_TOKEN_HOURS_SPAN)
         return token
 
 

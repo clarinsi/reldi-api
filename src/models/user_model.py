@@ -11,7 +11,10 @@ from query_expression import QueryExpression
 from helpers import hash_password
 from helpers import verify_password
 from helpers import generate_token
+from helpers import get_unix_timestamp
 from auth_token_model import AuthTokenModel
+from datetime import datetime, timedelta
+
 
 class UserModel(Model):
 
@@ -32,10 +35,13 @@ class UserModel(Model):
 
     # Object constructor
     def __init__(self):
+        self.tokens = []
         Model.__init__(self);
+
 
     def setPassword(self, password):
         self.password = hash_password(password)
+
 
     def generateToken(self, password, is_long_lasting = False):
         isPasswordValid = verify_password(password, self.password)
@@ -45,31 +51,30 @@ class UserModel(Model):
         token.user_id = self.id
         return token
 
-    def getAuthTokens(self):
-        tokens = AuthTokenModel.getByUserId(self.id)
+
+    def getAllAuthTokens(self):
+        tokens = AuthTokenModel.getByAttribute('user_id', self.id)
         return tokens
 
-    def validateToken(self, token):
-        token = AuthTokenModel.getByAttributeSingle(['token', 'user_id'], [token, self.id]);
-        
 
-    @staticmethod
-    def getByUsername(username):
+    def getValidAuthTokens(self):
         db = UsersDB.getInstance()
-        expression = QueryExpression()
-        expression.fromTable('users')
-        expression.where('username', '=', username)
-        result = db.query(expression.toSQL())
+        sql = "SELECT * FROM {0} WHERE user_id = {1} AND (is_long_lasting = 1 OR token_expiration_timestamp > {2})"
+        expiration_timestamp = datetime.now()
+        sql = sql.format(AuthTokenModel.table_name(), self.id, get_unix_timestamp(expiration_timestamp))
+        result = db.query(sql)
 
         if (len(result) == 0):
-            return None
+            return []
 
-        if (len(result) > 1):
-            raise ValueError('Invalid database state: Duplicate usernames')
+        return map(lambda x: AuthTokenModel.fromDatabase(x), result)
 
-        data = result[0]
-        user = UserModel.fromDatabase(data)
-        return user
 
+    def validateToken(self, token):
+        token = AuthTokenModel.getByAttributesSingle(['token', 'user_id'], [token, self.id]);
+        if token is None:
+            return False
+
+        return token.isValid()
 
 

@@ -37,9 +37,15 @@ class GetUserByUsernameCommand(Command):
         
         # Read parameters
         username = i.get_argument('username')
-        user = UserModel.getByUsername(username)
-        print user
-        tokens = user.getAuthTokens()
+        user = UserModel.getByAttributeSingle('username', username)
+
+        print "all user tokens:"
+        tokens = user.getAllAuthTokens()
+        for token in tokens:
+            print token
+
+        print "valid user tokens:"
+        tokens = user.getValidAuthTokens()
         for token in tokens:
             print token
 

@@ -104,11 +104,27 @@ class Model(object):
         return o
 
     @classmethod
-    def getByAttributesSingle(cls, keys, values):
+    def getByAttribute(cls, key, value):
         db = UsersDB.getInstance()
         expression = QueryExpression()
         expression.fromTable(cls.table_name())
         expression.where(key, '=', value)
+        result = db.query(expression.toSQL())
+
+        if (len(result) == 0):
+            return []
+
+        data = result
+        return map(lambda x: cls.fromDatabase(x), result)
+
+    @classmethod
+    def getByAttributesSingle(cls, keys, values):
+        db = UsersDB.getInstance()
+        expression = QueryExpression()
+        expression.fromTable(cls.table_name())
+        for idx, key in enumerate(keys):
+            expression.where(key, '=', values[idx])
+
         result = db.query(expression.toSQL())
 
         if (len(result) == 0):
