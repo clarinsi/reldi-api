@@ -3,7 +3,7 @@ import sys, os
 dbpath = os.path.realpath('../db')
 dbpath = os.path.realpath('..')
 dbpath = os.path.realpath('../models')
-sys.path.append(dbpath)
+
 import re
 import time
 from users_db import UsersDB

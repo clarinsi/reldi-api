@@ -1,9 +1,10 @@
 import sys, os
 
-dbpath = os.path.realpath('../db')
-dbpath = os.path.realpath('..')
-dbpath = os.path.realpath('../models')
+dbpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../db')
 sys.path.append(dbpath)
+
+helperspath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/..')
+sys.path.append(helperspath)
 
 from users_db import UsersDB
 from model import Model
