@@ -53,6 +53,11 @@ class UserModel(Model):
     def validateToken(self, token):
         token = AuthTokenModel.getByAttributeSingle(['token', 'user_id'], [token, self.id]);
         
+    def block(self):
+        self.status = 'blocked'
+
+    def activate(self):
+        self.status = 'active'
 
     @staticmethod
     def getByUsername(username):

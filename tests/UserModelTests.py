@@ -61,6 +61,43 @@ class UserTokenModelTests(unittest.TestCase):
         dbUser = UserModel.getByUsername(user.username)
         self.assertIsNone(dbUser);        
 
+    def test_login_user(self):
+
+        username = 'user3'
+        password = '000000'
+        # Read parameters
+        user = UserModel()
+        user.username = username
+        user.setPassword(password)
+        user.project = 'ReLDI'
+        user.requests_limit = 1000
+        user.requests_made = 0
+        user.status = 'active'
+        user.role = 'admin'
+        user.save()
+
+        dbUser = UserModel.getByUsername(user.username)
+        token = dbUser.generateToken(password)
+        self.assertIsNotNone(token)
+
+    def test_login_user_invalid(self):
+
+        username = 'user4'
+        password = '000000'
+        # Read parameters
+        user = UserModel()
+        user.username = username
+        user.setPassword(password)
+        user.project = 'ReLDI'
+        user.requests_limit = 1000
+        user.requests_made = 0
+        user.status = 'active'
+        user.role = 'admin'
+        user.save()
+
+        dbUser = UserModel.getByUsername(user.username)
+        with self.assertRaises(ValueError):
+            token = dbUser.generateToken('not this password')
 
 
 if __name__ == '__main__':
