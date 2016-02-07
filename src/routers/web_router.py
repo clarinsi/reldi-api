@@ -3,8 +3,9 @@ import sys
 from flask import Blueprint
 from flask import render_template
 
-sys.path.append(os.path.realpath('db'))
-from user_db import UserActiveRecord
+modelsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../models')
+sys.path.append(modelsPath)
+from user_model import UserModel
 
 class WebRouter(Blueprint):
    def __init__(self, dc):
@@ -12,9 +13,14 @@ class WebRouter(Blueprint):
         staticFolder = os.path.realpath('src/web/templates/static')
         Blueprint.__init__(self, 'web_router', 'web_router', template_folder=templateFolder, static_folder=staticFolder)
 
-        @self.route('/')
-        def index(name):
-            user = UserActiveRecord.getByUsernameAndPassword('fpetkovski', '1004989')
-            return render_template('admin.html', name = name)
+        @self.route('/login')
+        def index():
+            user = UserModel.getByUsername('admin')
+            return render_template('login.html', name = 'Filip')
+
+       	@self.route('/login')
+        def index():
+            user = UserModel.getByUsername('admin')
+            return render_template('login.html', name = 'Filip')
 
 

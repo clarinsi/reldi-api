@@ -12,7 +12,6 @@ from helpers import hash_password, verify_password, generate_token, to_unix_time
 from datetime import datetime, timedelta
 import pytz
 
-
 class AuthTokenModel(Model):
 
     SHORT_LASTING_TOKEN_HOURS_SPAN = 1
