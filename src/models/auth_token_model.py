@@ -69,7 +69,6 @@ class AuthTokenModel(Model):
         
         return token
 
-
     @classmethod
     def fromDatabase(cls, row):
         model = super(AuthTokenModel, cls).fromDatabase(row)

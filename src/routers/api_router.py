@@ -9,7 +9,13 @@ from flask.ext.cors import CORS
 from flask import request
 from flask import make_response
 from flask import Response
+from functools import wraps
+import os
 
+modelsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../models')
+sys.path.append(modelsPath)
+from user_model import UserModel
+from auth_token_model import AuthTokenModel
 
 class ServerError(Exception):
     status_code = 500
@@ -46,6 +52,34 @@ class ApiRouter(Blueprint):
     def __init__(self, dc):
         Blueprint.__init__(self, 'api_router', 'api_router')
 
+        def authenticate(api_method):
+            def error_message(message):
+                return jsonify({
+                    'success': False,
+                    'result': [],
+                    'count': 0,
+                    'message': message
+                }, ensure_ascii=False)
+
+            @wraps(api_method)
+            def verify(*args, **kwargs):
+                auth_token_string = request.cookies.get('auth-token')
+                authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
+                if authToken is not None and authToken.isValid():
+                    user = UserModel.getByPk(authToken.user_id)
+                    # Log request
+                    if user is not None:
+                        user.logRequest()
+                        user.save()
+                        return api_method(*args, **kwargs)
+                    else:
+                        return error_message('Invalid token')
+                    
+                else:
+                    return error_message('Invalid token')
+
+            return verify
+
         def get_text(format, request):
             if format == 'json':
                 return request.args.get('text')
@@ -80,6 +114,7 @@ class ApiRouter(Blueprint):
            return response
 
         @self.route('/<lang>/lexicon', methods=['GET'])
+        @authenticate
         def lexicon(lang):
 
             surface = request.args.get('surface')
@@ -124,6 +159,7 @@ class ApiRouter(Blueprint):
             }, ensure_ascii=False)
 
         @self.route('/<lang>/segment', methods=['GET'])
+        @authenticate
         def segment(lang):
             format = request.args.get('format')
             if not isset(format):
@@ -142,6 +178,7 @@ class ApiRouter(Blueprint):
                 return Response(TCF(lang, text, result), mimetype='text/xml')
 
         @self.route('/<lang>/tag', methods=['GET'])
+        @authenticate
         def tag(lang):
             format = request.args.get('format')
             if not isset(format):
@@ -158,6 +195,7 @@ class ApiRouter(Blueprint):
                 return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
 
         @self.route('/<lang>/tag_lemmatise', methods=['GET'])
+        @authenticate
         def tag_lematise(lang):
             format = request.args.get('format')
             if not isset(format):
@@ -173,6 +211,7 @@ class ApiRouter(Blueprint):
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
 
         @self.route('/<lang>/lemmatise', methods=['GET'])
+        @authenticate
         def lemmatise(lang):
             format = request.args.get('format')
             if not isset(format):

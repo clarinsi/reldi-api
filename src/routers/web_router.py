@@ -16,7 +16,6 @@ class WebRouter(Blueprint):
         staticFolder = os.path.realpath('src/web/templates/static')
         Blueprint.__init__(self, 'web_router', 'web_router', template_folder=templateFolder, static_folder=staticFolder)
 
-
         def authenticate(roles):
             def wrapper(api_method):
                 @wraps(api_method)

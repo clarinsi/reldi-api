@@ -57,22 +57,14 @@ for lang in ['hr', 'sl', 'sr']:
 
 print 'Initialization of models done'
 
-# Close users db connection when request ends
-@app.teardown_request
-def teardown_request(exception):
-    db = dc['users_db']
-    if db is not None:
-        db.close()
-
-
-#apiRouter = ApiRouter(dc)
-#app.register_blueprint(apiRouter, url_prefix='/api/v1')
+apiRouter = ApiRouter(dc)
+app.register_blueprint(apiRouter, url_prefix='/api/v1')
 # dc = {}
 webRouter = WebRouter(dc)
 app.register_blueprint(webRouter, url_prefix='/web')
 
 def index(): 
-    app.run(debug=True)
+    app.run()
 
 if __name__ == "__main__":
 

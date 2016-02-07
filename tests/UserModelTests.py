@@ -31,6 +31,8 @@ class UserTokenModelTests(unittest.TestCase):
         user.requests_made = 0
         user.status = 'active'
         user.role = 'admin'
+        user.logRequest()
+        user.logRequest()
         user.save()
 
         dbUser = UserModel.getByUsername(user.username)
@@ -38,7 +40,7 @@ class UserTokenModelTests(unittest.TestCase):
         self.assertEqual(dbUser.username, username)
         self.assertEqual(dbUser.project, 'ReLDI')
         self.assertEqual(dbUser.requests_limit, 1000)
-        self.assertEqual(dbUser.requests_made, 0)
+        self.assertEqual(dbUser.requests_made, 2)
         self.assertEqual(dbUser.status, 'active')
         self.assertEqual(dbUser.role, 'admin')
 
