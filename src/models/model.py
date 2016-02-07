@@ -31,7 +31,8 @@ class Model(object):
     def delete(self):
         sql = "DELETE FROM {0} WHERE {1} = ?".format(self.tn, self.pk)
         db = UsersDB.getInstance()
-        db.command(sql, (getattr(self, self.pk)))
+        pk = getattr(self, self.pk)
+        db.command(sql, (pk,))
         setattr(self, self.pk, None)
 
     def insert(self):

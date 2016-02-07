@@ -23,7 +23,9 @@ class UsersDB(DB):
 
     @staticmethod
     def getInstance():
-        databaseName = os.path.realpath('../../assets/') + '/users';
+        assetsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../assets/')
+    
+        databaseName = assetsPath + '/users';
         if (UsersDB._instance is None):
             UsersDB._instance = UsersDB(DB._THE_MAGIC_WORD)
             if (UsersDB._instance._connection is None):
@@ -74,7 +76,7 @@ class UsersDB(DB):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 token TEXT,
-                token_expiration_timestamp TEXT,
+                expiration_timestamp TEXT,
                 is_long_lasting BOOL,
                 updated TEXT NOT NULL,
                 created TEXT NOT NULL,

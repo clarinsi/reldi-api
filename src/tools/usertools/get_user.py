@@ -3,6 +3,7 @@ import sys
 import os
 import regex
 import codecs
+from datetime import datetime
 
 dbpath = os.path.realpath('../models')
 sys.path.append(dbpath)
@@ -14,7 +15,7 @@ from auth_token_model import AuthTokenModel
 
 class GetUserByUsernameCommand(Command):
 
-    name = 'user:get-by-username'
+    name = 'user:get'
 
     description = 'Adds a user to the users table'
 
@@ -39,17 +40,10 @@ class GetUserByUsernameCommand(Command):
         
         # Read parameters
         username = i.get_argument('username')
-        user = UserModel.getByAttributeSingle('username', username)
-
-        print "all user tokens:"
-        tokens = user.getAllAuthTokens()
+        user = UserModel.getByUsername(username)
+        tokens = user.getAuthTokens()
         for token in tokens:
-            print token
-
-        print "valid user tokens:"
-        tokens = user.getValidAuthTokens()
-        for token in tokens:
-            print token
+            print token.isValid()
 
 
 

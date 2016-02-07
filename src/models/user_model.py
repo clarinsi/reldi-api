@@ -1,9 +1,10 @@
 import sys, os
 
-dbpath = os.path.realpath('../db')
-dbpath = os.path.realpath('..')
-dbpath = os.path.realpath('../models')
+dbpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../db')
 sys.path.append(dbpath)
+
+helperspath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/..')
+sys.path.append(helperspath)
 
 from users_db import UsersDB
 from model import Model
@@ -35,7 +36,7 @@ class UserModel(Model):
 
     # Object constructor
     def __init__(self):
-        self.tokens = []
+        self.token = None
         Model.__init__(self);
 
 
@@ -51,11 +52,21 @@ class UserModel(Model):
         token.user_id = self.id
         return token
 
+    def loadToken(self, token):
+        self.token = AuthTokenModel.getByAttributesSingle(['user_id', 'token'], [self.id, token])
 
-    def getAllAuthTokens(self):
-        tokens = AuthTokenModel.getByAttribute('user_id', self.id)
+    def isAuthorized(self):
+        return self.token is not None and token.isValid()
+
+    def getAuthTokens(self):
+        tokens = AuthTokenModel.getByUserId(self.id)
         return tokens
 
+    def block(self):
+        self.status = 'blocked'
+
+    def activate(self):
+        self.status = 'active'
 
     def getValidAuthTokens(self):
         db = UsersDB.getInstance()
@@ -68,7 +79,6 @@ class UserModel(Model):
             return []
 
         return map(lambda x: AuthTokenModel.fromDatabase(x), result)
-
 
     def validateToken(self, token):
         token = AuthTokenModel.getByAttributesSingle(['token', 'user_id'], [token, self.id]);
