@@ -99,6 +99,37 @@ class UserTokenModelTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             token = dbUser.generateToken('not this password')
 
-
+    def test_update_user(self):
+        username = 'user78'
+        password = '000000'
+        # Read parameters
+        user = UserModel()
+        user.username = username
+        user.setPassword(password)
+        user.project = 'ReLDI'
+        user.requests_limit = 1000
+        user.requests_made = 0
+        user.status = 'active'
+        user.role = 'admin'
+        user.save()
+		
+        dbUser = UserModel.getByUsername(user.username) 	
+		
+        new_username = 'user787'
+        dbUser.username = new_username
+        dbUser.project = 'RelDI2'
+        dbUser.requests_limit = 2000
+        dbUser.requests_made = 4
+        dbUser.status = 'block'
+        dbUser.role = 'employe'
+        dbUser.save()
+		
+        self.assertEqual(dbUser.username, 'user66')
+        self.assertEqual(dbUser.project, 'ReLDI2')
+        self.assertEqual(dbUser.requests_limit, 2000)
+        self.assertEqual(dbUser.requests_made, 4)
+        self.assertEqual(dbUser.status, 'block')
+        self.assertEqual(dbUser.role, 'employe')
+		
 if __name__ == '__main__':
     unittest.main()
