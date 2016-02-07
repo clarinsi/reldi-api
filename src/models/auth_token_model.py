@@ -8,11 +8,7 @@ import re
 from users_db import UsersDB
 from model import Model
 from query_expression import QueryExpression
-<<<<<<< HEAD
-from helpers import hash_password, verify_password, generate_token, get_unix_timestamp
-=======
 from helpers import hash_password, verify_password, generate_token, to_unix_timestamp
->>>>>>> c7ab339f33d7f110f0e4107afa1ddb7cf2abead9
 from datetime import datetime, timedelta
 import pytz
 
