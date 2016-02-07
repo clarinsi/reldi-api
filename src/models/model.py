@@ -57,18 +57,15 @@ class Model(object):
 
         self.updated = datetime.now()
         
+        dbModel = self.toDbModel()
+        dbModelTuple = [(key, value) for key, value in dbModel.iteritems()]
+        dbModelKeys = [key for key, value in dbModelTuple]
+        dbModelValues = [value for key, value in dbModelTuple]
+        
         sql = "UPDATE {0} SET ".format(self.tn)
-        values = [] 
-        placeholders = []
-        for prop in self.all_props:
-            value = getattr(self, prop)
-            values.append(self.toDbValue(prop, value))
-            placeholders.append("{0} = ?".format(prop))
-
-        placeholders = ", ".join(placeholders)
-        sql += placeholders
+        sql += ", ".join(map(lambda x: "{0}=?".format(x), dbModelKeys))
         db = UsersDB.getInstance()
-        db.command(sql, values);
+        db.command(sql, dbModelValues);
 
     def toDbModel(self):
         result = {}
