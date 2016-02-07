@@ -62,8 +62,10 @@ class Model(object):
         dbModelKeys = [key for key, value in dbModelTuple]
         dbModelValues = [value for key, value in dbModelTuple]
         
-        sql = "UPDATE {0} SET ".format(self.tn)
-        sql += ", ".join(map(lambda x: "{0}=?".format(x), dbModelKeys))
+        sql = "UPDATE {0} SET {1} WHERE {2}={3}"
+        updateSql = ", ".join(map(lambda x: "{0}=?".format(x), dbModelKeys))
+        sql = sql.format(self.tn, updateSql, self.pk, getattr(self, self.pk))
+        
         db = UsersDB.getInstance()
         db.command(sql, dbModelValues);
 

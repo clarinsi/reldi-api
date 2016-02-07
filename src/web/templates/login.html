@@ -17,39 +17,30 @@
 
 					</div>
 					<div class="panel-body">
-						<form class="form-horizontal" role="form" id="loginForm">
+						<form class="form-horizontal" role="form" id="loginForm" method="POST">
 							<div class="form-group">
-								<label for="inputUsername" class="col-sm-3 control-label">Username</label>
+								<label for="username" class="col-sm-3 control-label">Username</label>
 								<div class="col-sm-9">
-									<input type="text" class="form-control" id="inputUsername" placeholder="Username" required="">
+									<input type="text" class="form-control" name="username"
+											id="username" placeholder="Username" required="required">
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="inputProject" class="col-sm-3 control-label">Project</label>
+								<label for="password" class="col-sm-3 control-label">Password</label>
 								<div class="col-sm-9">
-									<input type="text" class="form-control" id="inputProject" placeholder="Project" required="">
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="inputPassword" class="col-sm-3 control-label">Password</label>
-								<div class="col-sm-9">
-									<input type="password" class="form-control" id="inputPassword" placeholder="Password" required="">
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="textAreaNote" class="col-sm-3 control-label">Note</label>
-								<div class="col-sm-9">
-									<textarea class="form-control" rows="3" id="textAreaNote"></textarea>
+									<input type="password" class="form-control" name="password"
+											id="password" placeholder="Password" required="">
 								</div>
 							</div>
 							<div class="form-group last">
 								<div class="col-sm-offset-3 col-sm-9">
-									<button type="submit" class="btn btn-success btn-sm sign-in">Sign in</button>
+									<button type="submit" class="btn btn-success btn-sm sign-in">Log in
+									</button>
 								</div>
 							</div>
 						</form>
 					</div>
-					<div class="panel-footer">Not Registered? <a href="request_access.html" class="">Request access here</a>
+					<div class="panel-footer">Not Registered? <a href="/register" class="">Request access here</a>
 					</div>
 				</div>
 			</div>
@@ -61,10 +52,5 @@
 
 </body>
 <script>
-$(".sign-in").click(function (e) {
-	e.preventDefault();
-	//if administrator go to admin page - standard post request
-	window.location.replace("admin.html");
 
-});
 </script>

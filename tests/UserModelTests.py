@@ -120,16 +120,17 @@ class UserTokenModelTests(unittest.TestCase):
         dbUser.project = 'RelDI2'
         dbUser.requests_limit = 2000
         dbUser.requests_made = 4
-        dbUser.status = 'block'
-        dbUser.role = 'employe'
+        dbUser.status = 'blocked'
+        dbUser.role = 'user'
         dbUser.save()
 		
-        self.assertEqual(dbUser.username, 'user66')
-        self.assertEqual(dbUser.project, 'ReLDI2')
+        dbUser = UserModel.getByUsername(new_username)     
+        self.assertEqual(dbUser.username, new_username)
+        self.assertEqual(dbUser.project, 'RelDI2')
         self.assertEqual(dbUser.requests_limit, 2000)
         self.assertEqual(dbUser.requests_made, 4)
-        self.assertEqual(dbUser.status, 'block')
-        self.assertEqual(dbUser.role, 'employe')
+        self.assertEqual(dbUser.status, 'blocked')
+        self.assertEqual(dbUser.role, 'user')
 		
 if __name__ == '__main__':
     unittest.main()

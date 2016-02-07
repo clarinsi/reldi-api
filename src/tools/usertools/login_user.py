@@ -46,6 +46,7 @@ class LoginUserWithCredentials(Command):
         password = i.get_argument('password')
 
         user = UserModel.getByAttributeSingle('username', username)
+        user.save()
         token = user.generateToken(password)
         token.save()
         for token in user.getValidAuthTokens():
