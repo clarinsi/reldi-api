@@ -33,6 +33,7 @@ class UserModel(Model):
 
     # Object constructor
     def __init__(self):
+        self.token = None
         Model.__init__(self);
 
     def setPassword(self, password):
@@ -46,13 +47,16 @@ class UserModel(Model):
         token.user_id = self.id
         return token
 
+    def loadToken(self, token):
+        self.token = AuthTokenModel.getByAttributesSingle(['user_id', 'token'], [self.id, token])
+
+    def isAuthorized(self):
+        return self.token is not None and token.isValid()
+
     def getAuthTokens(self):
         tokens = AuthTokenModel.getByUserId(self.id)
         return tokens
 
-    def validateToken(self, token):
-        token = AuthTokenModel.getByAttributeSingle(['token', 'user_id'], [token, self.id]);
-        
     def block(self):
         self.status = 'blocked'
 

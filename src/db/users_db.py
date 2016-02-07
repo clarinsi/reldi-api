@@ -76,7 +76,7 @@ class UsersDB(DB):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 token TEXT,
-                token_expiration_timestamp TEXT,
+                expiration_timestamp TEXT,
                 is_long_lasting BOOL,
                 updated TEXT NOT NULL,
                 created TEXT NOT NULL,

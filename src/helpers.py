@@ -2,6 +2,8 @@ import json
 from flask import make_response
 import xml.dom.minidom
 import hashlib, uuid
+from datetime import datetime, timedelta
+import pytz
 
 def generate_token():
     return uuid.uuid4().hex
@@ -14,6 +16,13 @@ def hash_password(password):
 def verify_password(password, hash):
     salt, hashed_password = hash.split(':')
     return hashed_password == hashlib.sha512(password + salt).hexdigest()
+
+def to_unix_timestamp(dt):
+    tz = pytz.timezone('CET')
+        
+    dt_with_tz = tz.localize(dt, is_dst=None)
+    ts = (dt_with_tz - datetime(1970, 1, 1, tzinfo=pytz.utc)).total_seconds()
+    return ts
 
 def empty(v):
     return v == ''

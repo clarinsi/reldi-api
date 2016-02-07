@@ -35,7 +35,7 @@ class ResetDB(Command):
         """
         
         UsersDB.getInstance().reset()
-
+        
         user = UserModel()
         user.username = 'admin'
         user.setPassword('admin')
@@ -45,6 +45,7 @@ class ResetDB(Command):
         user.requests_limit = 1000
         user.requests_made = 0
         user.save()
+
 
 
 

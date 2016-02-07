@@ -9,8 +9,9 @@ import time
 from users_db import UsersDB
 from model import Model
 from query_expression import QueryExpression
-from helpers import hash_password, verify_password, generate_token
+from helpers import hash_password, verify_password, generate_token, to_unix_timestamp
 from datetime import datetime, timedelta
+import pytz
 
 class AuthTokenModel(Model):
 
@@ -18,7 +19,7 @@ class AuthTokenModel(Model):
     
     @classmethod
     def model_props(cls):
-        return ['user_id', 'token', 'token_expiration_timestamp']
+        return ['user_id', 'token', 'expiration_timestamp', 'is_long_lasting']
     
     @classmethod
     def table_name(cls):
@@ -34,14 +35,21 @@ class AuthTokenModel(Model):
 
         Model.__init__(self);
 
-    def isExpired(self):
-        if (self.token_expiration_timestamp is None):
-            return False
+    def isValid(self):
+        if self.expiration_timestamp is None:
+            return True
+
+        then = to_unix_timestamp(self.expiration_timestamp)
+        now = to_unix_timestamp(datetime.now())
+
+        return then > now
+
+    def extend(self):
+        self.expiration_timestamp = to_unix_timestamp(datetime.now() + AuthTokenModel.SHORT_LASTING_TOKEN_HOURS_SPAN)
 
     def toDbModel(self):
         dbModel = super(AuthTokenModel, self).toDbModel()
-        unixtime = time.mktime(dbModel['token_expiration_timestamp'].timetuple())
-        dbModel['token_expiration_timestamp'] = unixtime
+        dbModel['expiration_timestamp'] = to_unix_timestamp(dbModel['expiration_timestamp'])
         return dbModel
 
     @staticmethod
@@ -63,15 +71,15 @@ class AuthTokenModel(Model):
         token.token = generate_token()
         token.is_long_lasting = is_long_lasting
         if (is_long_lasting):
-            token.token_expiration_timestamp = None
+            token.expiration_timestamp = None
         else:
-            token.token_expiration_timestamp = datetime.now() + timedelta(hours = 1)
+            token.expiration_timestamp = datetime.now() + timedelta(hours = AuthTokenModel.SHORT_LASTING_TOKEN_HOURS_SPAN)
         return token
 
 
     @classmethod
     def fromDatabase(cls, row):
         model = super(AuthTokenModel, cls).fromDatabase(row)
-        model.token_expiration_timestamp = datetime.fromtimestamp(float(model.token_expiration_timestamp))
+        model.expiration_timestamp = datetime.fromtimestamp(float(model.expiration_timestamp))
         return model
 
