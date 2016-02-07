@@ -1,5 +1,8 @@
-Flask
+flask
+flask-cors
+tornado
 regex
 python-crfsuite
 numpy
 cython
+pytz

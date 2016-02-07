@@ -20,7 +20,7 @@ class AuthTokenModel(Model):
     
     @classmethod
     def model_props(cls):
-        return ['user_id', 'token', 'expiration_timestamp', 'is_long_lasting']
+        return ['user_id', 'token', 'expiration_timestamp']
     
     @classmethod
     def table_name(cls):
@@ -36,8 +36,11 @@ class AuthTokenModel(Model):
 
         Model.__init__(self);
 
+    def isLongLasting(self):
+        return self.expiration_timestamp is None
+
     def isValid(self):
-        if self.expiration_timestamp is None:
+        if self.isLongLasting():
             return True
 
         then = to_unix_timestamp(self.expiration_timestamp)
@@ -50,7 +53,8 @@ class AuthTokenModel(Model):
 
     def toDbModel(self):
         dbModel = super(AuthTokenModel, self).toDbModel()
-        dbModel['expiration_timestamp'] = to_unix_timestamp(dbModel['expiration_timestamp'])
+        if dbModel['expiration_timestamp'] is not None:
+            dbModel['expiration_timestamp'] = to_unix_timestamp(dbModel['expiration_timestamp'])
         return dbModel
 
     @staticmethod
@@ -62,12 +66,14 @@ class AuthTokenModel(Model):
             token.expiration_timestamp = None
         else:
             token.expiration_timestamp = datetime.now() + timedelta(hours = AuthTokenModel.SHORT_LASTING_TOKEN_HOURS_SPAN)
+        
         return token
 
 
     @classmethod
     def fromDatabase(cls, row):
         model = super(AuthTokenModel, cls).fromDatabase(row)
-        model.expiration_timestamp = datetime.fromtimestamp(float(model.expiration_timestamp))
+        if model.expiration_timestamp is not None:
+            model.expiration_timestamp = datetime.fromtimestamp(float(model.expiration_timestamp))
         return model
 

@@ -60,9 +60,12 @@ class WebRouter(Blueprint):
             if username is not None and password is not None:
                 user = UserModel.getByUsername(username)
                 if user is not None:
-                    token = user.generateToken(password)
-                    token.save()
-                    response.set_cookie('auth-token', token.token)
+                    try:
+                        token = user.generateToken(password)
+                        token.save()
+                        response.set_cookie('auth-token', token.token)
+                    except ValueError:
+                        flash('Invalid username or password', 'danger')
                     # flash('You were successfully logged in', 'success')
                 else:
                     flash('Invalid username or password', 'danger')

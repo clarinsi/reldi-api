@@ -78,7 +78,6 @@ class UsersDB(DB):
                 user_id INTEGER NOT NULL,
                 token TEXT,
                 expiration_timestamp TEXT,
-                is_long_lasting BOOL,
                 updated TEXT NOT NULL,
                 created TEXT NOT NULL,
                 FOREIGN KEY(user_id) REFERENCES users(id)

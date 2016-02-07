@@ -38,10 +38,8 @@ class UserModel(Model):
         self.token = None
         Model.__init__(self);
 
-
     def setPassword(self, password):
         self.password = hash_password(password)
-
 
     def generateToken(self, password, is_long_lasting = False):
         isPasswordValid = verify_password(password, self.password)

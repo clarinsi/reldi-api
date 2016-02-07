@@ -24,6 +24,7 @@ class UserTokenModelTests(unittest.TestCase):
         # Read parameters
         user = UserModel()
         user.username = username
+        user.email = 'user1@user.com'
         user.setPassword('000000')
         user.project = 'ReLDI'
         user.requests_limit = 1000
@@ -46,6 +47,7 @@ class UserTokenModelTests(unittest.TestCase):
         # Read parameters
         user = UserModel()
         user.username = username
+        user.email = 'user2@user.com'
         user.setPassword('000000')
         user.project = 'ReLDI'
         user.requests_limit = 1000
@@ -68,6 +70,7 @@ class UserTokenModelTests(unittest.TestCase):
         # Read parameters
         user = UserModel()
         user.username = username
+        user.email = 'user3@user.com'
         user.setPassword(password)
         user.project = 'ReLDI'
         user.requests_limit = 1000
@@ -87,6 +90,7 @@ class UserTokenModelTests(unittest.TestCase):
         # Read parameters
         user = UserModel()
         user.username = username
+        user.email = 'user4@user.com'
         user.setPassword(password)
         user.project = 'ReLDI'
         user.requests_limit = 1000
@@ -105,6 +109,7 @@ class UserTokenModelTests(unittest.TestCase):
         # Read parameters
         user = UserModel()
         user.username = username
+        user.email = 'user5@user.com'
         user.setPassword(password)
         user.project = 'ReLDI'
         user.requests_limit = 1000
@@ -138,6 +143,7 @@ class UserTokenModelTests(unittest.TestCase):
         password = '000000'
         user = UserModel()
         user.username = username
+        user.email = 'user8@user.com'
         user.setPassword(password)
         user.project = 'ReLDI'
         user.requests_limit = 1000
