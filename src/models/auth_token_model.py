@@ -43,7 +43,7 @@ class AuthTokenModel(Model):
         return then > now
 
     def extend(self):
-        self.expiration_timestamp = to_unix_timestamp(datetime.now() + AuthTokenModel.SHORT_LASTING_TOKEN_HOURS_SPAN)
+        self.expiration_timestamp = to_unix_timestamp(datetime.now() + timedelta(hours = AuthTokenModel.SHORT_LASTING_TOKEN_HOURS_SPAN))
 
     def toDbModel(self):
         dbModel = super(AuthTokenModel, self).toDbModel()
