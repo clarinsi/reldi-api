@@ -9,6 +9,8 @@ sys.path.append(dbpath)
 
 from cleo import Command, InputArgument, InputOption
 from user_model import UserModel
+from auth_token_model import AuthTokenModel
+
 
 class GetUserByUsernameCommand(Command):
 

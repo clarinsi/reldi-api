@@ -11,6 +11,7 @@ from query_expression import QueryExpression
 from helpers import hash_password, verify_password, generate_token, get_unix_timestamp
 from datetime import datetime, timedelta
 
+
 class AuthTokenModel(Model):
 
     SHORT_LASTING_TOKEN_HOURS_SPAN = 1

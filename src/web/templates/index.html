@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
+    <link href="static/bootstrap/css/roboto.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/material.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/ripples.min.css" rel="stylesheet">
+    <link href="static/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+<div class="panel panel-default">
+<div class="panel-heading"> <strong class="">Index page</strong>
+</div>
+<div class="panel-body">
+    <div class="col-md-8 col-md-offset-2">
+        <ul class="nav nav-pills">
+            <li class="active"><a data-toggle="tab" href="#lexicon-form">Lexicon</a></li>
+            <li class=""><a data-toggle="tab" href="#segmenter-form">Segmenter</a></li>
+			<li class=""><a data-toggle="tab" href="#lemmatiser-form">Lemmatiser</a></li>
+			<li class="dropdown">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#">Tager
+				<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a data-toggle="tab" href="#tag-form">Tag</a></li>
+					<li><a data-toggle="tab" href="#tag-lemmatise-form">Tag Lemmatise</a></li>
+					
+				</ul>
+			</li>
+        </ul>
+
+        <div class="bs-component">
+            <div class="tab-content">
+                <form id="lexicon-form" class="form-horizontal tab-pane fade in active" >
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="inputSurface" class="col-md-2 control-label">Surface</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputMsd" class="col-md-2 control-label">Msd</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputRhymesWith" placeholder="Rhymes with">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-10 col-md-offset-2">
+                                <button type="submit" class="btn btn-primary search-lexicon">Search</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <label for="textArea" class="col-md-2 control-label">Result</label>
+                        <div class="col-md-10">
+                            <textarea readonly="readonly" class="form-control display-result-lexicon" rows="3" id="textArea"></textarea>
+                            <div class="help-block">
+                                Result set
+                                <span id="lexicon-response-time"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+
+                <form id="segmenter-form" class="form-horizontal tab-pane fade">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="inputSentenceSegmenter" class="col-md-2 control-label">Sentence</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputSentenceSegmenter" placeholder="Text">
+                            </div>
+                        </div>
+						<div class="form-group">
+                            <div class="col-md-10 col-md-offset-2">
+                                <button type="submit" class="btn btn-primary search-segmenter">Search</button>
+                            </div>
+                        </div>
+					</fieldset>
+					<div class="form-group">
+                        <label for="textArea" class="col-md-2 control-label">Result</label>
+                        <div class="col-md-10">
+                            <textarea readonly="readonly" class="form-control display-result-segmenter" rows="3" id="textArea"></textarea>
+                            <div class="help-block">
+                                Result set
+                                <span id="segmenter-response-time"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+				<form id="lemmatiser-form" class="form-horizontal tab-pane fade">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="inputSentenceLemmatiser" class="col-md-2 control-label">Sentence</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputSentenceLemmatiser" placeholder="Text">
+                            </div>
+                        </div>
+						<div class="form-group">
+                            <div class="col-md-10 col-md-offset-2">
+                                <button type="submit" class="btn btn-primary search-lemmatiser">Search</button>
+                            </div>
+                        </div>
+					</fieldset>
+					<div class="form-group">
+                        <label for="textArea" class="col-md-2 control-label">Result</label>
+                        <div class="col-md-10">
+                            <textarea readonly="readonly" class="form-control display-result-lemmatiser" rows="3" id="textArea"></textarea>
+                            <div class="help-block">
+                                Result set
+                                <span id="lemmatiser-response-time"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+				
+					
+		
+				<form id="tag-form" class="form-horizontal tab-pane fade">
+				<span>Tag</span>
+					<fieldset>
+						<div class="form-group">
+							<label for="inputSentenceTag" class="col-md-2 control-label">Sentence</label>
+							<div class="col-md-10">
+								<input type="text" class="form-control" id="inputSentenceTag" placeholder="Text">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-10 col-md-offset-2">
+								<button type="submit" class="btn btn-primary search-tag">Search</button>
+							</div>
+						</div>
+					</fieldset>
+					<div class="form-group">
+						<label for="textArea" class="col-md-2 control-label">Result</label>
+					<div class="col-md-10">
+						<textarea readonly="readonly" class="form-control display-result-tag" rows="3" id="textArea"></textarea>
+						<div class="help-block">
+							Result set 
+						<span id="tag-response-time"></span>
+						</div>
+
+					</div>
+					</div>
+				</form>
+				<form id="tag-lemmatise-form" class="form-horizontal tab-pane fade">
+					<span>Tag Lemmatise</span>
+					<fieldset>
+						<div class="form-group">
+							<label for="inputSentenceTagLemmatise" class="col-md-2 control-label">Sentence</label>
+							<div class="col-md-10">
+								<input type="text" class="form-control" id="inputSentenceTagLemmatise" placeholder="Text">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-10 col-md-offset-2">
+								<button type="submit" class="btn btn-primary search-tag-lemmatise">Search</button>
+							</div>
+						</div>
+					</fieldset>
+					<div class="form-group">
+						<label for="textArea" class="col-md-2 control-label">Result</label>
+					<div class="col-md-10">
+						<textarea readonly="readonly" class="form-control display-result-tag-lemmatise" rows="3" id="textArea"></textarea>
+						<div class="help-block">
+							Result set
+						<span id="tag-lemmatise-response-time"></span>
+						</div>
+
+					</div>
+					</div>
+				</form>
+			
+					
+				
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+</body>
+<script>
+$(".search-lexicon").click(function (e) {
+        e.preventDefault();
+        var surface = $("#inputSurface").val();
+        var lemma = $("#inputLemma").val();
+        var msd = $("#inputMsd").val();
+//        var rhymes_with= $("#inputRhymesWith").val();
+        var no_of_syllables = $("#inputNoOfSyllables").val();
+
+        $(".display-result-lexicon").empty();
+        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/lexicon';
+        var data = {
+            surface: surface !== '' ? surface : null,
+            lemma: lemma !== '' ? lemma : null,
+            msd: msd !== '' ? msd : null,
+            no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null
+        };
+
+        $(".search-lexicon").text('Searching ...').attr('disabled', 'disabled');
+        var sendDate = (new Date()).getTime();
+        jQuery.ajax({
+            type:"GET",
+            dataType: 'json',
+            url: url,
+            data: data,
+            success:function (data) {
+                if (data.count > 0) {
+                    $(".display-result-lexicon" ).append(JSON.stringify(data.result));
+                } else {
+                    $(".display-result-lexicon" ).append('No matching results');
+                }
+            },
+            error: function(response) {
+                $(".display-result-lexicon").append(JSON.parse(response.responseText));
+            },
+            complete: function(data) {
+                var receiveDate = (new Date()).getTime();
+                var responseTimeMs = receiveDate - sendDate;
+                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+                $('#lexicon-response-time').text(responseTimeText);
+                $(".search-lexicon").text('Search').removeAttr('disabled');
+            }
+
+        });
+
+
+    });
+$(".search-segmenter").click(function (e) {
+        e.preventDefault();
+        var sentence = $("#inputSentenceSegmenter").val();
+
+        $(".display-result-segmenter").empty();
+        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/segment';
+        var data = {
+            sentence: sentence !== '' ? sentence : null
+        };
+
+        $(".search-segmenter").text('Searching ...').attr('disabled', 'disabled');
+        var sendDate = (new Date()).getTime();
+        jQuery.ajax({
+            type:"GET",
+            dataType: 'json',
+            url: url,
+            data: data,
+            success:function (data) {
+                if (data.count > 0) {
+                    $(".display-result-segmenter" ).append(JSON.stringify(data.result));
+                } else {
+                    $(".display-result-segmenter" ).append('No matching results');
+                }
+            },
+            error: function(response) {
+                $(".display-result-segmenter").append(JSON.parse(response.responseText));
+            },
+            complete: function(data) {
+                var receiveDate = (new Date()).getTime();
+                var responseTimeMs = receiveDate - sendDate;
+                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+                $('#segmenter-response-time').text(responseTimeText);
+                $(".search-segmenter").text('Search').removeAttr('disabled');
+            }
+
+        });
+
+
+    });	
+$(".search-lemmatiser").click(function (e) {
+        e.preventDefault();
+        var sentence = $("#inputSentenceLemmatiser").val();
+
+        $(".display-result-lemmatiser").empty();
+        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/lemmatise';
+        var data = {
+            sentence: sentence !== '' ? sentence : null
+        };
+
+        $(".search-lemmatiser").text('Searching ...').attr('disabled', 'disabled');
+        var sendDate = (new Date()).getTime();
+        jQuery.ajax({
+            type:"GET",
+            dataType: 'json',
+            url: url,
+            data: data,
+            success:function (data) {
+                if (data.count > 0) {
+                    $(".display-result-lemmatiser" ).append(JSON.stringify(data.result));
+                } else {
+                    $(".display-result-lemmatiser" ).append('No matching results');
+                }
+            },
+            error: function(response) {
+                $(".display-result-lemmatiser").append(JSON.parse(response.responseText));
+            },
+            complete: function(data) {
+                var receiveDate = (new Date()).getTime();
+                var responseTimeMs = receiveDate - sendDate;
+                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+                $('#lemmatiser-response-time').text(responseTimeText);
+                $(".search-lemmatiser").text('Search').removeAttr('disabled');
+            }
+
+        });
+
+
+    });	
+$(".search-tag").click(function (e) {
+        e.preventDefault();
+        var sentence = $("#inputSentenceTag").val();
+
+        $(".display-result-tag").empty();
+        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/tag';
+        var data = {
+            sentence: sentence !== '' ? sentence : null
+        };
+
+        $(".search-tag").text('Searching ...').attr('disabled', 'disabled');
+        var sendDate = (new Date()).getTime();
+        jQuery.ajax({
+            type:"GET",
+            dataType: 'json',
+            url: url,
+            data: data,
+            success:function (data) {
+                if (data.count > 0) {
+                    $(".display-result-tag" ).append(JSON.stringify(data.result));
+                } else {
+                    $(".display-result-tag" ).append('No matching results');
+                }
+            },
+            error: function(response) {
+                $(".display-result-tag").append(JSON.parse(response.responseText));
+            },
+            complete: function(data) {
+                var receiveDate = (new Date()).getTime();
+                var responseTimeMs = receiveDate - sendDate;
+                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+                $('#tag-response-time').text(responseTimeText);
+                $(".search-tag").text('Search').removeAttr('disabled');
+            }
+
+        });
+
+
+});	
+$(".search-tag-lemmatise").click(function (e) {
+        e.preventDefault();
+        var sentence = $("#inputSentenceTagLemmatise").val();
+
+        $(".display-result-tag-lemmatise").empty();
+        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/tag_lemmatise';
+        var data = {
+            sentence: sentence !== '' ? sentence : null
+        };
+
+        $(".search-tag-lemmatise").text('Searching ...').attr('disabled', 'disabled');
+        var sendDate = (new Date()).getTime();
+        jQuery.ajax({
+            type:"GET",
+            dataType: 'json',
+            url: url,
+            data: data,
+            success:function (data) {
+                if (data.count > 0) {
+                    $(".display-result-tag-lemmatise" ).append(JSON.stringify(data.result));
+                } else {
+                    $(".display-result-tag-lemmatise" ).append('No matching results');
+                }
+            },
+            error: function(response) {
+                $(".display-result-tag-lemmatise").append(JSON.parse(response.responseText));
+            },
+            complete: function(data) {
+                var receiveDate = (new Date()).getTime();
+                var responseTimeMs = receiveDate - sendDate;
+                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+                $('#tag-lemmatise-response-time').text(responseTimeText);
+                $(".search-tag-lemmatise").text('Search').removeAttr('disabled');
+            }
+
+        });
+
+
+});	
+</script>
+</html>

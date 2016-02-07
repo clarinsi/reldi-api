@@ -1,0 +1,170 @@
+.breadcrumb { border-radius: 0; }
+.container { margin-top: 20px }
+
+.nowrap { white-space: nowrap }
+
+.table-not-wide { width: auto }
+
+.grey { color: #bbb; background-color: #efefef }
+
+#data-filters { margin: 20px 0 }
+#data-filters select,
+#data-filters input { width: 200px; float: left; margin-left: 10px }
+#data-filters input:first-child,
+#data-filters select:first-child { margin-left: 0 }
+#data-filters button { float: left; margin-left: 10px }
+
+#data-table { font-size: .9em }
+
+#data-edit-form { margin-top: 40px }
+
+#contact-show-form,
+#contact-hide-form,
+#contact-delete-form { float: left; margin-left: 10px }
+
+#contact-map { height: 400px }
+
+.inline-button-form {
+    display: inline;
+    float: left;
+}
+
+/* Tweaks to typahead */
+.twitter-typeahead { min-width: 263px }
+
+/*
+ * Make Bootstrap 3 and typeahead.js work together.
+ *
+ * Taken from:
+ * https://github.com/bassjobsen/typeahead.js-bootstrap-css
+ */
+
+.tt-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 250px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    font-size: 14px;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background-clip: padding-box;
+}
+.tt-suggestion > p {
+    display: block;
+    padding: 5px 10px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.428571429;
+    color: #333333;
+    white-space: nowrap;
+}
+.tt-suggestion > p:hover,
+.tt-suggestion > p:focus,
+.tt-suggestion.tt-cursor p {
+    color: #fff;
+    text-decoration: none;
+    outline: 0;
+    background-color: #009688;
+    cursor: pointer;
+}
+
+/**
+ * Make "tags input" compatible with Material
+ * http://timschlechter.github.io/bootstrap-tagsinput/examples/
+ *
+ */
+.bootstrap-tagsinput {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
+.bootstrap-tagsinput .twitter-typeahead {
+    border: 0;
+    background-image: linear-gradient(#009688, #009688), linear-gradient(#d2d2d2, #d2d2d2);
+    background-size: 0 2px, 100% 1px;
+    background-repeat: no-repeat;
+    background-position: center bottom, center calc(100% - 1px);
+    background-color: transparent;
+    transition: background 0s ease-out;
+    display: block;
+    width: 100%;
+    height: 34px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    margin-top: 10px;
+}
+
+.bootstrap-tagsinput .label {
+    font-size: 1em;
+    line-height: 2em;
+}
+
+
+/**
+ * bootstrap material fixes
+ */
+
+.form-group .bouton-group {
+    margin: -6px 0 0 0;
+}
+
+.label-success {
+    background-color: #009688;
+}
+
+.nav-pills>li>a {
+    border: 0;
+    background: transparent;
+}
+
+.nav-pills>li.active>a, .nav-pills>li>a:hover, .nav-pills>li.active>a:focus,.nav-pills>li.active>a:hover {
+    color: #009688;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    border-bottom: 2px solid #009688;
+}
+
+textarea.form-control {
+    background-color: #fff;
+    padding: 8px;
+}
+
+textarea.form-control:focus {
+    padding: 8px;
+}
+
+.has-error .help-block, .has-error .control-label, .has-error .radio, .has-error .checkbox, .has-error .radio-inline, .has-error .checkbox-inline {
+    color: #a94442;
+}
+
+.hyperlink {
+    cursor: pointer;
+}
+
+#contact-map > img {
+    border: 1px solid gray;
+    width: 100%;
+}
+
+input[type="text"]:disabled {
+    background-color: #E3E3E3;
+}
+
+.nav.navbar-nav > .dropdown > a {
+    float: left;
+}
+
+.nav.nav-pills {
+    margin-bottom: 50px;
+}

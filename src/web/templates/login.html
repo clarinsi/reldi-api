@@ -1,0 +1,70 @@
+<html lang="en">
+<head>
+    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
+    <link href="static/bootstrap/css/roboto.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/material.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/ripples.min.css" rel="stylesheet">
+    <link href="static/style.css" rel="stylesheet">
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<div class="panel panel-default">
+					<div class="panel-heading"> <strong class="">Login</strong>
+
+					</div>
+					<div class="panel-body">
+						<form class="form-horizontal" role="form" id="loginForm">
+							<div class="form-group">
+								<label for="inputUsername" class="col-sm-3 control-label">Username</label>
+								<div class="col-sm-9">
+									<input type="text" class="form-control" id="inputUsername" placeholder="Username" required="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputProject" class="col-sm-3 control-label">Project</label>
+								<div class="col-sm-9">
+									<input type="text" class="form-control" id="inputProject" placeholder="Project" required="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputPassword" class="col-sm-3 control-label">Password</label>
+								<div class="col-sm-9">
+									<input type="password" class="form-control" id="inputPassword" placeholder="Password" required="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="textAreaNote" class="col-sm-3 control-label">Note</label>
+								<div class="col-sm-9">
+									<textarea class="form-control" rows="3" id="textAreaNote"></textarea>
+								</div>
+							</div>
+							<div class="form-group last">
+								<div class="col-sm-offset-3 col-sm-9">
+									<button type="submit" class="btn btn-success btn-sm sign-in">Sign in</button>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="panel-footer">Not Registered? <a href="request_access.html" class="">Request access here</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+</body>
+<script>
+$(".sign-in").click(function (e) {
+	e.preventDefault();
+	//if administrator go to admin page - standard post request
+	window.location.replace("admin.html");
+
+});
+</script>

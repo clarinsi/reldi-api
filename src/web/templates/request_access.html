@@ -1,0 +1,62 @@
+<html lang="en">
+<head>
+    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
+    <link href="static/bootstrap/css/roboto.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/material.min.css" rel="stylesheet">
+    <link href="static/bootstrap/css/ripples.min.css" rel="stylesheet">
+    <link href="static/style.css" rel="stylesheet">
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<div class="panel panel-default">
+				<div class="panel-heading"> <strong class="">Request access</strong></div>
+					<div class="panel-body">
+						<form class="form-horizontal" role="form" id="registerForm">
+							<div class="form-group">
+								<label for="inputUsername" class="col-sm-3 control-label">Username</label>
+								<div class="col-sm-9">
+									<input type="text" class="form-control" id="inputUsername" placeholder="Username" required="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputProject" class="col-sm-3 control-label">Project</label>
+								<div class="col-sm-9">
+									<input type="text" class="form-control" id="inputProject" placeholder="Project" required="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputPassword" class="col-sm-3 control-label">Password</label>
+								<div class="col-sm-9">
+									<input type="password" class="form-control" id="inputPassword" placeholder="Password" required="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputConfirmPassword" class="col-sm-3 control-label">Confirm password</label>
+								<div class="col-sm-9">
+									<input type="password" class="form-control" id="inputConfirmPassword" placeholder="Confirm Password" required="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="textAreaNote" class="col-sm-3 control-label">Note</label>
+								<div class="col-sm-9">
+									<textarea class="form-control" rows="3" id="textAreaNote"></textarea>
+								</div>
+							</div>
+							<div class="form-group last">
+								<div class="col-sm-offset-3 col-sm-9">
+									<button type="submit" class="btn btn-success btn-sm request-access">Request access</button>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="panel-footer">If you already have an account click here <a href="login.html" class="">Log in</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>

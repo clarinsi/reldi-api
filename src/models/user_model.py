@@ -77,4 +77,5 @@ class UserModel(Model):
 
         return token.isValid()
 
+    # TODO: extendTokenExpiraionDate
 
