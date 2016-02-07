@@ -83,7 +83,7 @@ class AuthTokenModelTests(unittest.TestCase):
 	
         dbTokenRow = AuthTokenModel.getByAttributeSingle('token',tok)    
         
-		#koga expiration date e ednakvo momentalnoto vreme, dava deka tokenot ne e validen
+		#koga expiration date e ednakvo momentalnoto vreme, dava deka tokenot ne e validen, dali treba da e taka?
         self.assertEqual(dbTokenRow.isValid(), False)
 		
     def test_extend(self):
@@ -97,10 +97,33 @@ class AuthTokenModelTests(unittest.TestCase):
         token.save()
 	
         dbTokenRow = AuthTokenModel.getByAttributeSingle('token',tok)    
-		#ovde javuva greska : TypeError: unsupported operand type(s) for +: 'datetime.datetime' and 'int'
-        dbTokenRow.extend()
-        print dbTokenRow
+		#ovde javuva greska : TypeError: unsupported operand type(s) for +: 'datetime.datetime' and 'int' - debagirano
+        dbTokenRow.extend() #ova go konvertira expiration_timestamp vo unix time i poradi toa dolniot red ne raboti, t.e ne moze da pravi sporedba
+        #self.assertEqual(dbTokenRow.isValid(), True)
+	
+    def test_generate(self):
+        tok = 'ksdkfksdjf77w3647673'
+        timestamp = datetime.datetime.now()
+        token = AuthTokenModel()
+        token.user_id = 39
+        token.token = tok
+        token.expiration_timestamp = timestamp + timedelta(hours = 1)
+        token.is_long_lasting = '1'
+        token.save()
 		
-
+        dbTokenRow = AuthTokenModel.getByAttributeSingle('token',tok)
+		
+        new_token=dbTokenRow.generate(dbTokenRow.is_long_lasting)
+		
+        dbTokenRow.token = new_token.token
+		# if dt.tzinfo is not None:AttributeError: 'NoneType' object has no attribute 'tzinfo' 
+        dbTokenRow.expiration_timestamp = new_token.expiration_timestamp
+        dbTokenRow.save()
+		
+        dbTokenRow = AuthTokenModel.getByAttributeSingle('token',new_token.token)
+        self.assertEqual(dbTokenRow.token, new_token.token)
+        self.assertEqual(dbTokenRow.expiration_timestamp, new_token.expiration_timestamp)	
+        self.assertEqual(dbTokenRow.is_long_lasting, 1)
+		
 if __name__ == '__main__':
     unittest.main()
