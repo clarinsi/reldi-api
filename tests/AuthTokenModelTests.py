@@ -101,5 +101,6 @@ class AuthTokenModelTests(unittest.TestCase):
         dbTokenRow.extend()
         print dbTokenRow
 		
+
 if __name__ == '__main__':
     unittest.main()
