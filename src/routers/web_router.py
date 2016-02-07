@@ -1,13 +1,14 @@
 import os
 import sys
 from flask import Blueprint
-from flask import render_template
-from flask import request
-from flask import Response
+from flask import render_template, request, flash, Response
+from flask import redirect, make_response, url_for
+from functools import wraps
 
 modelsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../models')
 sys.path.append(modelsPath)
 from user_model import UserModel
+from auth_token_model import AuthTokenModel
 
 class WebRouter(Blueprint):
    def __init__(self, dc):
@@ -15,41 +16,121 @@ class WebRouter(Blueprint):
         staticFolder = os.path.realpath('src/web/templates/static')
         Blueprint.__init__(self, 'web_router', 'web_router', template_folder=templateFolder, static_folder=staticFolder)
 
+
+        def authenticate(roles):
+            def wrapper(api_method):
+                @wraps(api_method)
+                def check_token(*args, **kwargs):
+                    auth_token_string = request.cookies.get('auth-token')
+                    authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
+                    if authToken is not None and authToken.isValid():
+                        user = UserModel.getByPk(authToken.user_id)
+                        if user is not None and user.role in roles:
+                            return api_method(*args, **kwargs)
+                        elif user is not None:
+                            return make_response(redirect(url_for('.query')))
+                        else:
+                            return make_response(redirect(url_for('.login')))
+                    else:
+                        return make_response(redirect(url_for('.login')))
+                return check_token
+            return wrapper
+
+        @self.route('/', methods=['GET'])
         @self.route('/login', methods=['GET'])
         def login():
-            return render_template('login.html')
+            auth_token_string = request.cookies.get('auth-token')
+            authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
+            if authToken and authToken.isValid():
+                user = UserModel.getByPk(authToken.user_id)
+                if user.isAdmin():
+                    return make_response(redirect(url_for('.admin')))
+                else:
+                    return make_response(redirect(url_for('.query')))
+
+            response = Response(render_template('login.html'))
+            return response
 
         @self.route('/login', methods=['POST'])
         def do_login():
             username = request.form.get('username')
             password = request.form.get('password')
-            
+            response = make_response(redirect(url_for('.login')))
+
             if username is not None and password is not None:
                 user = UserModel.getByUsername(username)
-                token = user.generateToken(password)
-                
+                if user is not None:
+                    token = user.generateToken(password)
+                    token.save()
+                    response.set_cookie('auth-token', token.token)
+                    # flash('You were successfully logged in', 'success')
+                else:
+                    flash('Invalid username or password', 'danger')
+            else:
+                flash('Invalid username or password', 'danger')
 
-            resp = Response("Hello")
-            return resp
-            # resp.headers['Access-Control-Allow-Origin'] = '*'
-            # return resp
-            # user = UserModel.getByUsername('admin')
+            return response
 
+        @self.route('/logout', methods=["POST"])
+        def logout():
+            auth_token_string = request.cookies.get('auth-token')
+            authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
+            if authToken:
+                authToken.delete()
 
-            # return render_template('login.html', name = 'Filip')
+            response = make_response(redirect(url_for('.login')))
+            response.set_cookie('auth-token', '', expires=0)
+
+            return response
 
        	@self.route('/register')
         def register():
             user = UserModel.getByUsername('admin')
             return render_template('register.html', name = 'Filip')
 
-        @self.route('/')
-        def index():
+        @self.route('/query')
+        @authenticate(['admin', 'user'])
+        def query():
             user = UserModel.getByUsername('admin')
             return render_template('index.html', name = 'Filip')
 
         @self.route('/admin')
+        @authenticate(['admin'])
         def admin():
             user = UserModel.getByUsername('admin')
-            return render_template('admin.html', name = 'Filip')
 
+            users = UserModel.getByAttribute('role', 'user')
+            active_users = filter(lambda x: x.status == 'active', users)
+            pending_users = filter(lambda x: x.status == 'pending', users)
+            blocked_users = filter(lambda x: x.status == 'blocked', users)
+
+            return render_template(
+                'admin.html', 
+                active_users=active_users, 
+                pending_users=pending_users, 
+                blocked_users=blocked_users
+            )
+
+        @self.route('/user/<id>/block', methods=["POST"])
+        @authenticate(['admin'])
+        def block_user(id):
+            user = UserModel.getByPk(id)
+            if user is not None:
+                user.block()
+                user.save()
+
+            return make_response(redirect(url_for('.admin')))
+
+        @self.route('/user/<id>/activate', methods=["POST"])
+        @authenticate(['admin'])
+        def activate_user(id):
+            user = UserModel.getByPk(id)
+            if user is not None:
+                user.activate()
+                user.save()
+
+            return make_response(redirect(url_for('.admin')))
+
+
+
+            

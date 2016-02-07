@@ -21,7 +21,7 @@ class UserModel(Model):
     @classmethod
     def model_props(cls):
         return [
-            'username', 'password', 'project', 'requests_limit', 
+            'username', 'email', 'password', 'project', 'requests_limit',
             'requests_made', 'last_request_datetime', 'role', 'status'
         ]
     
@@ -56,6 +56,9 @@ class UserModel(Model):
 
     def isAuthorized(self):
         return self.token is not None and token.isValid()
+
+    def isAdmin(self):
+        return self.role == 'admin'
 
     def block(self):
         self.status = 'blocked'

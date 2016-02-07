@@ -6,6 +6,7 @@ import sys
 # Add all src folders to path
 sys.path.append(os.path.realpath('src'))
 sys.path.append(os.path.realpath('src/api'))
+sys.path.append(os.path.realpath('src/models'))
 sys.path.append(os.path.realpath('src/routers'))
 import json
 
@@ -14,11 +15,9 @@ from helpers import jsonify, jsonResponse, TCF, jsonTCF, isset
 
 from flask import Flask
 from flask.ext.cors import CORS
-from flask import request
-from flask import make_response
-from flask import Response
-from flask import jsonify
-from flask import session
+from flask import request, make_response, Response, jsonify, session
+
+from auth_token_model import AuthTokenModel
 
 # from tornado.wsgi import WSGIContainer
 # from tornado.httpserver import HTTPServer
@@ -38,6 +37,8 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 app = Flask(__name__)
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'filesystem'
 CORS(app)
 
 print 'Initializing models'
@@ -63,6 +64,7 @@ print 'Initialization of models done'
 #     if db is not None:
 #         db.close()
 
+
 #apiRouter = ApiRouter(dc)
 #app.register_blueprint(apiRouter, url_prefix='/api/v1')
 dc = {}
@@ -86,7 +88,7 @@ if __name__ == "__main__":
     # print tagger.tag(text)
     # print segmenter.segment(text)
 
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080, debug=True)
     
 
 

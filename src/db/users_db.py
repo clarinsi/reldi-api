@@ -53,6 +53,7 @@ class UsersDB(DB):
         statement = """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 project TEXT,
@@ -85,8 +86,6 @@ class UsersDB(DB):
             );
         """
         db.command(statement)
-		
-        print db.query("SELECT name FROM sqlite_master WHERE type='table';")
 
 
 

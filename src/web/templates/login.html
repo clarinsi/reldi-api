@@ -1,56 +1,39 @@
-<html lang="en">
-<head>
-    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
-    <link href="static/bootstrap/css/roboto.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/material.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/ripples.min.css" rel="stylesheet">
-    <link href="static/style.css" rel="stylesheet">
-</head>
-<body>
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<div class="panel panel-default">
-					<div class="panel-heading"> <strong class="">Login</strong>
-
+{% extends "layout.html" %}
+{% block body %}
+<div class="row">
+	<div class="col-md-8 col-md-offset-2">
+		<div class="panel panel-default">
+			<div class="panel-heading"> <strong class="">Login</strong></div>
+			<div class="panel-body">
+				<form class="form-horizontal" role="form" id="loginForm" 
+						method="POST" action="{{url_for('.login')}}">
+					<div class="form-group">
+						<label for="username" class="col-sm-3 control-label">Username</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" name="username"
+									id="username" placeholder="Username" required="required">
+						</div>
 					</div>
-					<div class="panel-body">
-						<form class="form-horizontal" role="form" id="loginForm" method="POST">
-							<div class="form-group">
-								<label for="username" class="col-sm-3 control-label">Username</label>
-								<div class="col-sm-9">
-									<input type="text" class="form-control" name="username"
-											id="username" placeholder="Username" required="required">
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="password" class="col-sm-3 control-label">Password</label>
-								<div class="col-sm-9">
-									<input type="password" class="form-control" name="password"
-											id="password" placeholder="Password" required="">
-								</div>
-							</div>
-							<div class="form-group last">
-								<div class="col-sm-offset-3 col-sm-9">
-									<button type="submit" class="btn btn-success btn-sm sign-in">Log in
-									</button>
-								</div>
-							</div>
-						</form>
+					<div class="form-group">
+						<label for="password" class="col-sm-3 control-label">Password</label>
+						<div class="col-sm-9">
+							<input type="password" class="form-control" name="password"
+									id="password" placeholder="Password" required="">
+						</div>
 					</div>
-					<div class="panel-footer">Not Registered? <a href="/register" class="">Request access here</a>
+					<div class="form-group last">
+						<div class="col-sm-offset-3 col-sm-9">
+							<button type="submit" class="btn btn-success btn-sm sign-in">Log in
+							</button>
+						</div>
 					</div>
-				</div>
+				</form>
+			</div>
+			<div class="panel-footer">
+				Not Registered? 
+				<a href="{{url_for('.register')}}" class="">Request access here</a>
 			</div>
 		</div>
 	</div>
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-
-</body>
-<script>
-
-</script>
+</div>
+{% endblock %}

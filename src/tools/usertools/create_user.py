@@ -23,6 +23,11 @@ class CreateUserCommand(Command):
             'required': True
         },
         {
+            'name': 'email',
+            'description': 'Email',
+            'required': True
+        },
+        {
             'name': 'password',
             'description': 'Password',
             'required': True

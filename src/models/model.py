@@ -139,6 +139,10 @@ class Model(object):
 
 
     @classmethod
+    def getByPk(cls, pk):
+        return cls.getByAttributeSingle(cls.primary_key(), pk)
+
+    @classmethod
     def fromDatabase(cls, row):
         all_props = cls.model_props() + ['created', 'updated']
 

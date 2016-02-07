@@ -1,213 +1,196 @@
-<!DOCTYPE html>
-
-<html lang="en">
-<head>
-    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
-    <link href="static/bootstrap/css/roboto.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/material.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/ripples.min.css" rel="stylesheet">
-    <link href="static/style.css" rel="stylesheet">
-</head>
-<body>
-<div class="container">
+{% extends "layout.html" %}
+{% block body %}
 <div class="panel panel-default">
-<div class="panel-heading"> <strong class="">Index page</strong>
-</div>
-<div class="panel-body">
-    <div class="col-md-8 col-md-offset-2">
-        <ul class="nav nav-pills">
-            <li class="active"><a data-toggle="tab" href="#lexicon-form">Lexicon</a></li>
-            <li class=""><a data-toggle="tab" href="#segmenter-form">Segmenter</a></li>
-			<li class=""><a data-toggle="tab" href="#lemmatiser-form">Lemmatiser</a></li>
-			<li class="dropdown">
-				<a class="dropdown-toggle" data-toggle="dropdown" href="#">Tager
-				<span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<li><a data-toggle="tab" href="#tag-form">Tag</a></li>
-					<li><a data-toggle="tab" href="#tag-lemmatise-form">Tag Lemmatise</a></li>
-					
-				</ul>
-			</li>
-        </ul>
+    <div class="panel-heading"> <strong class="">Query</strong></div>
+    <div class="panel-body">
+        <div class="col-md-8 col-md-offset-2">
+            <ul class="nav nav-pills">
+                <li class="active"><a data-toggle="tab" href="#lexicon-form">Lexicon</a></li>
+                <li class=""><a data-toggle="tab" href="#segmenter-form">Segmenter</a></li>
+                <li class=""><a data-toggle="tab" href="#lemmatiser-form">Lemmatiser</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Tager
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a data-toggle="tab" href="#tag-form">Tag</a></li>
+                        <li><a data-toggle="tab" href="#tag-lemmatise-form">Tag Lemmatise</a></li>
+                    </ul>
+                </li>
+            </ul>
 
-        <div class="bs-component">
-            <div class="tab-content">
-                <form id="lexicon-form" class="form-horizontal tab-pane fade in active" >
-                    <fieldset>
+            <div class="bs-component">
+                <div class="tab-content">
+                    <form id="lexicon-form" class="form-horizontal tab-pane fade in active" >
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="inputSurface" class="col-md-2 control-label">Surface</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputMsd" class="col-md-2 control-label">Msd</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputRhymesWith" placeholder="Rhymes with">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button type="submit" class="btn btn-primary search-lexicon">Search</button>
+                                </div>
+                            </div>
+                        </fieldset>
                         <div class="form-group">
-                            <label for="inputSurface" class="col-md-2 control-label">Surface</label>
+                            <label for="textArea" class="col-md-2 control-label">Result</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
+                                <textarea readonly="readonly" class="form-control display-result-lexicon" rows="3" id="textArea"></textarea>
+                                <div class="help-block">
+                                    Result set
+                                    <span id="lexicon-response-time"></span>
+                                </div>
+
                             </div>
                         </div>
+                    </form>
+
+                    <form id="segmenter-form" class="form-horizontal tab-pane fade">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="inputSentenceSegmenter" class="col-md-2 control-label">Sentence</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputSentenceSegmenter" placeholder="Text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button type="submit" class="btn btn-primary search-segmenter">Search</button>
+                                </div>
+                            </div>
+                        </fieldset>
                         <div class="form-group">
-                            <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
+                            <label for="textArea" class="col-md-2 control-label">Result</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
+                                <textarea readonly="readonly" class="form-control display-result-segmenter" rows="3" id="textArea"></textarea>
+                                <div class="help-block">
+                                    Result set
+                                    <span id="segmenter-response-time"></span>
+                                </div>
+
                             </div>
                         </div>
+                    </form>
+                    <form id="lemmatiser-form" class="form-horizontal tab-pane fade">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="inputSentenceLemmatiser" class="col-md-2 control-label">Sentence</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputSentenceLemmatiser" placeholder="Text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button type="submit" class="btn btn-primary search-lemmatiser">Search</button>
+                                </div>
+                            </div>
+                        </fieldset>
                         <div class="form-group">
-                            <label for="inputMsd" class="col-md-2 control-label">Msd</label>
+                            <label for="textArea" class="col-md-2 control-label">Result</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
+                                <textarea readonly="readonly" class="form-control display-result-lemmatiser" rows="3" id="textArea"></textarea>
+                                <div class="help-block">
+                                    Result set
+                                    <span id="lemmatiser-response-time"></span>
+                                </div>
+
                             </div>
                         </div>
+                    </form>
+                    
+                        
+            
+                    <form id="tag-form" class="form-horizontal tab-pane fade">
+                    <span>Tag</span>
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="inputSentenceTag" class="col-md-2 control-label">Sentence</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputSentenceTag" placeholder="Text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button type="submit" class="btn btn-primary search-tag">Search</button>
+                                </div>
+                            </div>
+                        </fieldset>
                         <div class="form-group">
-                            <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
-                            <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputRhymesWith" placeholder="Rhymes with">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
-                            <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-10 col-md-offset-2">
-                                <button type="submit" class="btn btn-primary search-lexicon">Search</button>
-                            </div>
-                        </div>
-                    </fieldset>
-                    <div class="form-group">
-                        <label for="textArea" class="col-md-2 control-label">Result</label>
+                            <label for="textArea" class="col-md-2 control-label">Result</label>
                         <div class="col-md-10">
-                            <textarea readonly="readonly" class="form-control display-result-lexicon" rows="3" id="textArea"></textarea>
+                            <textarea readonly="readonly" class="form-control display-result-tag" rows="3" id="textArea"></textarea>
+                            <div class="help-block">
+                                Result set 
+                            <span id="tag-response-time"></span>
+                            </div>
+
+                        </div>
+                        </div>
+                    </form>
+                    <form id="tag-lemmatise-form" class="form-horizontal tab-pane fade">
+                        <span>Tag Lemmatise</span>
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="inputSentenceTagLemmatise" class="col-md-2 control-label">Sentence</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputSentenceTagLemmatise" placeholder="Text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button type="submit" class="btn btn-primary search-tag-lemmatise">Search</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            <label for="textArea" class="col-md-2 control-label">Result</label>
+                        <div class="col-md-10">
+                            <textarea readonly="readonly" class="form-control display-result-tag-lemmatise" rows="3" id="textArea"></textarea>
                             <div class="help-block">
                                 Result set
-                                <span id="lexicon-response-time"></span>
+                            <span id="tag-lemmatise-response-time"></span>
                             </div>
 
                         </div>
-                    </div>
-                </form>
-
-                <form id="segmenter-form" class="form-horizontal tab-pane fade">
-                    <fieldset>
-                        <div class="form-group">
-                            <label for="inputSentenceSegmenter" class="col-md-2 control-label">Sentence</label>
-                            <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputSentenceSegmenter" placeholder="Text">
-                            </div>
                         </div>
-						<div class="form-group">
-                            <div class="col-md-10 col-md-offset-2">
-                                <button type="submit" class="btn btn-primary search-segmenter">Search</button>
-                            </div>
-                        </div>
-					</fieldset>
-					<div class="form-group">
-                        <label for="textArea" class="col-md-2 control-label">Result</label>
-                        <div class="col-md-10">
-                            <textarea readonly="readonly" class="form-control display-result-segmenter" rows="3" id="textArea"></textarea>
-                            <div class="help-block">
-                                Result set
-                                <span id="segmenter-response-time"></span>
-                            </div>
-
-                        </div>
-                    </div>
-                </form>
-				<form id="lemmatiser-form" class="form-horizontal tab-pane fade">
-                    <fieldset>
-                        <div class="form-group">
-                            <label for="inputSentenceLemmatiser" class="col-md-2 control-label">Sentence</label>
-                            <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputSentenceLemmatiser" placeholder="Text">
-                            </div>
-                        </div>
-						<div class="form-group">
-                            <div class="col-md-10 col-md-offset-2">
-                                <button type="submit" class="btn btn-primary search-lemmatiser">Search</button>
-                            </div>
-                        </div>
-					</fieldset>
-					<div class="form-group">
-                        <label for="textArea" class="col-md-2 control-label">Result</label>
-                        <div class="col-md-10">
-                            <textarea readonly="readonly" class="form-control display-result-lemmatiser" rows="3" id="textArea"></textarea>
-                            <div class="help-block">
-                                Result set
-                                <span id="lemmatiser-response-time"></span>
-                            </div>
-
-                        </div>
-                    </div>
-                </form>
-				
-					
-		
-				<form id="tag-form" class="form-horizontal tab-pane fade">
-				<span>Tag</span>
-					<fieldset>
-						<div class="form-group">
-							<label for="inputSentenceTag" class="col-md-2 control-label">Sentence</label>
-							<div class="col-md-10">
-								<input type="text" class="form-control" id="inputSentenceTag" placeholder="Text">
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-10 col-md-offset-2">
-								<button type="submit" class="btn btn-primary search-tag">Search</button>
-							</div>
-						</div>
-					</fieldset>
-					<div class="form-group">
-						<label for="textArea" class="col-md-2 control-label">Result</label>
-					<div class="col-md-10">
-						<textarea readonly="readonly" class="form-control display-result-tag" rows="3" id="textArea"></textarea>
-						<div class="help-block">
-							Result set 
-						<span id="tag-response-time"></span>
-						</div>
-
-					</div>
-					</div>
-				</form>
-				<form id="tag-lemmatise-form" class="form-horizontal tab-pane fade">
-					<span>Tag Lemmatise</span>
-					<fieldset>
-						<div class="form-group">
-							<label for="inputSentenceTagLemmatise" class="col-md-2 control-label">Sentence</label>
-							<div class="col-md-10">
-								<input type="text" class="form-control" id="inputSentenceTagLemmatise" placeholder="Text">
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-10 col-md-offset-2">
-								<button type="submit" class="btn btn-primary search-tag-lemmatise">Search</button>
-							</div>
-						</div>
-					</fieldset>
-					<div class="form-group">
-						<label for="textArea" class="col-md-2 control-label">Result</label>
-					<div class="col-md-10">
-						<textarea readonly="readonly" class="form-control display-result-tag-lemmatise" rows="3" id="textArea"></textarea>
-						<div class="help-block">
-							Result set
-						<span id="tag-lemmatise-response-time"></span>
-						</div>
-
-					</div>
-					</div>
-				</form>
-			
-					
-				
+                    </form>
+                
+                        
+                    
+                </div>
             </div>
         </div>
     </div>
 </div>
-</div>
-</div>
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+{% endblock %}
 
-</body>
+{% block scripts %}
 <script>
 $(".search-lexicon").click(function (e) {
         e.preventDefault();
@@ -412,4 +395,5 @@ $(".search-tag-lemmatise").click(function (e) {
 
 });	
 </script>
+{% endblock %}
 </html>

@@ -1,77 +1,107 @@
-<!DOCTYPE html>
-
-<html lang="en">
-<head>
-    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
-    <link href="static/bootstrap/css/roboto.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/material.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/ripples.min.css" rel="stylesheet">
-    <link href="static/style.css" rel="stylesheet">
-</head>
-<body>
-<div class="container">
+{% extends "layout.html" %}
+{% block body %}
 <div class="panel panel-default">
-<div class="panel-heading"> <strong class="">Admin page</strong>
-</div>
-<div class="panel-body">
-  
-    <div class="col-md-8 col-md-offset-2">
-        <ul class="nav nav-pills">
-            <li class="active"><a data-toggle="tab" href="#active-users-form">Active users</a></li>
-            <li class=""><a data-toggle="tab" href="#pending-users-form">Pending users</a></li>
-        </ul>
+	<div class="panel-heading"> <strong class="">Admin page</strong>
+	</div>
+	<div class="panel-body">
+	    <div class="col-md-10 col-md-offset-1">
+	        <ul class="nav nav-pills">
+	            <li class="active"><a data-toggle="tab" href="#active-users-form">Active users</a></li>
+	            <li class=""><a data-toggle="tab" href="#pending-users-form">Pending users</a></li>
+	            <li class=""><a data-toggle="tab" href="#blocked-users-form">Blocked users</a></li>
+	        </ul>
 
-        <div class="bs-component">
-            <div class="tab-content">
-                <form id="active-users-form" class="form-horizontal tab-pane fade in active" >
-                    <table  class="table table-hover table-bordered">
-						<tr>
-							<td>#</td>
-							<td>Username</td>
-							<td>Project</td>
-							<td>Number of requests</td>
-							<td>Action</td>
-						</tr>
-						<tr>
-							<td>1</td>
-							<td>None</td>
-							<td>Reldi</td>
-							<td>3</td>
-							<td><button type="button" class="btn btn-primary btn-sm">Change</button></td>
-						</tr>
-					</table>		
-                </form>
+	        <div class="bs-component">
+	            <div class="tab-content">
+	                <div id="active-users-form" class="form-horizontal tab-pane fade in active" >
+	                    <table class="table table-hover">
+							<tr>
+								<th>#</th>
+								<th>Username</th>
+								<th>Email</th>
+								<th>Project</th>
+								<th>Requests allowed</th>
+								<th>Requests made</th>
+								<th>Action</th>
+							</tr>
+							{% for user in active_users %}
+							<tr>
+								<td>{{user.id}}</td>
+								<td>{{user.username}}</td>
+								<td>{{user.email}}</td>
+								<td>{{user.project}}</td>
+								<td>{{user.requests_limit}}</td>
+								<td>{{user.requests_made}}</td>
+								<td>
+									<form method="POST" action="{{ url_for('.block_user', id=user.id) }}">
+										<button type="submit" class="btn btn-danger btn-sm">Block</button>
+									</form>
+								</td>
+							</tr>
+							{% endfor %}
+						</table>		
+	                </div>
 
-                <form id="pending-users-form" class="form-horizontal  tab-pane fade">
-					<table  class="table table-hover table-bordered">
-						<tr>
-							<td>#</td>
-							<td>Username</td>
-							<td>Project</td>
-							<td>Number of requests</td>
-							<td>Action</td>
-						</tr>
-						<tr>
-							<td>1</td>
-							<td>Filip</td>
-							<td>Reldi</td>
-							<td>10</td>
-							<td><button type="button" class="btn btn-primary btn-sm">Change</button></td>
-						</tr>
-					</table>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-</div>
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	                <div id="pending-users-form" class="form-horizontal  tab-pane fade">
+						<table  class="table table-hover table-bordered">
+							<tr>
+								<th>#</th>
+								<th>Username</th>
+								<th>Email</th>
+								<th>Project</th>
+								<th>Requests allowed</th>
+								<th>Requests made</th>
+								<th>Action</th>
+							</tr>
+							{% for user in pending_users %}
+							<tr>
+								<td>{{user.id}}</td>
+								<td>{{user.username}}</td>
+								<td>{{user.email}}</td>
+								<td>{{user.project}}</td>
+								<td>{{user.requests_limit}}</td>
+								<td>{{user.requests_made}}</td>
+								<td>
+									<form method="POST" action="{{ url_for('.activate_user', id=user.id) }}">
+										<button type="submit" class="btn btn-primary btn-sm">Approve</button>
+									</form>
+								</td>
+							</tr>
+							{% endfor %}
+						</table>
+	                </div>
 
-</body>
-
-</html>
+	                <div id="blocked-users-form" class="form-horizontal tab-pane fade">
+						<table  class="table table-hover table-bordered">
+							<tr>
+								<th>#</th>
+								<th>Username</th>
+								<th>Email</th>
+								<th>Project</th>
+								<th>Requests allowed</th>
+								<th>Requests made</th>
+								<th>Action</th>
+							</tr>
+							{% for user in blocked_users %}
+							<tr>
+								<td>{{user.id}}</td>
+								<td>{{user.username}}</td>
+								<td>{{user.email}}</td>
+								<td>{{user.project}}</td>
+								<td>{{user.requests_limit}}</td>
+								<td>{{user.requests_made}}</td>
+								<td>
+									<form method="POST" action="{{ url_for('.activate_user', id=user.id) }}">
+										<button type="submit" class="btn btn-primary btn-sm">Re-activate</button>
+									</form>
+								</td>
+							</tr>
+							{% endfor %}
+						</table>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+</div>
+{% endblock %}
