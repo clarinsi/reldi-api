@@ -30,7 +30,7 @@ class UsersDB(DB):
             UsersDB._instance = UsersDB(DB._THE_MAGIC_WORD)
             if (UsersDB._instance._connection is None):
                 # Initialize connection
-                UsersDB._instance._connection = sqlite3.connect(databaseName)
+                UsersDB._instance._connection = sqlite3.connect(databaseName,isolation_level=None)
                 UsersDB._instance._connection.text_factory = str
                 UsersDB._instance._connection.row_factory = dict_factory
                 UsersDB._instance._client = UsersDB._instance._connection.cursor()
@@ -85,6 +85,8 @@ class UsersDB(DB):
             );
         """
         db.command(statement)
+		
+        print db.query("SELECT name FROM sqlite_master WHERE type='table';")
 
 
 

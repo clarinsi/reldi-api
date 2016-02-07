@@ -132,5 +132,26 @@ class UserTokenModelTests(unittest.TestCase):
         self.assertEqual(dbUser.status, 'blocked')
         self.assertEqual(dbUser.role, 'user')
 		
+
+    def test_status_block_user(self):
+        username = 'user8'
+        password = '000000'
+        user = UserModel()
+        user.username = username
+        user.setPassword(password)
+        user.project = 'ReLDI'
+        user.requests_limit = 1000
+        user.requests_made = 0
+        user.status = 'active'
+        user.role = 'admin'
+        user.save()
+		
+        dbUser = UserModel.getByUsername(user.username) 
+        
+        dbUser.block()
+    
+        self.assertEqual(dbUser.status, 'blocked')
+		
+		
 if __name__ == '__main__':
     unittest.main()
