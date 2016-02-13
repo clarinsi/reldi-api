@@ -192,6 +192,7 @@
 
 {% block scripts %}
 <script>
+var baseUrl = '/api/v1/';
 $(".search-lexicon").click(function (e) {
         e.preventDefault();
         var surface = $("#inputSurface").val();
@@ -201,7 +202,7 @@ $(".search-lexicon").click(function (e) {
         var no_of_syllables = $("#inputNoOfSyllables").val();
 
         $(".display-result-lexicon").empty();
-        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/lexicon';
+        var url = baseUrl + 'hr/lexicon';
         var data = {
             surface: surface !== '' ? surface : null,
             lemma: lemma !== '' ? lemma : null,
@@ -243,7 +244,7 @@ $(".search-segmenter").click(function (e) {
         var sentence = $("#inputSentenceSegmenter").val();
 
         $(".display-result-segmenter").empty();
-        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/segment';
+        var url = baseUrl + 'hr/segment';
         var data = {
             text: sentence !== '' ? sentence : null,
             format: 'json'
@@ -283,7 +284,7 @@ $(".search-lemmatiser").click(function (e) {
         var sentence = $("#inputSentenceLemmatiser").val();
 
         $(".display-result-lemmatiser").empty();
-        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/lemmatise';
+        var url = baseUrl + 'hr/lemmatise';
         var data = {
             text: sentence !== '' ? sentence : null,
             format: 'json'
@@ -323,7 +324,7 @@ $(".search-tag").click(function (e) {
         var sentence = $("#inputSentenceTag").val();
 
         $(".display-result-tag").empty();
-        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/tag';
+        var url = baseUrl + 'hr/tag';
         var data = {
             text: sentence !== '' ? sentence : null,
             format: 'json'
@@ -363,7 +364,7 @@ $(".search-tag-lemmatise").click(function (e) {
         var sentence = $("#inputSentenceTagLemmatise").val();
 
         $(".display-result-tag-lemmatise").empty();
-        var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/tag_lemmatise';
+        var url = baseUrl + 'hr/tag_lemmatise';
         var data = {
             text: sentence !== '' ? sentence : null,
             format: 'json'
