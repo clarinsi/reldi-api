@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="container">
+  <div class="panel panel-default">
+  <div class="panel-heading"> <strong class="">Index page</strong>
+  </div>
+  <div class="panel-body">
+      <div class="col-md-8 col-md-offset-2">
+          <ul class="nav nav-pills">
+              <li class="active"><a data-toggle="tab" href="#lexicon-form">First page</a></li>
+          </ul>
+
+          <div class="bs-component">
+              <div class="tab-content">
+                  <form id="lexicon-form" class="form-horizontal tab-pane fade in active" >
+                      <fieldset>
+                          <div class="form-group">
+					                      <label for="textAreaInput" class="col-md-2 control-label">Input</label>
+  				                      <div class="col-md-10">
+                                   <textarea class="form-control" rows="2" id="textAreaInput"></textarea>
+  				                      </div>
+      						        </div>
+
+                          <div class="form-group">
+                                <label class="col-md-2 control-label">Input format</label>
+                                <div class="col-md-10">
+        							            <label class="radio-inline">
+        								                  <input type="radio" name="optionsRadiosInput" id="optionsRadiosInput1" value="option1">
+        								                  TCF
+        							            </label>
+
+        							            <label class="radio-inline">
+        								                <input type="radio" name="optionsRadiosInput" id="optionsRadiosInput2" value="option2">
+        								                Text
+        						              </label>
+                                </div>
+      						        </div>
+
+                          <div class="form-group">
+                              <label class="col-md-2 control-label">Function</label>
+                              <div class="col-md-10">
+                                <label class="radio-inline">
+      								                <input type="radio" name="optionsRadiosFunk" id="optionsRadiosFunk1" value="option1">
+              								          Tag
+      							             </label>
+      							            <label class="radio-inline">
+      								                <input type="radio" name="optionsRadiosFunk" id="optionsRadiosFunk2" value="option2">
+      								                  Lematize
+      							            </label>
+      							            <label class="radio-inline">
+      								                <input type="radio" name="optionsRadiosFunk" id="optionsRadiosFunk3" value="option3">
+      								                  Tag + Lematize
+        							          </label>
+                              </div>
+      						         </div>
+      						         <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button type="submit" class="btn btn-primary search-function">Search</button>
+                                </div>
+                          </div>
+                      </fieldset>
+  					          <div class="form-group">
+                            <label for="textArea" class="col-md-2 control-label">Result</label>
+                            <div class="col-md-10">
+                                <textarea readonly="readonly" class="form-control display-result-search" rows="3" id="textArea"></textarea>
+                                <div class="help-block">
+                                    Result set
+                                    <span id="lexicon-response-time"></span>
+                                </div>
+
+                            </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+$(".search-function").click(function (e) {
+        e.preventDefault();
+        var sentence = $("#textAreaInput").val();
+        var input_format = $("").val();
+        $(".display-result-search").empty();
+        //var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/tag_lemmatise';
+        var data = {
+            sentence: sentence !== '' ? sentence : null
+        };
+
+        $(".search-function").text('Searching ...').attr('disabled', 'disabled');
+        var sendDate = (new Date()).getTime();
+        jQuery.ajax({
+            type:"GET",
+            dataType: 'json',
+            url: url,
+            data: data,
+            success:function (data) {
+                if (data.count > 0) {
+                    $(".display-result-search").append(JSON.stringify(data.result));
+                } else {
+                    $(".display-result-search").append('No matching results');
+                }
+            },
+            error: function(response) {
+                $(".display-result-tag-lemmatise").append(JSON.parse(response.responseText));
+            },
+            complete: function(data) {
+                var receiveDate = (new Date()).getTime();
+                var responseTimeMs = receiveDate - sendDate;
+                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+                $('#tag-lemmatise-response-time').text(responseTimeText);
+                $(".search-tag-lemmatise").text('Search').removeAttr('disabled');
+            }
+
+        });
+
+
+});
+</script>
+{% endblock %}
