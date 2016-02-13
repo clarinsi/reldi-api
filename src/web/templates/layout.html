@@ -1,12 +1,12 @@
 <html lang="en">
 <head>
-    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
-    <link href="static/bootstrap/css/roboto.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/material.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/ripples.min.css" rel="stylesheet">
-    <link href="static/style.css" rel="stylesheet">
+    <link href="/web/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/web/static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
+    <link href="/web/static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
+    <link href="/web/static/bootstrap/css/material.min.css" rel="stylesheet">
+    <link href="/web/static/bootstrap/css/roboto.min.css" rel="stylesheet">
+    <link href="/web/static/bootstrap/css/ripples.min.css" rel="stylesheet">
+    <link href="/web/static/style.css" rel="stylesheet">
 </head>
 <body>
 	<div class="container">
@@ -14,7 +14,7 @@
 			<div class="row">
 				<div class="col-md-12">
 					<div class="panel panel-default">
-			        	<div class="panel-heading"> 
+			        	<div class="panel-heading">
 		    				<form method="POST" action="/web/logout" style="overflow: auto; margin: 0;">
 		    					<button class="pull-right btn btn-sm" style="margin: 0;">Logout</button>
 		    				</form>
@@ -23,7 +23,7 @@
 				</div>
 			</div>
 		{% endif %}
-    		
+
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				{% with messages = get_flashed_messages(with_categories=true) %}

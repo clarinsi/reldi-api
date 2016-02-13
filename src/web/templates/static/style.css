@@ -168,3 +168,8 @@ input[type="text"]:disabled {
 .nav.nav-pills {
     margin-bottom: 50px;
 }
+
+.user-action-form {
+  margin: 0;
+  float: right;
+}

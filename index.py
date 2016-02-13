@@ -25,12 +25,12 @@ from tornado.ioloop import IOLoop
 
 from DI import DependencyContainer
 
-from lexicon import Lexicon
-from segmenter import Segmenter
-from tagger import Tagger
-from lematiser import Lematiser
+# from lexicon import Lexicon
+#from segmenter import Segmenter
+#from tagger import Tagger
+#from lematiser import Lematiser
 
-from api_router import ApiRouter
+#from api_router import ApiRouter
 from web_router import WebRouter
 
 reload(sys)
@@ -43,31 +43,23 @@ CORS(app)
 
 print 'Initializing models'
 dc = DependencyContainer(lazy = True)
-for lang in ['hr', 'sl', 'sr']:
-    dc['segmenter.' + lang] = lambda: Segmenter(lang)
-    dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
-    dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
-    dc['lexicon.' + lang] = lambda: Lexicon(lang)
+#for lang in ['hr', 'sl', 'sr']:
+    #dc['segmenter.' + lang] = lambda: Segmenter(lang)
+    #dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
+    #dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
+    #dc['lexicon.' + lang] = lambda: Lexicon(lang)
 
     # Force initialization of models. We want everything initialized before we start serving requests
-    tmp = dc['lemmatiser.' + lang]
-    tmp = dc['tagger.' + lang]
-    tmp = dc['segmenter.' + lang]
-    tmp = dc['lexicon.' + lang]
+    #tmp = dc['lemmatiser.' + lang]
+    #tmp = dc['tagger.' + lang]
+    #tmp = dc['segmenter.' + lang]
+    #tmp = dc['lexicon.' + lang]
 
 print 'Initialization of models done'
 
-# Close users db connection when request ends
-@app.teardown_request
-def teardown_request(exception):
-    db = dc['users_db']
-    if db is not None:
-        db.close()
-
-
 #apiRouter = ApiRouter(dc)
 #app.register_blueprint(apiRouter, url_prefix='/api/v1')
-# dc = {}
+dc = {}
 webRouter = WebRouter(dc)
 app.register_blueprint(webRouter, url_prefix='/web')
 
@@ -75,18 +67,6 @@ def index():
     app.run(debug=True)
 
 if __name__ == "__main__":
-
-    text = 'Modeli su učitani! Vrlo uspješno.'
-
-    lemmatiser = dc['lemmatiser.hr']
-    tagger = dc['tagger.hr']
-    segmenter = dc['segmenter.hr']
-    lexicon = dc['lexicon.hr']
-
-    print lemmatiser.tagLemmatise(text)
-    print lemmatiser.lemmatise(text)
-    print tagger.tag(text)
-    print segmenter.segment(text)
 
     app.run(host='0.0.0.0', port=8080, debug=True)
     

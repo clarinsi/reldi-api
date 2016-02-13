@@ -24,7 +24,7 @@ class UserModel(Model):
             'username', 'email', 'password', 'project', 'requests_limit',
             'requests_made', 'last_request_datetime', 'role', 'status'
         ]
-    
+
     @classmethod
     def table_name(cls):
         return 'users'
@@ -67,3 +67,7 @@ class UserModel(Model):
     @classmethod
     def getByUsername(cls, username):
         return super(UserModel, cls).getByAttributeSingle('username', username)
+
+    @classmethod
+    def getById(cls, id):
+        return super(UserModel, cls).getByAttributeSingle('id', id)

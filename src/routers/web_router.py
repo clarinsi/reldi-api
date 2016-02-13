@@ -95,7 +95,32 @@ class WebRouter(Blueprint):
         @authenticate(['admin', 'user'])
         def query():
             user = UserModel.getByUsername('admin')
-            return render_template('index.html', name = 'Filip')
+            return render_template('search.html', name = 'Filip')
+
+        @self.route('/user/<id>/edit', methods=["GET"])
+        @authenticate(['admin'])
+        def edit(id):
+            user = UserModel.getById(id)
+            statuses = {
+                'active': 'Active',
+                'pending': 'Pending',
+                'blocked': 'Blocked'
+            }
+            roles = {
+                'admin' : 'Admin',
+                'user' : 'User'
+            }
+            return render_template('edit-user.html', user=user, statuses=statuses, roles=roles)
+
+        @self.route('/user/<id>/edit', methods=["POST"])
+        @authenticate(['admin'])
+        def do_edit(id):
+            user = UserModel.getById(id)
+            user.role = request.form.get("role","")
+            user. status= request.form.get("status","")
+            user.requests_limit= request.form.get("requests_limit","")
+            user.save()
+            return make_response(redirect(url_for('.admin')))
 
         @self.route('/admin')
         @authenticate(['admin'])
@@ -108,9 +133,9 @@ class WebRouter(Blueprint):
             blocked_users = filter(lambda x: x.status == 'blocked', users)
 
             return render_template(
-                'admin.html', 
-                active_users=active_users, 
-                pending_users=pending_users, 
+                'admin.html',
+                active_users=active_users,
+                pending_users=pending_users,
                 blocked_users=blocked_users
             )
 
@@ -133,7 +158,3 @@ class WebRouter(Blueprint):
                 user.save()
 
             return make_response(redirect(url_for('.admin')))
-
-
-
-            
