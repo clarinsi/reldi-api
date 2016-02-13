@@ -1,7 +1,13 @@
+import sys, os
+
+helperspath = os.path.realpath('../src/')
+sys.path.append(helperspath)
+
 import unittest
 import os
 import sys
 from datetime import datetime, timedelta
+from helpers import to_unix_timestamp
 
 modelsPath = os.path.realpath('../src/models')
 sys.path.append(modelsPath)
@@ -90,8 +96,8 @@ class AuthTokenModelTests(unittest.TestCase):
     
         dbTokenRow = AuthTokenModel.getByAttributeSingle('token',tok)    
         #ovde javuva greska : TypeError: unsupported operand type(s) for +: 'datetime.datetime' and 'int' - debagirano
-        dbTokenRow.extend() #ova go konvertira expiration_timestamp vo unix time i poradi toa dolniot red ne raboti, t.e ne moze da pravi sporedba
-        #self.assertEqual(dbTokenRow.isValid(), True)
+        dbTokenRow.extend() #ova go konvertira expiration_timestamp vo unix time
+        self.assertTrue(dbTokenRow.isValid()) #expiration_timestamp e vekje unix timestamp i ne moze da napravi sporedba, dokolku od extend se trgne to_unix_timestamp raboti dobro
     
     def test_generate(self):
         tok = 'ksdkfksdjf77w3647673'
