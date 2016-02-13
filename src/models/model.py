@@ -151,3 +151,4 @@ class Model(object):
         for prop in all_props:
             setattr(o, prop, row[prop])
         return o
+

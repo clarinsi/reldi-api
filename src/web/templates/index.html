@@ -194,208 +194,208 @@
 <script>
 var baseUrl = '/api/v1/';
 $(".search-lexicon").click(function (e) {
-        e.preventDefault();
-        var surface = $("#inputSurface").val();
-        var lemma = $("#inputLemma").val();
-        var msd = $("#inputMsd").val();
+    e.preventDefault();
+    var surface = $("#inputSurface").val();
+    var lemma = $("#inputLemma").val();
+    var msd = $("#inputMsd").val();
 //        var rhymes_with= $("#inputRhymesWith").val();
-        var no_of_syllables = $("#inputNoOfSyllables").val();
+    var no_of_syllables = $("#inputNoOfSyllables").val();
 
-        $(".display-result-lexicon").empty();
-        var url = baseUrl + 'hr/lexicon';
-        var data = {
-            surface: surface !== '' ? surface : null,
-            lemma: lemma !== '' ? lemma : null,
-            msd: msd !== '' ? msd : null,
-            no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null
-        };
+    $(".display-result-lexicon").empty();
+    var url = baseUrl + 'hr/lexicon';
+    var data = {
+        surface: surface !== '' ? surface : null,
+        lemma: lemma !== '' ? lemma : null,
+        msd: msd !== '' ? msd : null,
+        no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null
+    };
 
-        $(".search-lexicon").text('Searching ...').attr('disabled', 'disabled');
-        var sendDate = (new Date()).getTime();
-        jQuery.ajax({
-            type:"GET",
-            dataType: 'json',
-            url: url,
-            data: data,
-            success:function (data) {
-                if (data.count > 0) {
-                    $(".display-result-lexicon" ).append(JSON.stringify(data.result));
-                } else {
-                    $(".display-result-lexicon" ).append('No matching results');
-                }
-            },
-            error: function(response) {
-                $(".display-result-lexicon").append(JSON.parse(response.responseText));
-            },
-            complete: function(data) {
-                var receiveDate = (new Date()).getTime();
-                var responseTimeMs = receiveDate - sendDate;
-                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-                $('#lexicon-response-time').text(responseTimeText);
-                $(".search-lexicon").text('Search').removeAttr('disabled');
+    $(".search-lexicon").text('Searching ...').attr('disabled', 'disabled');
+    var sendDate = (new Date()).getTime();
+    jQuery.ajax({
+        type:"GET",
+        dataType: 'json',
+        url: url,
+        data: data,
+        success:function (data) {
+            if (data.count > 0) {
+                $(".display-result-lexicon" ).append(JSON.stringify(data.result));
+            } else {
+                $(".display-result-lexicon" ).append('No matching results');
             }
-
-        });
-
+        },
+        error: function(response) {
+            $(".display-result-lexicon").append(JSON.parse(response.responseText));
+        },
+        complete: function(data) {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+            $('#lexicon-response-time').text(responseTimeText);
+            $(".search-lexicon").text('Search').removeAttr('disabled');
+        }
 
     });
+
+
+});
 $(".search-segmenter").click(function (e) {
-        e.preventDefault();
-        var sentence = $("#inputSentenceSegmenter").val();
+    e.preventDefault();
+    var sentence = $("#inputSentenceSegmenter").val();
 
-        $(".display-result-segmenter").empty();
-        var url = baseUrl + 'hr/segment';
-        var data = {
-            text: sentence !== '' ? sentence : null,
-            format: 'json'
-        };
+    $(".display-result-segmenter").empty();
+    var url = baseUrl + 'hr/segment';
+    var data = {
+        text: sentence !== '' ? sentence : null,
+        format: 'json'
+    };
 
-        $(".search-segmenter").text('Searching ...').attr('disabled', 'disabled');
-        var sendDate = (new Date()).getTime();
-        jQuery.ajax({
-            type:"GET",
-            dataType: 'json',
-            url: url,
-            data: data,
-            success:function (data) {
-                if (data.count > 0) {
-                    $(".display-result-segmenter" ).append(JSON.stringify(data.result));
-                } else {
-                    $(".display-result-segmenter" ).append('No matching results');
-                }
-            },
-            error: function(response) {
-                $(".display-result-segmenter").append(JSON.parse(response.responseText));
-            },
-            complete: function(data) {
-                var receiveDate = (new Date()).getTime();
-                var responseTimeMs = receiveDate - sendDate;
-                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-                $('#segmenter-response-time').text(responseTimeText);
-                $(".search-segmenter").text('Search').removeAttr('disabled');
+    $(".search-segmenter").text('Searching ...').attr('disabled', 'disabled');
+    var sendDate = (new Date()).getTime();
+    jQuery.ajax({
+        type:"GET",
+        dataType: 'json',
+        url: url,
+        data: data,
+        success:function (data) {
+            if (data.count > 0) {
+                $(".display-result-segmenter" ).append(JSON.stringify(data.result));
+            } else {
+                $(".display-result-segmenter" ).append('No matching results');
             }
+        },
+        error: function(response) {
+            $(".display-result-segmenter").append(JSON.parse(response.responseText));
+        },
+        complete: function(data) {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+            $('#segmenter-response-time').text(responseTimeText);
+            $(".search-segmenter").text('Search').removeAttr('disabled');
+        }
 
-        });
+    });
 
 
-    });	
+});	
 $(".search-lemmatiser").click(function (e) {
-        e.preventDefault();
-        var sentence = $("#inputSentenceLemmatiser").val();
+    e.preventDefault();
+    var sentence = $("#inputSentenceLemmatiser").val();
 
-        $(".display-result-lemmatiser").empty();
-        var url = baseUrl + 'hr/lemmatise';
-        var data = {
-            text: sentence !== '' ? sentence : null,
-            format: 'json'
-        };
+    $(".display-result-lemmatiser").empty();
+    var url = baseUrl + 'hr/lemmatise';
+    var data = {
+        text: sentence !== '' ? sentence : null,
+        format: 'json'
+    };
 
-        $(".search-lemmatiser").text('Searching ...').attr('disabled', 'disabled');
-        var sendDate = (new Date()).getTime();
-        jQuery.ajax({
-            type:"GET",
-            dataType: 'json',
-            url: url,
-            data: data,
-            success:function (data) {
-                if (data.count > 0) {
-                    $(".display-result-lemmatiser" ).append(JSON.stringify(data.result));
-                } else {
-                    $(".display-result-lemmatiser" ).append('No matching results');
-                }
-            },
-            error: function(response) {
-                $(".display-result-lemmatiser").append(JSON.parse(response.responseText));
-            },
-            complete: function(data) {
-                var receiveDate = (new Date()).getTime();
-                var responseTimeMs = receiveDate - sendDate;
-                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-                $('#lemmatiser-response-time').text(responseTimeText);
-                $(".search-lemmatiser").text('Search').removeAttr('disabled');
+    $(".search-lemmatiser").text('Searching ...').attr('disabled', 'disabled');
+    var sendDate = (new Date()).getTime();
+    jQuery.ajax({
+        type:"GET",
+        dataType: 'json',
+        url: url,
+        data: data,
+        success:function (data) {
+            if (data.count > 0) {
+                $(".display-result-lemmatiser" ).append(JSON.stringify(data.result));
+            } else {
+                $(".display-result-lemmatiser" ).append('No matching results');
             }
+        },
+        error: function(response) {
+            $(".display-result-lemmatiser").append(JSON.parse(response.responseText));
+        },
+        complete: function(data) {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+            $('#lemmatiser-response-time').text(responseTimeText);
+            $(".search-lemmatiser").text('Search').removeAttr('disabled');
+        }
 
-        });
+    });
 
 
-    });	
+});	
 $(".search-tag").click(function (e) {
-        e.preventDefault();
-        var sentence = $("#inputSentenceTag").val();
+    e.preventDefault();
+    var sentence = $("#inputSentenceTag").val();
 
-        $(".display-result-tag").empty();
-        var url = baseUrl + 'hr/tag';
-        var data = {
-            text: sentence !== '' ? sentence : null,
-            format: 'json'
-        };
+    $(".display-result-tag").empty();
+    var url = baseUrl + 'hr/tag';
+    var data = {
+        text: sentence !== '' ? sentence : null,
+        format: 'json'
+    };
 
-        $(".search-tag").text('Searching ...').attr('disabled', 'disabled');
-        var sendDate = (new Date()).getTime();
-        jQuery.ajax({
-            type:"GET",
-            dataType: 'json',
-            url: url,
-            data: data,
-            success:function (data) {
-                if (data.count > 0) {
-                    $(".display-result-tag" ).append(JSON.stringify(data.result));
-                } else {
-                    $(".display-result-tag" ).append('No matching results');
-                }
-            },
-            error: function(response) {
-                $(".display-result-tag").append(JSON.parse(response.responseText));
-            },
-            complete: function(data) {
-                var receiveDate = (new Date()).getTime();
-                var responseTimeMs = receiveDate - sendDate;
-                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-                $('#tag-response-time').text(responseTimeText);
-                $(".search-tag").text('Search').removeAttr('disabled');
+    $(".search-tag").text('Searching ...').attr('disabled', 'disabled');
+    var sendDate = (new Date()).getTime();
+    jQuery.ajax({
+        type:"GET",
+        dataType: 'json',
+        url: url,
+        data: data,
+        success:function (data) {
+            if (data.count > 0) {
+                $(".display-result-tag" ).append(JSON.stringify(data.result));
+            } else {
+                $(".display-result-tag" ).append('No matching results');
             }
+        },
+        error: function(response) {
+            $(".display-result-tag").append(JSON.parse(response.responseText));
+        },
+        complete: function(data) {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+            $('#tag-response-time').text(responseTimeText);
+            $(".search-tag").text('Search').removeAttr('disabled');
+        }
 
-        });
+    });
 
 
 });	
 $(".search-tag-lemmatise").click(function (e) {
-        e.preventDefault();
-        var sentence = $("#inputSentenceTagLemmatise").val();
+    e.preventDefault();
+    var sentence = $("#inputSentenceTagLemmatise").val();
 
-        $(".display-result-tag-lemmatise").empty();
-        var url = baseUrl + 'hr/tag_lemmatise';
-        var data = {
-            text: sentence !== '' ? sentence : null,
-            format: 'json'
-        };
+    $(".display-result-tag-lemmatise").empty();
+    var url = baseUrl + 'hr/tag_lemmatise';
+    var data = {
+        text: sentence !== '' ? sentence : null,
+        format: 'json'
+    };
 
-        $(".search-tag-lemmatise").text('Searching ...').attr('disabled', 'disabled');
-        var sendDate = (new Date()).getTime();
-        jQuery.ajax({
-            type:"GET",
-            dataType: 'json',
-            url: url,
-            data: data,
-            success:function (data) {
-                if (data.count > 0) {
-                    $(".display-result-tag-lemmatise" ).append(JSON.stringify(data.result));
-                } else {
-                    $(".display-result-tag-lemmatise" ).append('No matching results');
-                }
-            },
-            error: function(response) {
-                $(".display-result-tag-lemmatise").append(JSON.parse(response.responseText));
-            },
-            complete: function(data) {
-                var receiveDate = (new Date()).getTime();
-                var responseTimeMs = receiveDate - sendDate;
-                var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-                $('#tag-lemmatise-response-time').text(responseTimeText);
-                $(".search-tag-lemmatise").text('Search').removeAttr('disabled');
+    $(".search-tag-lemmatise").text('Searching ...').attr('disabled', 'disabled');
+    var sendDate = (new Date()).getTime();
+    jQuery.ajax({
+        type:"GET",
+        dataType: 'json',
+        url: url,
+        data: data,
+        success:function (data) {
+            if (data.count > 0) {
+                $(".display-result-tag-lemmatise" ).append(JSON.stringify(data.result));
+            } else {
+                $(".display-result-tag-lemmatise" ).append('No matching results');
             }
+        },
+        error: function(response) {
+            $(".display-result-tag-lemmatise").append(JSON.parse(response.responseText));
+        },
+        complete: function(data) {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+            $('#tag-lemmatise-response-time').text(responseTimeText);
+            $(".search-tag-lemmatise").text('Search').removeAttr('disabled');
+        }
 
-        });
+    });
 
 
 });	

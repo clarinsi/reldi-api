@@ -95,7 +95,7 @@ class WebRouter(Blueprint):
         @authenticate(['admin', 'user'])
         def query():
             user = UserModel.getByUsername('admin')
-            return render_template('index.html', name = 'Filip')
+            return render_template('search.html', name = 'Filip')
 
         @self.route('/admin')
         @authenticate(['admin'])
