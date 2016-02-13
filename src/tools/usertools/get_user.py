@@ -41,7 +41,7 @@ class GetUserByUsernameCommand(Command):
         # Read parameters
         username = i.get_argument('username')
         user = UserModel.getByUsername(username)
-        user.save()
+        print user
 
 
 

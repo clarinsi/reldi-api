@@ -22,16 +22,19 @@ class WebRouter(Blueprint):
                 def check_token(*args, **kwargs):
                     auth_token_string = request.cookies.get('auth-token')
                     authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
-                    if authToken is not None and authToken.isValid():
-                        user = UserModel.getByPk(authToken.user_id)
-                        if user is not None and user.role in roles:
-                            return api_method(*args, **kwargs)
-                        elif user is not None:
-                            return make_response(redirect(url_for('.query')))
-                        else:
-                            return make_response(redirect(url_for('.login')))
-                    else:
+                    if authToken is None or not authToken.isValid():
                         return make_response(redirect(url_for('.login')))
+
+                    user = UserModel.getByPk(authToken.user_id)
+                    if user is None:
+                        return make_response(redirect(url_for('.login')))
+                    if user.isBlocked() or user.isPending():
+                        return make_response(redirect(url_for('.login')))
+                    if user.role in roles:
+                        return api_method(*args, **kwargs)
+                    
+                    return make_response(redirect(url_for('.query')))
+                        
                 return check_token
             return wrapper
 
@@ -47,8 +50,7 @@ class WebRouter(Blueprint):
                 else:
                     return make_response(redirect(url_for('.query')))
 
-            response = Response(render_template('login.html'))
-            return response
+            return Response(render_template('login.html'))
 
         @self.route('/login', methods=['POST'])
         def do_login():
@@ -56,21 +58,20 @@ class WebRouter(Blueprint):
             password = request.form.get('password')
             response = make_response(redirect(url_for('.login')))
 
-            if username is not None and password is not None:
-                user = UserModel.getByUsername(username)
-                if user is not None:
-                    try:
-                        token = user.generateToken(password)
-                        token.save()
-                        response.set_cookie('auth-token', token.token)
-                    except ValueError:
-                        flash('Invalid username or password', 'danger')
-                    # flash('You were successfully logged in', 'success')
-                else:
-                    flash('Invalid username or password', 'danger')
-            else:
+            if username is None or password is None:
                 flash('Invalid username or password', 'danger')
-
+            
+            user = UserModel.getByUsername(username)
+            if user is None:
+                flash('Invalid username or password', 'danger')
+            else:
+                try:
+                    token = user.generateToken(password)
+                    token.save()
+                    response.set_cookie('auth-token', token.token)
+                except ValueError as e:
+                    flash(e.__str__(), 'danger')
+            
             return response
 
         @self.route('/logout', methods=["POST"])

@@ -42,9 +42,15 @@ class UserModel(Model):
         self.password = hash_password(password)
 
     def generateToken(self, password, is_long_lasting = False):
+
         isPasswordValid = verify_password(password, self.password)
-        if (not isPasswordValid):
-            raise ValueError("Invaid password")
+        if not isPasswordValid:
+            raise ValueError("Invaid username or password")
+        if self.isBlocked():
+            raise ValueError('This user has been blocked')
+        if self.isPending():
+            raise ValueError('This user has not been approved yet')
+
         token = AuthTokenModel.generate(is_long_lasting)
         token.user_id = self.id
         return token
@@ -60,6 +66,15 @@ class UserModel(Model):
 
     def block(self):
         self.status = 'blocked'
+
+    def isBlocked(self):
+        return self.status == 'blocked'
+
+    def isPending(self):
+        return self.status == 'pending'
+
+    def isActive(self):
+        return self.status == 'active'
 
     def activate(self):
         self.status = 'active'

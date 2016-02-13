@@ -21,7 +21,7 @@ def to_unix_timestamp(dt):
     if dt is None:
         return None
 
-    tz = pytz.timezone('CET')
+    tz = pytz.timezone('UTC')
     dt_with_tz = tz.localize(dt, is_dst=None)
     ts = (dt_with_tz - datetime(1970, 1, 1, tzinfo=pytz.utc)).total_seconds()
     return ts

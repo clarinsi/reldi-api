@@ -33,6 +33,21 @@ class ServerError(Exception):
         return rv
 
 
+class Unauthorized(Exception):
+    status_code = 401
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -65,19 +80,18 @@ class ApiRouter(Blueprint):
             def verify(*args, **kwargs):
                 auth_token_string = request.cookies.get('auth-token')
                 authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
-                if authToken is not None and authToken.isValid():
-                    user = UserModel.getByPk(authToken.user_id)
-                    # Log request
-                    if user is not None:
-                        user.logRequest()
-                        user.save()
-                        return api_method(*args, **kwargs)
-                    else:
-                        return error_message('Invalid token')
-                    
-                else:
-                    return error_message('Invalid token')
+                if authToken is None or not authToken.isValid():
+                    raise Unauthorized('Invalid token')
 
+                # Log request
+                user = UserModel.getByPk(authToken.user_id)
+                if user is None:
+                    raise Unauthorized('Invalid token')
+                
+                user.logRequest()
+                user.save()
+                return api_method(*args, **kwargs)
+                
             return verify
 
         def get_text(format, request):
@@ -95,22 +109,10 @@ class ApiRouter(Blueprint):
         def index():
             return "Main"
 
-        @self.errorhandler(ServerError)
-        def handle_invalid_usage(error):
-            response = jsonify(error.to_dict())
-            response.status_code = error.status_code
-            return response
-                
-        @self.errorhandler(InvalidUsage)
-        def handle_invalid_usage(error):
-            response = jsonify(error.to_dict())
-            response.status_code = error.status_code
-            return response
-
         @self.errorhandler(Exception)
-        def handle_invalid_usage(error):
+        def handle_error(error):
            response = jsonify(error.message)
-           response.status_code = 400
+           response.status_code = error.status_code
            return response
 
         @self.route('/<lang>/lexicon', methods=['GET'])
@@ -142,7 +144,7 @@ class ApiRouter(Blueprint):
             #   func = types.FunctionType(code, globals(), "some_func_name")
 
             #   return jsonify(func(10, 10))
-            lex = dc.getInstance('lexicon.' + lang)
+            lex = dc['lexicon.' + lang]
             result = lex.query_entry(surface, lemma, msd, rhymes_with, no_of_syllables)
 
             return jsonify({

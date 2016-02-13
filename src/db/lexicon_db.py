@@ -6,9 +6,19 @@ import re
 from reldi_db import DB
 
 class LexiconDB(DB):
-	# Object constructor
-	def __init__(self, language):
-		'''Override database'''
-		thispath = os.path.dirname(os.path.realpath(__file__))
-		database = os.path.realpath('assets/') + '/lexdb_' + language
-		DB.__init__(self, database)
+    
+    _instance = None
+
+    @staticmethod
+    def getInstance(language):
+        database = os.path.realpath('assets/') + '/lexdb_' + language
+
+        if (LexiconDB._instance is None):
+            LexiconDB._instance = LexiconDB(DB._THE_MAGIC_WORD)
+            if (LexiconDB._instance._connection is None):
+                # Initialize connection
+                LexiconDB._instance._connection = sqlite3.connect(database, isolation_level=None)
+                LexiconDB._instance._connection.text_factory = str
+                LexiconDB._instance._client = LexiconDB._instance._connection.cursor()
+            
+        return LexiconDB._instance

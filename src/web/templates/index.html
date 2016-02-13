@@ -245,7 +245,8 @@ $(".search-segmenter").click(function (e) {
         $(".display-result-segmenter").empty();
         var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/segment';
         var data = {
-            sentence: sentence !== '' ? sentence : null
+            text: sentence !== '' ? sentence : null,
+            format: 'json'
         };
 
         $(".search-segmenter").text('Searching ...').attr('disabled', 'disabled');
@@ -284,7 +285,8 @@ $(".search-lemmatiser").click(function (e) {
         $(".display-result-lemmatiser").empty();
         var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/lemmatise';
         var data = {
-            sentence: sentence !== '' ? sentence : null
+            text: sentence !== '' ? sentence : null,
+            format: 'json'
         };
 
         $(".search-lemmatiser").text('Searching ...').attr('disabled', 'disabled');
@@ -323,7 +325,8 @@ $(".search-tag").click(function (e) {
         $(".display-result-tag").empty();
         var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/tag';
         var data = {
-            sentence: sentence !== '' ? sentence : null
+            text: sentence !== '' ? sentence : null,
+            format: 'json'
         };
 
         $(".search-tag").text('Searching ...').attr('disabled', 'disabled');
@@ -362,7 +365,8 @@ $(".search-tag-lemmatise").click(function (e) {
         $(".display-result-tag-lemmatise").empty();
         var url = 'http://faustjr.ffzg.hr:8080/api/v1/hr/tag_lemmatise';
         var data = {
-            sentence: sentence !== '' ? sentence : null
+            text: sentence !== '' ? sentence : null,
+            format: 'json'
         };
 
         $(".search-tag-lemmatise").text('Searching ...').attr('disabled', 'disabled');

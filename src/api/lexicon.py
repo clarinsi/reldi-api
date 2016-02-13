@@ -59,7 +59,7 @@ class Lexicon(object,):
 		if no_of_syllables is not None:
 			expr.where('no_of_syllables', '=', no_of_syllables)
 
-		db = LexiconDB(self.language)
+		db = LexiconDB.getInstance(self.language)
 		sql = expr.toSQL()
 		result = db.query(sql)
 		resultMap = map(lambda x: (
