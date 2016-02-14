@@ -118,8 +118,26 @@ class WebRouter(Blueprint):
             user.role = request.form.get("role","")
             user. status= request.form.get("status","")
             user.requests_limit= request.form.get("requests_limit","")
+            print user
             user.save()
-            return make_response(redirect(url_for('.admin')))
+            return render_template('admin.html')
+
+        @self.route('/register', methods=["POST"])
+        def register_user():
+            user = UserModel()
+            user.role = 'user'
+            user. status = 'pending'
+            user.requests_made= 0
+            user.requests_limit= request.form.get("requests_limit","")
+            user.username= request.form.get("username","")
+            user.email= request.form.get("email","")
+            user.project= request.form.get("project","")
+            if request.form.get("password","") == request.form.get("confirm_password",""):
+                user.setPassword(request.form.get("password",""))
+            else:
+                raise ValueError("Passwords aren't equal")
+            user.save()
+            return render_template('admin.html')
 
         @self.route('/admin')
         @authenticate(['admin'])

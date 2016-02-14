@@ -5,35 +5,47 @@
 		<div class="panel panel-default">
 		<div class="panel-heading"> <strong class="">Request access</strong></div>
 			<div class="panel-body">
-				<form class="form-horizontal" role="form" id="registerForm">
+				<form class="form-horizontal" role="form" id="registerForm" method="POST" action="{{ url_for('.register') }}">
 					<div class="form-group">
 						<label for="inputUsername" class="col-sm-3 control-label">Username</label>
 						<div class="col-sm-9">
-							<input type="text" class="form-control" id="inputUsername" placeholder="Username" required="">
+							<input type="text" class="form-control" id="inputUsername" name="username" placeholder="Username" required="">
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="inputProject" class="col-sm-3 control-label">Project</label>
 						<div class="col-sm-9">
-							<input type="text" class="form-control" id="inputProject" placeholder="Project" required="">
+							<input type="text" class="form-control" id="inputProject" name="project" placeholder="Project" required="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputProject" class="col-sm-3 control-label">E-mail</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="inputEmail" name="email" placeholder="E-mail" required="">
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="inputPassword" class="col-sm-3 control-label">Password</label>
 						<div class="col-sm-9">
-							<input type="password" class="form-control" id="inputPassword" placeholder="Password" required="">
+							<input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" required="">
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="inputConfirmPassword" class="col-sm-3 control-label">Confirm password</label>
 						<div class="col-sm-9">
-							<input type="password" class="form-control" id="inputConfirmPassword" placeholder="Confirm Password" required="">
+							<input type="password" class="form-control" id="inputConfirmPassword" name="confirm_password" placeholder="Confirm Password" required="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputProject" class="col-sm-3 control-label">Request limit</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="inputRequestLimit" name="requests_limit" placeholder="Request limit" required="">
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="textAreaNote" class="col-sm-3 control-label">Note</label>
 						<div class="col-sm-9">
-							<textarea class="form-control" rows="3" id="textAreaNote"></textarea>
+							<textarea class="form-control" rows="3" name="note" id="textAreaNote"></textarea>
 						</div>
 					</div>
 					<div class="form-group last">
@@ -43,7 +55,7 @@
 					</div>
 				</form>
 			</div>
-			<div class="panel-footer">If you already have an account click here 
+			<div class="panel-footer">If you already have an account click here
 				<a href="{{url_for('.login')}}" class="">Log in</a>
 			</div>
 		</div>
