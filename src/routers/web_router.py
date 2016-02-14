@@ -4,6 +4,7 @@ from flask import Blueprint
 from flask import render_template, request, flash, Response
 from flask import redirect, make_response, url_for
 from functools import wraps
+from validate_email import validate_email
 
 modelsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../models')
 sys.path.append(modelsPath)
@@ -130,7 +131,11 @@ class WebRouter(Blueprint):
             user.requests_made= 0
             user.requests_limit= request.form.get("requests_limit","")
             user.username= request.form.get("username","")
-            user.email= request.form.get("email","")
+            is_valid = validate_email(request.form.get("email",""))
+            if is_valid == 1:
+                user.email= request.form.get("email","")
+            else:
+                raise ValueError("Invalid e-mail address")
             user.project= request.form.get("project","")
             if request.form.get("password","") == request.form.get("confirm_password",""):
                 user.setPassword(request.form.get("password",""))
