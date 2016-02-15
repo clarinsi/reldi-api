@@ -33,13 +33,14 @@
 								<td>{{user.requests_limit}}</td>
 								<td>{{user.requests_made}}</td>
 								<td>
-									<form method="POST" action="{{ url_for('.block_user', id=user.id) }}">
-										<button type="submit" class="btn btn-danger btn-sm">Block</button>
+									<a href="{{url_for('.edit', id=user.id)}}" class="btn btn-xs btn-default">Edit</a>
+									<form class="user-action-form" method="POST" action="{{ url_for('.activate_user', id=user.id) }}">
+										<button type="submit" class="btn btn-danger btn-xs">Block</button>
 									</form>
 								</td>
 							</tr>
 							{% endfor %}
-						</table>		
+						</table>
 	                </div>
 
 	                <div id="pending-users-form" class="form-horizontal  tab-pane fade">
@@ -62,8 +63,9 @@
 								<td>{{user.requests_limit}}</td>
 								<td>{{user.requests_made}}</td>
 								<td>
-									<form method="POST" action="{{ url_for('.activate_user', id=user.id) }}">
-										<button type="submit" class="btn btn-primary btn-sm">Approve</button>
+									<a href="{{url_for('.edit', id=user.id)}}" class="btn btn-xs btn-default">Edit</a>
+									<form class="user-action-form" method="POST" action="{{ url_for('.activate_user', id=user.id) }}">
+										<button type="submit" class="btn btn-primary btn-xs">Approve</button>
 									</form>
 								</td>
 							</tr>
@@ -91,8 +93,9 @@
 								<td>{{user.requests_limit}}</td>
 								<td>{{user.requests_made}}</td>
 								<td>
-									<form method="POST" action="{{ url_for('.activate_user', id=user.id) }}">
-										<button type="submit" class="btn btn-primary btn-sm">Re-activate</button>
+									<a href="{{url_for('.edit', id=user.id)}}" class="btn btn-xs btn-default">Edit</a>
+									<form class="user-action-form" method="POST" action="{{ url_for('.activate_user', id=user.id) }}">
+										<button type="submit" class="btn btn-primary btn-xs">Re-activate</button>
 									</form>
 								</td>
 							</tr>
