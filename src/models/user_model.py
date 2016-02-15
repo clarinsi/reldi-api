@@ -1,20 +1,9 @@
-import sys, os
-
-dbpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../db')
-sys.path.append(dbpath)
-
-helperspath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/..')
-sys.path.append(helperspath)
-
-from users_db import UsersDB
 from model import Model
-from query_expression import QueryExpression
-from helpers import hash_password
-from helpers import verify_password
-from helpers import generate_token
+from ..helpers import hash_password
+from ..helpers import verify_password
 from auth_token_model import AuthTokenModel
-from datetime import datetime, timedelta
-from functools import wraps
+from datetime import datetime
+
 
 class UserModel(Model):
 

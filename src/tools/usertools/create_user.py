@@ -4,11 +4,8 @@ import os
 import regex
 import codecs
 
-dbpath = os.path.realpath('../models')
-sys.path.append(dbpath)
-
 from cleo import Command, InputArgument, InputOption
-from user_model import UserModel
+from ...models.user_model import UserModel
 
 class CreateUserCommand(Command):
 

@@ -1,18 +1,7 @@
-import sys, os
-
-helperspath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/..')
-sys.path.append(helperspath)
-
-dbpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../db')
-sys.path.append(dbpath)
-
-import re
-from users_db import UsersDB
 from model import Model
-from query_expression import QueryExpression
-from helpers import hash_password, verify_password, generate_token, to_unix_timestamp
+from ..helpers import generate_token, to_unix_timestamp
 from datetime import datetime, timedelta
-import pytz
+
 
 class AuthTokenModel(Model):
 

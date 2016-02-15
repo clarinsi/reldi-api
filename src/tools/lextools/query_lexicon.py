@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-import re
-
-apiPath = os.path.realpath('../api')
-sys.path.append(apiPath)
 
 from cleo import Command, InputArgument, InputOption
-from lexicon import Lexicon
+from src.api.lexicon import Lexicon
+
 
 class QueryLexiconCommand(Command):
 

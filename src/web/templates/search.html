@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-  <div class="panel panel-default">
+<div class="panel panel-default">
   <div class="panel-heading"> <strong class="">Query</strong>
   </div>
   <div class="panel-body">
@@ -10,93 +10,93 @@
                   <form id="search-form" class="form-horizontal tab-pane fade in active" >
                       <fieldset>
                           <div class="form-group">
-					                      <label for="input-text" class="col-md-2 control-label">Input</label>
-  				                      <div class="col-md-10">
-                                   <textarea class="form-control" rows="2" required="required" id="input-text"></textarea>
-  				                      </div>
-      						        </div>
+                            <label for="input-text" class="col-md-2 control-label">Input</label>
+                            <div class="col-md-10">
+                             <textarea class="form-control" rows="2" required="required" id="input-text"></textarea>
+                         </div>
+                     </div>
 
-                          <div class="form-group">
-                                <label class="col-md-2 control-label">Input format</label>
-                                <div class="col-md-10">
-                                 <label class="radio-inline">
-                                    <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
-                                    Text
-                                  </label>
-        							            <label class="radio-inline">
-  								                  <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
-  								                  TCF
-        							            </label>
-                                </div>
-      						        </div>
+                     <div class="form-group">
+                        <label class="col-md-2 control-label">Input format</label>
+                        <div class="col-md-10">
+                           <label class="radio-inline">
+                            <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
+                            Text
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
+                            TCF
+                        </label>
+                    </div>
+                </div>
 
-                          <div class="form-group">
-                              <label class="col-md-2 control-label">Function</label>
-                              <div class="col-md-10">
-                                <label class="radio-inline">
-  								                <input type="radio" name="method" required="required" id="method1" value="tag">
-          								          Tag
-      							             </label>
-      							            <label class="radio-inline">
-  								                <input type="radio" name="method" required="required" id="method2" value="lemmatise">
-  								                  Lemmatise
-      							            </label>
-      							            <label class="radio-inline">
-  								                <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
-							                    Tag + Lematize
-        							          </label>
-                              </div>
-      						         </div>
-      						         <div class="form-group">
-                                <div class="col-md-10 col-md-offset-2">
-                                    <button id="search-button" type="submit" class="btn btn-primary">Search</button>
-                                </div>
-                          </div>
-                      </fieldset>
-                  </form>
+                <div class="form-group">
+                  <label class="col-md-2 control-label">Function</label>
+                  <div class="col-md-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="method" required="required" id="method1" value="tag">
+                      Tag
+                  </label>
+                  <label class="radio-inline">
+                      <input type="radio" name="method" required="required" id="method2" value="lemmatise">
+                      Lemmatise
+                  </label>
+                  <label class="radio-inline">
+                      <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
+                      Tag + Lematize
+                  </label>
               </div>
           </div>
-        </div>
-        <div class="col-md-6">
           <div class="form-group">
-                <label for="textArea" class="col-md-12 control-label">Result</label>
-                <div class="col-md-12">
-                    <textarea id="result-area" readonly="readonly" class="form-control"
-                              rows="20" id="textArea"></textarea>
-                    <div class="help-block">
-                        Result set
-                        <span id="response-time"></span>
-                    </div>
-
-                </div>
-          </div>
+            <div class="col-md-10 col-md-offset-2">
+                <button id="search-button" type="submit" class="btn btn-primary">Search</button>
+            </div>
         </div>
+    </fieldset>
+</form>
+</div>
+</div>
+</div>
+<div class="col-md-6">
+  <div class="form-group">
+    <label for="textArea" class="col-md-12 control-label">Result</label>
+    <div class="col-md-12">
+        <textarea id="result-area" readonly="readonly" class="form-control"
+        rows="20" id="textArea"></textarea>
+        <div class="help-block">
+            Result set
+            <span id="response-time"></span>
+        </div>
+
     </div>
-  </div>
+</div>
+</div>
+</div>
+</div>
 {% endblock %}
 
 
 {% block scripts %}
 <script>
-var baseUrl = '/api/v1/';
-$('#search-form').submit(function(e) {
-  e.preventDefault();
-});
-$("#search-button").click(function (e) {
-  e.preventDefault();
+    var baseUrl = '/api/v1/';
+    $('#search-form').submit(function(e) {
+      e.preventDefault();
+  });
+    $("#search-button").click(function (e) {
+      e.preventDefault();
 
-  var text = $("#input-text").val();
-  var inputFormat = $('input[name="input-format"]:checked').val();
-  var method = $('input[name="method"]:checked').val();
+      var text = $("#input-text").val();
+      var inputFormat = $('input[name="input-format"]:checked').val();
+      var method = $('input[name="method"]:checked').val();
 
-  if (!text || !inputFormat || !method) {
-    return;
-  }
+      if (!text || !inputFormat || !method) {
+        return;
+    }
 
-  $(".display-result-search").empty();
-  var lang = 'hr';
-  var url = baseUrl + lang + '/' + method;
-  var data = {
+    $(".display-result-search").empty();
+    var lang = 'hr';
+    var url = baseUrl + lang + '/' + method;
+    var data = {
       text: text !== '' ? text : null,
       format: inputFormat
   };
@@ -111,18 +111,18 @@ $("#search-button").click(function (e) {
       data: data,
       success:function (data) {
         $("#result-area").append(JSON.stringify(data, null, 4));
-      },
-      error: function(response) {
-          $("#result-area").append(JSON.parse(response.responseText));
-      },
-      complete: function(data) {
-          var receiveDate = (new Date()).getTime();
-          var responseTimeMs = receiveDate - sendDate;
-          var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-          $('#response-time').text(responseTimeText);
-          $("#search-button").text('Search').removeAttr('disabled');
-      }
-  });
+    },
+    error: function(response) {
+      $("#result-area").append(JSON.parse(response.responseText));
+  },
+  complete: function(data) {
+      var receiveDate = (new Date()).getTime();
+      var responseTimeMs = receiveDate - sendDate;
+      var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+      $('#response-time').text(responseTimeText);
+      $("#search-button").text('Search').removeAttr('disabled');
+  }
+});
 
 
 });

@@ -1,16 +1,6 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import regex
-import codecs
-from datetime import datetime
-
-dbpath = os.path.realpath('../models')
-sys.path.append(dbpath)
-
 from cleo import Command, InputArgument, InputOption
-from user_model import UserModel
-from auth_token_model import AuthTokenModel
+from ...models.user_model import UserModel
 
 
 class GetUserByUsernameCommand(Command):

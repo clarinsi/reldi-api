@@ -1,21 +1,15 @@
 
 import sys
 import xml.etree.ElementTree as ET
-from helpers import jsonify, jsonResponse, TCF, jsonTCF, isset
-import json
+from ..helpers import jsonify, TCF, jsonTCF, isset
 
 from flask import Blueprint
-from flask.ext.cors import CORS
 from flask import request
-from flask import make_response
 from flask import Response
 from functools import wraps
-import os
+from ..models.user_model import UserModel
+from ..models.auth_token_model import AuthTokenModel
 
-modelsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../models')
-sys.path.append(modelsPath)
-from user_model import UserModel
-from auth_token_model import AuthTokenModel
 
 class ServerError(Exception):
     status_code = 500
@@ -48,6 +42,7 @@ class Unauthorized(Exception):
         rv['message'] = self.message
         return rv
 
+
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -62,6 +57,7 @@ class InvalidUsage(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
+
 
 class ApiRouter(Blueprint):
     def __init__(self, dc):

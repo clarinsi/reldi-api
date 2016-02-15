@@ -1,18 +1,16 @@
 import sys, os
 
-dbpath = os.path.realpath('../db')
-sys.path.append(dbpath)
 import json
 from datetime import datetime
-from users_db import UsersDB
-from query_expression import QueryExpression
+from ..db.users_db import UsersDB
+from ..db.query_expression import QueryExpression
 
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
-class Model(object):
 
+class Model(object):
     def __init__(self):
 
         self.all_props = self.__class__.model_props() + ['created', 'updated']

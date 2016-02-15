@@ -1,17 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import regex
-import codecs
-
-modelspath = os.path.realpath('../models')
-dbpath = os.path.realpath('../db')
-sys.path.append(modelspath)
-sys.path.append(dbpath)
-
 from cleo import Command, InputArgument, InputOption
-from users_db import UsersDB
-from user_model import UserModel
+
+from ...db.users_db import UsersDB
+from ...models.user_model import UserModel
+
 
 class ResetDB(Command):
 

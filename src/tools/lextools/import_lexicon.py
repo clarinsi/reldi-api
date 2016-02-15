@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
 import regex
 import codecs
 
-dbpath = os.path.realpath('../db')
-sys.path.append(dbpath)
-
 from cleo import Command, InputArgument, InputOption
-from lexicon_db import LexiconDB
+from src.db.lexicon_db import LexiconDB
+
 
 class ImportLexiconCommand(Command):
 

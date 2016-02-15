@@ -7,11 +7,12 @@ from functools import wraps
 
 modelsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../models')
 sys.path.append(modelsPath)
-from user_model import UserModel
-from auth_token_model import AuthTokenModel
+from ..models.user_model import UserModel
+from ..models.auth_token_model import AuthTokenModel
+
 
 class WebRouter(Blueprint):
-   def __init__(self, dc):
+    def __init__(self, dc):
         templateFolder = os.path.realpath('src/web/templates')
         staticFolder = os.path.realpath('src/web/templates/static')
         Blueprint.__init__(self, 'web_router', 'web_router', template_folder=templateFolder, static_folder=staticFolder)
@@ -86,7 +87,7 @@ class WebRouter(Blueprint):
 
             return response
 
-       	@self.route('/register')
+        @self.route('/register')
         def register():
             user = UserModel.getByUsername('admin')
             return render_template('register.html', name = 'Filip')
