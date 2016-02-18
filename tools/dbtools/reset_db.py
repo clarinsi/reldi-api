@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from cleo import Command, InputArgument, InputOption
 
-from ...db.users_db import UsersDB
-from ...models.user_model import UserModel
+from src.db.users_db import UsersDB
+from src.models.user_model import UserModel
 
 
 class ResetDB(Command):

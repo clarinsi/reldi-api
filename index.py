@@ -13,6 +13,8 @@ from src.api.lematiser import Lematiser
 from src.routers.api_router import ApiRouter
 from src.routers.web_router import WebRouter
 
+from flask import make_response, redirect
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -37,6 +39,10 @@ def init():
 
     web_router = WebRouter(dc)
     app.register_blueprint(web_router, url_prefix='/web')
+
+    @app.route('/', methods=['GET'])
+    def index():
+        return make_response(redirect('/web'))
 
     return app
 

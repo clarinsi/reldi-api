@@ -1,7 +1,7 @@
 import os
 import sys
 from flask import Blueprint
-from flask import render_template, request, flash, Response
+from flask import render_template, request, flash, Response, session
 from flask import redirect, make_response, url_for
 from functools import wraps
 from validate_email import validate_email
@@ -90,7 +90,36 @@ class WebRouter(Blueprint):
 
         @self.route('/register')
         def register():
-            return render_template('register.html')
+            form = session.get('form', {})
+            if 'form' in session:
+                del session['form']
+            return render_template('register.html', form=form)
+
+        @self.route('/register', methods=["POST"])
+        def do_register():
+            user = UserModel()
+            user.role = 'user'
+            user.status = 'pending'
+            user.requests_made = 0
+            user.requests_limit = request.form.get("requests_limit")
+            user.username = request.form.get("username")
+            user.project = request.form.get("project")
+
+            is_valid = validate_email(request.form.get("email"))
+            if is_valid == 1:
+                user.email = request.form.get("email")
+            else:
+                session['form'] = request.form
+                flash('Invalid email address', 'danger')
+                return make_response(redirect(url_for('.register')))
+            if request.form.get("password") != request.form.get("confirm_password"):
+                session['form'] = request.form
+                flash('Passwords do not match', 'danger')
+                return make_response(redirect(url_for('.register')))
+
+            user.setPassword(request.form.get("password"))
+            user.save()
+            return render_template('register_success.html')
 
         @self.route('/query')
         @authenticate(['admin', 'user'])
@@ -119,28 +148,6 @@ class WebRouter(Blueprint):
             user.role = request.form.get("role","")
             user. status= request.form.get("status","")
             user.requests_limit= request.form.get("requests_limit","")
-            print user
-            user.save()
-            return render_template('admin.html')
-
-        @self.route('/register', methods=["POST"])
-        def register_user():
-            user = UserModel()
-            user.role = 'user'
-            user. status = 'pending'
-            user.requests_made= 0
-            user.requests_limit= request.form.get("requests_limit","")
-            user.username= request.form.get("username","")
-            is_valid = validate_email(request.form.get("email",""))
-            if is_valid == 1:
-                user.email= request.form.get("email","")
-            else:
-                raise ValueError("Invalid e-mail address")
-            user.project= request.form.get("project","")
-            if request.form.get("password","") == request.form.get("confirm_password",""):
-                user.setPassword(request.form.get("password",""))
-            else:
-                raise ValueError("Passwords aren't equal")
             user.save()
             return render_template('admin.html')
 

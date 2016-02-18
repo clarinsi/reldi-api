@@ -3,13 +3,13 @@
 
 from cleo import Application
 
-from dbtools.reset_db import ResetDB
-from lextools.import_lexicon import ImportLexiconCommand
-from lextools.query_lexicon import QueryLexiconCommand
-from usertools.create_user import CreateUserCommand
-from usertools.delete_user import DeleteUserByUsernameCommand
-from usertools.get_user import GetUserByUsernameCommand
-from usertools.login_user import LoginUserWithCredentials
+from tools.dbtools.reset_db import ResetDB
+from tools.lextools.import_lexicon import ImportLexiconCommand
+from tools.lextools.query_lexicon import QueryLexiconCommand
+from tools.usertools.create_user import CreateUserCommand
+from tools.usertools.delete_user import DeleteUserByUsernameCommand
+from tools.usertools.get_user import GetUserByUsernameCommand
+from tools.usertools.login_user import LoginUserWithCredentials
 
 application = Application()
 application.add(ImportLexiconCommand())

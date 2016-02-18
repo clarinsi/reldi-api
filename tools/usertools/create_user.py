@@ -5,7 +5,7 @@ import regex
 import codecs
 
 from cleo import Command, InputArgument, InputOption
-from ...models.user_model import UserModel
+from src.models.user_model import UserModel
 
 class CreateUserCommand(Command):
 
