@@ -58,6 +58,7 @@ class UsersDB(DB):
                 password TEXT NOT NULL,
                 project TEXT,
                 requests_limit INTEGER NOT NULL,
+                note TEXT,
                 requests_made INTEGER NOT NULL DEFAULT 0,
                 last_request_datetime TEXT,
                 role TEXT NOT NULL,

@@ -1,5 +1,6 @@
 import os
 import sys
+from sqlite3 import IntegrityError
 from flask import Blueprint
 from flask import render_template, request, flash, Response, session
 from flask import redirect, make_response, url_for
@@ -118,7 +119,17 @@ class WebRouter(Blueprint):
                 return make_response(redirect(url_for('.register')))
 
             user.setPassword(request.form.get("password"))
-            user.save()
+            try:
+                user.save()
+            except IntegrityError as e:
+                session['form'] = request.form
+                if e.message == 'UNIQUE constraint failed: users.username':
+                    flash('Username ' + request.form.get('username') + ' is already in use', 'danger')
+                elif e.message == 'UNIQUE constraint failed: users.email':
+                    flash('Email ' + request.form.get('email') + ' is already in use', 'danger')
+
+                return make_response(redirect(url_for('.register')))
+
             return render_template('register_success.html')
 
         @self.route('/query')
@@ -148,6 +159,7 @@ class WebRouter(Blueprint):
             user.role = request.form.get("role","")
             user. status= request.form.get("status","")
             user.requests_limit= request.form.get("requests_limit","")
+            print user
             user.save()
             return render_template('admin.html')
 
