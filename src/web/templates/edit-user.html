@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="row">
+	<div class="col-md-8 col-md-offset-2">
+		<div class="panel panel-default">
+		<div class="panel-heading"> <strong class="">Edit user</strong></div>
+			<div class="panel-body">
+				<form class="form-horizontal" role="form" id="editUserForm" method="POST" action="{{ url_for('.edit', id=user.id) }}">
+					<div class="form-group">
+						<label for="inputUsername" class="col-sm-3 control-label">Username</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="inputUsername" value="{{user.username}}" required="" readonly="readonly">
+						</div>
+					</div>
+          <div class="form-group">
+            <label for="inputUsername" class="col-sm-3 control-label">Email</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="inputEmail" value="{{user.email}}" required="" readonly="">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputUsername" class="col-sm-3 control-label">Role</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="role" name="role">
+                {% for key, status in roles.iteritems() %}
+                  <option value="{{ key }}" {% if key == user.role %}selected="selected"{% endif %}>{{ status }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputUsername" class="col-sm-3 control-label">Status</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="status" name="status">
+                {% for key, status in statuses.iteritems() %}
+                  <option value="{{ key }}" {% if key == user.status %}selected="selected"{% endif %}>{{ status }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputUsername" class="col-sm-3 control-label">Requests made</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="inputRequestMade"  value="{{user.requests_made}}" required="" readonly="readonly">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputUsername" class="col-sm-3 control-label">Requests limit</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="inputRequestLimit"  name="requests_limit" value="{{user.requests_limit}}" required="">
+            </div>
+          </div>
+					<div class="form-group last">
+						<div class="col-sm-offset-3 col-sm-9">
+							<button type="submit" class="btn btn-success btn-sm request-access">Save</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+</script>
+{% endblock %}
