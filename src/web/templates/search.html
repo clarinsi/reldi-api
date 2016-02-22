@@ -49,7 +49,7 @@
           </div>
           <div class="form-group">
             <div class="col-md-10 col-md-offset-2">
-                <button id="search-button" type="submit" class="btn btn-primary">Search</button>
+                <button id="search-button" type="submit" class="btn btn-primary">Process</button>
             </div>
         </div>
     </fieldset>
@@ -112,7 +112,7 @@
       format: inputFormat
   };
 
-  $("#search-button").text('Searching ...').attr('disabled', 'disabled');
+  $("#search-button").text('Processing ...').attr('disabled', 'disabled');
   var sendDate = (new Date()).getTime();
 
   jQuery.ajax({
@@ -136,7 +136,7 @@
       var responseTimeMs = receiveDate - sendDate;
       var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
       $('#response-time').text(responseTimeText);
-      $("#search-button").text('Search').removeAttr('disabled');
+      $("#search-button").text('Process').removeAttr('disabled');
   }
 });
 
