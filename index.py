@@ -48,7 +48,7 @@ def init():
 
 
 application = init()
-application.run()
+application.run(host='0.0.0.0', port=8080)
 
 if __name__ == "__main__":
 
