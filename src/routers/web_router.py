@@ -159,9 +159,9 @@ class WebRouter(Blueprint):
             user.role = request.form.get("role","")
             user. status= request.form.get("status","")
             user.requests_limit= request.form.get("requests_limit","")
-            print user
             user.save()
-            return render_template('admin.html')
+
+            return make_response(redirect(url_for('.admin')))
 
         @self.route('/admin')
         @authenticate(['admin'])

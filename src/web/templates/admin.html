@@ -34,7 +34,7 @@
 								<td>{{user.requests_made}}</td>
 								<td>
 									<a href="{{url_for('.edit', id=user.id)}}" class="btn btn-xs btn-default">Edit</a>
-									<form class="user-action-form" method="POST" action="{{ url_for('.activate_user', id=user.id) }}">
+									<form class="user-action-form" method="POST" action="{{ url_for('.block_user', id=user.id) }}">
 										<button type="submit" class="btn btn-danger btn-xs">Block</button>
 									</form>
 								</td>
