@@ -12,7 +12,7 @@
                           <div class="form-group">
                             <label for="input-text" class="col-md-2 control-label">Input</label>
                             <div class="col-md-10">
-                             <textarea class="form-control" rows="2" required="required" id="input-text"></textarea>
+                             <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
                          </div>
                      </div>
 
@@ -78,6 +78,17 @@
 
 {% block scripts %}
 <script>
+
+    function xmlToString(xmlData) {
+        xmlData= $(xmlData);
+        if (window.ActiveXObject) {
+            return xmlData.xml;
+        } else {
+            var oSerializer = new XMLSerializer();
+            return oSerializer.serializeToString(xmlData[0]);
+        }
+    }
+
     var baseUrl = '/api/v1/';
     $('#search-form').submit(function(e) {
       e.preventDefault();
@@ -105,15 +116,20 @@
   var sendDate = (new Date()).getTime();
 
   jQuery.ajax({
-      type:"GET",
-      dataType: 'json',
+      type: "GET",
+      dataType: inputFormat == 'json' ? 'json': 'xml',
       url: url,
       data: data,
-      success:function (data) {
-        $("#result-area").append(JSON.stringify(data, null, 4));
+      success:function (data, status, xml) {
+        if (inputFormat == 'json') {
+            $("#result-area").text(JSON.stringify(data, null, 4));
+        } else {
+            $("#result-area").text(xml.responseText);
+        }
+
     },
     error: function(response) {
-      $("#result-area").append(JSON.parse(response.responseText));
+      $("#result-area").text(JSON.parse(response.responseText));
   },
   complete: function(data) {
       var receiveDate = (new Date()).getTime();
