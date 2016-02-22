@@ -41,7 +41,7 @@ def init():
     app.register_blueprint(web_router, url_prefix='/web')
 
     @app.route('/', methods=['GET'])
-    def index():
+    def main():
         return make_response(redirect('/web'))
 
     return app
