@@ -47,9 +47,9 @@ def init():
     return app
 
 
-def index():
-    app = init()
-    app.run()
+def app():
+    application = init()
+    application.run()
 
 if __name__ == "__main__":
 
