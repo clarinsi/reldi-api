@@ -63,7 +63,7 @@ class UserTokenModelTests(unittest.TestCase):
 
         dbUser.delete()
         dbUser = UserModel.getByUsername(user.username)
-        self.assertIsNone(dbUser);        
+        self.assertIsNone(dbUser);
 
     def test_login_user(self):
 
@@ -119,9 +119,9 @@ class UserTokenModelTests(unittest.TestCase):
         user.status = 'active'
         user.role = 'admin'
         user.save()
-		
-        dbUser = UserModel.getByUsername(user.username) 	
-		
+
+        dbUser = UserModel.getByUsername(user.username)
+
         new_username = 'user787'
         dbUser.username = new_username
         dbUser.project = 'RelDI2'
@@ -130,15 +130,15 @@ class UserTokenModelTests(unittest.TestCase):
         dbUser.status = 'blocked'
         dbUser.role = 'user'
         dbUser.save()
-		
-        dbUser = UserModel.getByUsername(new_username)     
+
+        dbUser = UserModel.getByUsername(new_username)
         self.assertEqual(dbUser.username, new_username)
         self.assertEqual(dbUser.project, 'RelDI2')
         self.assertEqual(dbUser.requests_limit, 2000)
         self.assertEqual(dbUser.requests_made, 4)
         self.assertEqual(dbUser.status, 'blocked')
         self.assertEqual(dbUser.role, 'user')
-		
+
 
     def test_status_block_user(self):
         username = 'user8'
@@ -153,13 +153,13 @@ class UserTokenModelTests(unittest.TestCase):
         user.status = 'active'
         user.role = 'admin'
         user.save()
-		
-        dbUser = UserModel.getByUsername(user.username) 
-        
+
+        dbUser = UserModel.getByUsername(user.username)
+
         dbUser.block()
-    
+
         self.assertEqual(dbUser.status, 'blocked')
-		
-		
+
+
 if __name__ == '__main__':
     unittest.main()

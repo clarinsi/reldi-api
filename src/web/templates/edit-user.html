@@ -53,6 +53,7 @@
 					<div class="form-group last">
 						<div class="col-sm-offset-3 col-sm-9">
 							<button type="submit" class="btn btn-success btn-sm request-access">Save</button>
+							<button type="button" class="btn btn-danger btn-sm cancel-request" >Cancel</button>
 						</div>
 					</div>
 				</form>
@@ -64,6 +65,11 @@
 
 {% block scripts %}
 <script>
-
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) $('.cancel-request').click();   // esc
+});
+$('.cancel-request').click(function(e) {
+		window.location.replace("../../admin");
+});
 </script>
 {% endblock %}

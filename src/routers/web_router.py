@@ -1,5 +1,6 @@
 import os
 import sys
+#import smtplib
 from sqlite3 import IntegrityError
 from flask import Blueprint
 from flask import render_template, request, flash, Response, session
@@ -35,9 +36,9 @@ class WebRouter(Blueprint):
                         return make_response(redirect(url_for('.login')))
                     if user.role in roles:
                         return api_method(*args, **kwargs)
-                    
+
                     return make_response(redirect(url_for('.query')))
-                        
+
                 return check_token
             return wrapper
 
@@ -63,7 +64,7 @@ class WebRouter(Blueprint):
 
             if username is None or password is None:
                 flash('Invalid username or password', 'danger')
-            
+
             user = UserModel.getByUsername(username)
             if user is None:
                 flash('Invalid username or password', 'danger')
@@ -74,7 +75,7 @@ class WebRouter(Blueprint):
                     response.set_cookie('auth-token', token.token)
                 except ValueError as e:
                     flash(e.__str__(), 'danger')
-            
+
             return response
 
         @self.route('/logout', methods=["POST"])
@@ -106,7 +107,7 @@ class WebRouter(Blueprint):
             user.username = request.form.get("username")
             user.project = request.form.get("project")
 
-            is_valid = validate_email(request.form.get("email"))
+            is_valid = validate_email(request.form.get("email"),verify=True)
             if is_valid == 1:
                 user.email = request.form.get("email")
             else:
@@ -121,6 +122,21 @@ class WebRouter(Blueprint):
             user.setPassword(request.form.get("password"))
             try:
                 user.save()
+                #sender = 'blagorodna.ilievska@yahoo.com'
+                #receivers = ['blagorodna.ilievska@gmail.com']
+
+                #message = """From: From Person <blagorodna.ilievska@yahoo.com>
+                #To: To Person <blagorodna.ilievska@gmail.com>
+                #Subject: SMTP e-mail test
+
+                #This is a test e-mail message."""
+
+                #try:
+                    #smtpObj = smtplib.SMTP('localhost')
+                    #smtpObj.sendmail(sender, receivers, message)
+                    #print "Successfully sent email"
+                #except SMTPException:
+                    #print "Error: unable to send email"
             except IntegrityError as e:
                 session['form'] = request.form
                 if e.message == 'UNIQUE constraint failed: users.username':
@@ -161,6 +177,13 @@ class WebRouter(Blueprint):
             user.requests_limit= request.form.get("requests_limit","")
             user.save()
 
+            return make_response(redirect(url_for('.admin')))
+
+        @self.route('/user/<id>/delete_user', methods=["GET"])
+        @authenticate(['admin'])
+        def delete_user(id):
+            user = UserModel.getById(id)
+            user.delete()
             return make_response(redirect(url_for('.admin')))
 
         @self.route('/admin')
