@@ -191,6 +191,39 @@
             }
         } else {
             $("#result-area").text(xml.responseText);
+            if(method=="tag"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+              $(xml.responseText).find("token").each(function(index){
+                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_tag></td></tr></tbody>';
+              });
+              $('#results').append(trHTML);
+              $(xml.responseText).find("tag").each(function(index){
+                  $("#"+index+"_tag").html($(this).text());
+              });
+            }
+            else if(method=="lemmatise"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
+              $(xml.responseText).find("token").each(function(index){
+                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_lemma></td></tr></tbody>';
+              });
+              $('#results').append(trHTML);
+              $(xml.responseText).find("lemma").each(function(index){
+                  $("#"+index+"_lemma").html($(this).text());
+              });
+            }
+            else if(method=="tag_lemmatise"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
+              $(xml.responseText).find("token").each(function(index){
+                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_tag></td><td id='+index+'_lemma></td></tr></tbody>';
+              });
+              $('#results').append(trHTML);
+              $(xml.responseText).find("lemma").each(function(index){
+                  $("#"+index+"_lemma").html($(this).text());
+              });
+              $(xml.responseText).find("tag").each(function(index){
+                  $("#"+index+"_tag").html($(this).text());
+              });
+            }
         }
 
     },
