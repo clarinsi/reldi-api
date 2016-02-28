@@ -43,7 +43,7 @@
                   </label>
                   <label class="radio-inline">
                       <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
-                      Tag + Lematize
+                      Tag  +  Lemmatise
                   </label>
               </div>
           </div>
@@ -60,15 +60,29 @@
 <div class="col-md-6">
   <div class="form-group">
     <label for="textArea" class="col-md-12 control-label">Result</label>
-    <div class="col-md-12">
-        <textarea id="result-area" readonly="readonly" class="form-control"
-        rows="20" id="textArea"></textarea>
-        <div class="help-block">
-            Result set
-            <span id="response-time"></span>
-        </div>
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
+        <li class=""><a data-toggle="tab" href="#raw-results">Raw</a></li>
+    </ul>
+    <div class="bs-component">
+      <div class="tab-content">
+            <div id="table-results" class="form-horizontal tab-pane fade in active" >
+              <table id="results"  class="table table-hover"></table>
+            </div>
+            <div id="raw-results" class="form-horizontal  tab-pane fade">
+              <div class="col-md-12">
+                  <textarea id="result-area" readonly="readonly" class="form-control"
+                  rows="20" id="textArea"></textarea>
 
+              </div>
+            </div>
+            <div class="help-block">
+                Result set
+                <span id="response-time"></span>
+            </div>
+      </div>
     </div>
+
 </div>
 </div>
 </div>
@@ -114,15 +128,67 @@
 
   $("#search-button").text('Processing ...').attr('disabled', 'disabled');
   var sendDate = (new Date()).getTime();
-
+  var trHTML='';
+  $('#results').empty();
   jQuery.ajax({
       type: "GET",
       dataType: inputFormat == 'json' ? 'json': 'xml',
       url: url,
       data: data,
       success:function (data, status, xml) {
+
         if (inputFormat == 'json') {
+
             $("#result-area").text(JSON.stringify(data, null, 4));
+            if(method=="tag"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+              $.each(data.tokens, function (i, item) {
+
+                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_tag></td></tr></tbody>';
+
+             });
+             $('#results').append(trHTML);
+             $.each(data.POSTags, function (i, tags) {
+               $.each(tags, function (j, tag) {
+                  $("#"+j+"_tag").html(tag.value);
+               });
+             });
+
+            }
+            else if(method=="lemmatise") {
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
+              $.each(data.tokens, function (i, item) {
+                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_lemma></td></tr></tbody>';
+             });
+             $('#results').append(trHTML);
+
+             $.each(data.lemmas, function (i, lemmas) {
+
+               $.each(lemmas, function (j, lemma) {
+                  $("#"+j+"_lemma").html(lemma.value);
+                  //console.log(tag.value);
+               });
+             });
+            }
+            else if(method=="tag_lemmatise"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
+              $.each(data.tokens, function (i, item) {
+                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_tag></td><td id='+i+'_lemma></td></tr></tbody>';
+             });
+             $('#results').append(trHTML);
+             $.each(data.POSTags, function (i, tags) {
+               $.each(tags, function (j, tag) {
+                  $("#"+j+"_tag").html(tag.value);
+               });
+             });
+             $.each(data.lemmas, function (i, lemmas) {
+
+               $.each(lemmas, function (j, lemma) {
+                  $("#"+j+"_lemma").html(lemma.value);
+                  //console.log(tag.value);
+               });
+             });
+            }
         } else {
             $("#result-area").text(xml.responseText);
         }
