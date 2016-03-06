@@ -47,25 +47,26 @@ def init():
     return app
 
 
-application = init()
-application.run()
-#
-# if __name__ == "__main__":
-#
-#     # text = 'Modeli su učitani! Vrlo uspješno.'
-#
-#     # lemmatiser = dc['lemmatiser.hr']
-#     # tagger = dc['tagger.hr']
-#     # segmenter = dc['segmenter.hr']
-#     # lexicon = dc['lexicon.hr']
-#
-#     # print lemmatiser.tagLemmatise(text)
-#     # print lemmatiser.lemmatise(text)
-#     # print tagger.tag(text)
-#     # print segmenter.segment(text)
-#
-#     app = init()
-#     app.run(host='0.0.0.0', port=8080, debug=True)
-#
+def index():
+    application = init()
+    application.run()
+
+if __name__ == "__main__":
+
+    # text = 'Modeli su učitani! Vrlo uspješno.'
+
+    # lemmatiser = dc['lemmatiser.hr']
+    # tagger = dc['tagger.hr']
+    # segmenter = dc['segmenter.hr']
+    # lexicon = dc['lexicon.hr']
+
+    # print lemmatiser.tagLemmatise(text)
+    # print lemmatiser.lemmatise(text)
+    # print tagger.tag(text)
+    # print segmenter.segment(text)
+
+    app = init()
+    app.run(host='0.0.0.0', port=8080, debug=True)
+
 
 
