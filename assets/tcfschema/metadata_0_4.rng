@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://www.dspin.de/data/metadata" xmlns:cmd="http://www.clarin.eu/cmd/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="MetaData">
+      <interleave>
+        <optional>
+          <element name="Services">
+            <ref name="CMD"/>
+          </element>
+        </optional>
+        <zeroOrMore>
+          <!-- use this element for wrapping chain CMD -->
+          <element name="md">
+            <!-- deprecated, don't use it (left for backward compatibility) -->
+            <attribute name="name">
+              <data type="string"/>
+            </attribute>
+            <attribute name="value">
+              <data type="string"/>
+            </attribute>
+          </element>
+        </zeroOrMore>
+        <optional>
+          <element name="source">
+            <text/>
+          </element>
+        </optional>
+      </interleave>
+      <!-- deprecated, don't use it (left for backward compatibility) -->
+    </element>
+  </start>
+  <!--
+    Original schema is xsd schema, here converted to rnc. The converted version might be not complete.
+    For original schema see:
+    http://www.clarin.eu/cmd/ 
+    http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1320657629623/xsd
+  -->
+  <define name="CMD">
+    <element name="cmd:CMD">
+      <attribute name="CMDVersion">
+        <value>1.1</value>
+      </attribute>
+      <attribute name="xsi:schemaLocation">
+        <value>http://www.clarin.eu/cmd/ http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1320657629623/xsd</value>
+      </attribute>
+      <optional>
+        <element name="cmd:Header">
+          <zeroOrMore>
+            <element name="cmd:MdCreator">
+              <data type="string"/>
+            </element>
+          </zeroOrMore>
+          <optional>
+            <element name="cmd:MdCreationDate">
+              <data type="date"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="cmd:MdSelfLink">
+              <data type="anyURI"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="cmd:MdProfile">
+              <data type="anyURI"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="cmd:MdCollectionDisplayName">
+              <data type="string"/>
+            </element>
+          </optional>
+        </element>
+      </optional>
+      <element name="cmd:Resources">
+        <element name="cmd:ResourceProxyList">
+          <zeroOrMore>
+            <element name="cmd:ResourceProxy">
+              <attribute name="id">
+                <data type="ID"/>
+              </attribute>
+              <element name="ResourceType">
+                <attribute name="mimetype">
+                  <data type="string"/>
+                </attribute>
+              </element>
+              <element name="ResourceRef">
+                <data type="anyURI"/>
+              </element>
+            </element>
+          </zeroOrMore>
+        </element>
+        <element name="cmd:JournalFileProxyList">
+          <zeroOrMore>
+            <element name="cmd:JournalFileProxy">
+              <element name="cmd:JournalFileRef">
+                <data type="anyURI"/>
+              </element>
+            </element>
+          </zeroOrMore>
+        </element>
+        <element name="cmd:ResourceRelationList">
+          <zeroOrMore>
+            <element name="cmd:ResourceRelation">
+              <element name="cmd:RelationType">
+                <!--ref name="any"/-->
+		<text/>
+              </element>
+              <element name="cmd:Res1">
+                <attribute name="ref">
+                  <data type="IDREF"/>
+                </attribute>
+              </element>
+              <element name="cmd:Res2">
+                <attribute name="ref">
+                  <data type="IDREF"/>
+                </attribute>
+              </element>
+            </element>
+          </zeroOrMore>
+        </element>
+        <optional>
+          <element name="cmd:IsPartOfList">
+            <element name="cmd:ResourceRelation">
+              <zeroOrMore>
+                <element name="cmd:IsPartOf">
+                  <data type="anyURI"/>
+                </element>
+              </zeroOrMore>
+            </element>
+          </element>
+        </optional>
+      </element>
+      <element name="cmd:Components">
+        <element name="cmd:WebServiceToolChain">
+          <optional>
+            <attribute name="ref">
+              <data type="IDREFS"/>
+            </attribute>
+          </optional>
+          <element name="cmd:GeneralInfo">
+            <interleave>
+              <zeroOrMore>
+                <element name="cmd:ResourceName">
+                  <optional>
+                    <attribute name="lang">
+                      <data type="language"/>
+                    </attribute>
+                  </optional>
+                  <data type="string"/>
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="cmd:ResourceTitle">
+                  <attribute name="lang">
+                    <data type="language"/>
+                  </attribute>
+                  <data type="string"/>
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="cmd:ResourceClass">
+                  <data type="NCName"/>
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="cmd:Version">
+                  <attribute name="lang">
+                    <data type="language"/>
+                  </attribute>
+                  <data type="string"/>
+                </element>
+              </zeroOrMore>
+              <optional>
+                <element name="cmd:LifeCycleStatus">
+                  <data type="string"/>
+                </element>
+              </optional>
+              <optional>
+                <element name="cmd:StartYear">
+                  <data type="gYear"/>
+                </element>
+              </optional>
+              <optional>
+                <element name="cmd:CompletionYear">
+                  <data type="gYear"/>
+                </element>
+              </optional>
+              <optional>
+                <element name="cmd:PublicationDate">
+                  <data type="string"/>
+                </element>
+              </optional>
+              <optional>
+                <element name="cmd:LastUpdate">
+                  <data type="string"/>
+                </element>
+              </optional>
+              <zeroOrMore>
+                <element name="cmd:TimeCoverage">
+                  <attribute name="lang">
+                    <data type="language"/>
+                  </attribute>
+                  <data type="string"/>
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="cmd:LegalOwner">
+                  <attribute name="lang">
+                    <data type="language"/>
+                  </attribute>
+                  <data type="string"/>
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="cmd:Genre">
+                  <attribute name="lang">
+                    <data type="language"/>
+                  </attribute>
+                  <data type="string"/>
+                </element>
+              </zeroOrMore>
+              <optional>
+                <element name="cmd:Location">
+                  <attribute name="ref">
+                    <data type="IDREFS"/>
+                  </attribute>
+                  <attribute name="ComponentId">
+                    <data type="anyURI"/>
+                  </attribute>
+                  <zeroOrMore>
+                    <element name="cmd:Address">
+                      <attribute name="lang">
+                        <data type="language"/>
+                      </attribute>
+                      <data type="string"/>
+                    </element>
+                  </zeroOrMore>
+                  <zeroOrMore>
+                    <element name="cmd:Region">
+                      <attribute name="lang">
+                        <data type="language"/>
+                      </attribute>
+                      <data type="string"/>
+                    </element>
+                  </zeroOrMore>
+                  <zeroOrMore>
+                    <element name="cmd:ContinentName">
+                      <attribute name="lang">
+                        <data type="language"/>
+                      </attribute>
+                      <data type="string"/>
+                    </element>
+                  </zeroOrMore>
+                  <element name="cmd:Country">
+                    <attribute name="ref">
+                      <data type="IDREFS"/>
+                    </attribute>
+                    <attribute name="ComponentId">
+                      <data type="anyURI"/>
+                    </attribute>
+                    <oneOrMore>
+                      <element name="cmd:CountryName">
+                        <attribute name="lang">
+                          <data type="language"/>
+                        </attribute>
+                        <data type="string"/>
+                      </element>
+                    </oneOrMore>
+                    <element name="cmd:CountryCoding">
+                      <data type="NCName"/>
+                    </element>
+                  </element>
+                </element>
+              </optional>
+              <optional>
+                <element name="cmd:Descriptions">
+                  <optional>
+                    <attribute name="ref">
+                      <data type="IDREFS"/>
+                    </attribute>
+                  </optional>
+                  <optional>
+                    <attribute name="ComponentId">
+                      <data type="anyURI"/>
+                    </attribute>
+                  </optional>
+                  <oneOrMore>
+                    <element name="cmd:Description">
+                      <optional>
+                        <attribute name="type">
+                          <choice>
+                            <value>short</value>
+                            <value>long</value>
+                          </choice>
+                        </attribute>
+                      </optional>
+                      <optional>
+                        <attribute name="lang">
+                          <data type="language"/>
+                        </attribute>
+                      </optional>
+                    </element>
+                  </oneOrMore>
+                </element>
+              </optional>
+              <optional>
+                <element name="cmd:Tags">
+                  <attribute name="ref">
+                    <data type="IDREFS"/>
+                  </attribute>
+                  <attribute name="ComponentId">
+                    <data type="anyURI"/>
+                  </attribute>
+                  <oneOrMore>
+                    <element name="cmd:tag">
+                      <attribute name="lang">
+                        <data type="language"/>
+                      </attribute>
+                      <data type="string"/>
+                    </element>
+                  </oneOrMore>
+                </element>
+              </optional>
+            </interleave>
+          </element>
+          <element name="cmd:Toolchain">
+            <optional>
+              <attribute name="ref">
+                <data type="IDREFS"/>
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="ComponentId">
+                <data type="anyURI"/>
+              </attribute>
+            </optional>
+            <oneOrMore>
+              <element name="cmd:ToolInChain">
+                <optional>
+                  <attribute name="ref">
+                    <data type="IDREFS"/>
+                  </attribute>
+                </optional>
+                <optional>
+                  <attribute name="ComponentId">
+                    <data type="anyURI"/>
+                  </attribute>
+                </optional>
+                <element name="cmd:PID">
+                  <data type="anyURI"/>
+                </element>
+                <zeroOrMore>
+                  <element name="cmd:Parameter">
+                    <attribute name="name">
+                      <data type="string"/>
+                    </attribute>
+                    <attribute name="value">
+                      <data type="string"/>
+                    </attribute>
+                  </element>
+                </zeroOrMore>
+              </element>
+            </oneOrMore>
+          </element>
+        </element>
+      </element>
+    </element>
+  </define>
+  <!--define name="any">
+    <element>
+      <anyName/>
+      <zeroOrMore>
+        <attribute>
+          <anyName/>
+        </attribute>
+      </zeroOrMore>
+      <zeroOrMore>
+        <choice>
+          <ref name="any"/>
+          <text/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define-->
+</grammar>

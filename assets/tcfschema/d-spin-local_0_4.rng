@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element name="D-Spin" ns="http://www.dspin.de/data" xmlns="http://relaxng.org/ns/structure/1.0">
+  <attribute name="version">
+    <value>0.4</value>
+  </attribute>
+  <externalRef href="metadata_0_4.rng"/>
+  <optional>
+    <externalRef href="extdata_0_4.rng"/>
+  </optional>
+  <choice>
+    <externalRef href="textcorpus_0_4.rng"/>
+    <externalRef href="lexicon_0_4.rng"/>
+  </choice>
+</element>

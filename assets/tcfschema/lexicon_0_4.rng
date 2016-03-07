@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://www.dspin.de/data/lexicon" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="Lexicon">
+      <attribute name="lang">
+        <data type="language"/>
+      </attribute>
+      <ref name="entries"/>
+      <interleave>
+        <optional>
+          <ref name="POStags"/>
+        </optional>
+        <optional>
+          <ref name="frequencies"/>
+        </optional>
+        <optional>
+          <ref name="syllabifications"/>
+        </optional>
+        <optional>
+          <ref name="cooccurrences"/>
+        </optional>
+        <optional>
+          <ref name="synonyms"/>
+        </optional>
+      </interleave>
+    </element>
+  </start>
+  <define name="entries">
+    <element name="entries">
+      <attribute name="type">
+        <choice>
+          <value>types</value>
+          <value>lemmas</value>
+          <value>type-bigrams</value>
+          <value>type-trigrams</value>
+          <value>syllables</value>
+        </choice>
+      </attribute>
+      <oneOrMore>
+        <element name="entry">
+          <attribute name="ID">
+            <data type="ID"/>
+          </attribute>
+          <data type="string"/>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="POStags">
+    <element name="POStags">
+      <attribute name="tagset">
+        <data type="string"/>
+      </attribute>
+      <oneOrMore>
+        <element name="tag">
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <attribute name="entryID">
+            <data type="IDREF"/>
+          </attribute>
+          <text/>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="frequencies">
+    <element name="frequencies">
+      <attribute name="type">
+        <choice>
+          <value>per-million</value>
+          <value>absolute</value>
+        </choice>
+      </attribute>
+      <oneOrMore>
+        <element name="frequency">
+          <attribute name="entryID">
+            <data type="IDREF"/>
+          </attribute>
+          <data type="double"/>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="syllabifications">
+    <element name="syllabifications">
+      <oneOrMore>
+        <element name="syllabification">
+          <attribute name="entryID">
+            <data type="IDREF"/>
+          </attribute>
+          <data type="string"/>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="cooccurrences">
+    <element name="cooccurrences">
+      <oneOrMore>
+        <element name="cooccurrence">
+          <attribute name="func">
+            <choice>
+              <value>right-neighbour</value>
+              <value>left-neighbour</value>
+              <value>sentence</value>
+              <value>document</value>
+            </choice>
+          </attribute>
+          <zeroOrMore>
+            <ref name="sig"/>
+          </zeroOrMore>
+          <ref name="term"/>
+          <oneOrMore>
+            <ref name="term"/>
+          </oneOrMore>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="synonyms">
+    <element name="synonyms">
+      <oneOrMore>
+        <element name="synonym">
+          <zeroOrMore>
+            <ref name="sig"/>
+          </zeroOrMore>
+          <ref name="term"/>
+          <oneOrMore>
+            <ref name="term"/>
+          </oneOrMore>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="term">
+    <element name="term">
+      <optional>
+        <attribute name="entryID">
+          <data type="IDREF"/>
+        </attribute>
+      </optional>
+      <optional>
+        <data type="string"/>
+      </optional>
+    </element>
+  </define>
+  <define name="sig">
+    <element name="sig">
+      <optional>
+        <attribute name="measure">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <data type="float"/>
+    </element>
+  </define>
+</grammar>

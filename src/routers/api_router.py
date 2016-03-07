@@ -2,6 +2,8 @@
 import sys
 import xml.etree.ElementTree as ET
 from ..helpers import jsonify, TCF, jsonTCF, isset
+from lxml import etree
+from StringIO import StringIO
 
 from flask import Blueprint
 from flask import request
@@ -98,10 +100,14 @@ class ApiRouter(Blueprint):
             if format == 'json':
                 return request.args.get('text')
             elif format == 'tcf':
-                try:
-                    return ET.fromstring(request.args.get('text')).text
-                except: 
-                    raise InvalidUsage('Input parameter text is not well formatted')
+                with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
+                    relaxng_doc = etree.parse(f)
+                    relaxng = etree.RelaxNG(relaxng_doc)
+                    doc = etree.parse(StringIO(request.args.get('text').encode('utf-8')))
+                    if relaxng.validate(doc):
+                        return 'Modeli su zakon'
+                    else:
+                        raise InvalidUsage('Input xml does not comply to TCF schema')
             else:
                 raise InvalidUsage('Unknown format ' + format)
 

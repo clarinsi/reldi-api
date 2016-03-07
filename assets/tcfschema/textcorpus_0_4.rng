@@ -1,0 +1,1018 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://www.dspin.de/data/textcorpus" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="TextCorpus">
+      <attribute name="lang">
+        <data type="language"/>
+      </attribute>
+      <interleave>
+        <optional>
+          <ref name="text"/>
+        </optional>
+        <optional>
+          <ref name="tokens"/>
+        </optional>
+        <optional>
+          <ref name="sentences"/>
+        </optional>
+        <optional>
+          <ref name="POStags"/>
+        </optional>
+        <optional>
+          <ref name="lemmas"/>
+        </optional>
+        <optional>
+          <ref name="parsing"/>
+        </optional>
+        <optional>
+          <ref name="depparsing"/>
+        </optional>
+        <optional>
+          <ref name="relations"/>
+        </optional>
+        <optional>
+          <ref name="namedEntities"/>
+        </optional>
+        <optional>
+          <ref name="morphology"/>
+        </optional>
+        <optional>
+          <!-- QueryResults? are relpaved by matches -->
+          <ref name="matches"/>
+        </optional>
+        <optional>
+          <ref name="WordSplittings"/>
+        </optional>
+        <optional>
+          <ref name="Phonetics"/>
+        </optional>
+        <optional>
+          <!-- coreferences? are relpaced by references? -->
+          <ref name="references"/>
+        </optional>
+        <optional>
+          <!-- lex-sem-rels are splitted into separate layers -->
+          <ref name="synonymy"/>
+        </optional>
+        <optional>
+          <ref name="antonymy"/>
+        </optional>
+        <optional>
+          <ref name="hyponymy"/>
+        </optional>
+        <optional>
+          <ref name="hyperonymy"/>
+        </optional>
+        <optional>
+          <ref name="orthography"/>
+        </optional>
+        <optional>
+          <ref name="geo"/>
+        </optional>
+        <optional>
+          <ref name="textstructure"/>
+        </optional>
+        <optional>
+          <ref name="discourseconnectives"/>
+        </optional>
+        <optional>
+          <ref name="wsd"/>
+        </optional>
+        <optional>
+          <ref name="textSource"/>
+        </optional>
+      </interleave>
+    </element>
+  </start>
+  <define name="text">
+    <element name="text">
+      <data type="string"/>
+    </element>
+  </define>
+  <!-- a layer when input text has initial structure that needs to be preserver -->
+  <define name="textstructure">
+    <element name="textstructure">
+      <zeroOrMore>
+        <ref name="textspan"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="textspan">
+    <zeroOrMore>
+      <element name="textspan">
+        <group>
+          <optional>
+            <attribute name="startChar">
+              <data type="nonNegativeInteger"/>
+            </attribute>
+            <!-- character offset of the span start in text -->
+            <attribute name="endChar">
+              <data type="nonNegativeInteger"/>
+            </attribute>
+          </optional>
+          <optional>
+            <!-- character offset of the span end in text -->
+            <attribute name="start">
+              <data type="IDREF"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="end">
+              <data type="IDREF"/>
+            </attribute>
+          </optional>
+          <attribute name="type">
+            <data type="string"/>
+          </attribute>
+          <!-- type of this textstructure span, e.g. page, title, paragraph, footnote, etc. -->
+          <choice>
+            <data type="string"/>
+            <zeroOrMore>
+              <ref name="textspan"/>
+            </zeroOrMore>
+          </choice>
+        </group>
+        <!-- textspan can (optionally) contain a value or nest another textspan elements -->
+      </element>
+    </zeroOrMore>
+  </define>
+  <define name="tokens">
+    <element name="tokens">
+      <optional>
+        <attribute name="charOffsets">
+          <value>true</value>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <element name="token">
+          <optional>
+            <attribute name="start">
+              <data type="int"/>
+            </attribute>
+            <attribute name="end">
+              <data type="int"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <data type="string"/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    CHANGES:
+    typo in operation value corrected: detele -> delete;
+    a layer for corrections of orthographic errors in tokens layer
+  -->
+  <define name="orthography">
+    <element name="orthography">
+      <zeroOrMore>
+        <!-- a correction of a token/tokens orthographic errors -->
+        <element name="correction">
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <optional>
+            <!-- reference to token/tokens that are corrected -->
+            <attribute name="tokenIDs">
+              <data type="IDREFS"/>
+            </attribute>
+          </optional>
+          <!-- operation to be done with specified in tokenIDs token/tokens in order to correct: -->
+          <attribute name="operation">
+            <choice>
+              <value>replace</value>
+              <value>insert-before</value>
+              <value>insert-after</value>
+              <value>delete</value>
+            </choice>
+          </attribute>
+          <!-- correction string: -->
+          <data type="string"/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="sentences">
+    <element name="sentences">
+      <optional>
+        <attribute name="charOffsets">
+          <value>true</value>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <element name="sentence">
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="start">
+              <data type="int"/>
+            </attribute>
+            <attribute name="end">
+              <data type="int"/>
+            </attribute>
+          </optional>
+          <attribute name="tokenIDs">
+            <data type="IDREFS"/>
+          </attribute>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="POStags">
+    <element name="POStags">
+      <attribute name="tagset">
+        <data type="string"/>
+      </attribute>
+      <zeroOrMore>
+        <element name="tag">
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <attribute name="tokenIDs">
+            <data type="IDREFS"/>
+          </attribute>
+          <data type="string"/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="lemmas">
+    <element name="lemmas">
+      <zeroOrMore>
+        <!-- attribute reftype { "tokens" | "tags" }, -->
+        <element name="lemma">
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <attribute name="tokenIDs">
+            <data type="IDREFS"/>
+          </attribute>
+          <!--
+            (attribute tokenIDs { xsd:IDREFS } |
+             attribute tagID { xsd:IDREF }),
+          -->
+          <data type="string"/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="parsing">
+    <element name="parsing">
+      <attribute name="tagset">
+        <data type="string"/>
+      </attribute>
+      <zeroOrMore>
+        <element name="parse">
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <ref name="constituent"/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    chnage from 2012 June: possibility to specify edge label added
+    change from 2012 July: possibility to specify secondary edges added
+  -->
+  <define name="constituent">
+    <element name="constituent">
+      <!-- node label -->
+      <attribute name="cat">
+        <data type="string"/>
+      </attribute>
+      <optional>
+        <!-- edge label from this node to the parent node -->
+        <attribute name="edge">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="ID">
+          <data type="ID"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <!-- secondary edge to another constituent -->
+        <element name="cref">
+          <group>
+            <attribute name="constID">
+              <data type="IDREF"/>
+            </attribute>
+            <!-- target constituent ID -->
+            <attribute name="edge">
+              <data type="string"/>
+            </attribute>
+          </group>
+          <!-- secondary edge label -->
+        </element>
+      </zeroOrMore>
+      <choice>
+        <attribute name="tokenIDs">
+          <data type="IDREFS"/>
+        </attribute>
+        <zeroOrMore>
+          <ref name="constituent"/>
+        </zeroOrMore>
+      </choice>
+    </element>
+  </define>
+  <!--
+    depparsing =
+     element depparsing {
+       attribute tagset { xsd:string }?,
+       element parse {
+         attribute ID    { xsd:ID }?,
+         element dependency {
+           attribute func { xsd:string }?,
+           attribute depIDs { xsd:IDREFS },
+           attribute govIDs { xsd:IDREFS }
+         }+
+       }+
+     }
+  -->
+  <!-- CHANGES from 08.12.2011 to account for dependency structures with empty elements -->
+  <define name="depparsing">
+    <element name="depparsing">
+      <optional>
+        <attribute name="tagset">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <!-- tagset for labelling dependency functions -->
+      <attribute name="multigovs">
+        <data type="boolean"/>
+      </attribute>
+      <!-- whether multiple governors for a token can occur in the parses -->
+      <attribute name="emptytoks">
+        <data type="boolean"/>
+      </attribute>
+      <zeroOrMore>
+        <!-- whether dummy empty tokens (dependents or governors) can occur -->
+        <element name="parse">
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <zeroOrMore>
+            <element name="dependency">
+              <optional>
+                <attribute name="func">
+                  <data type="string"/>
+                </attribute>
+              </optional>
+              <attribute name="depIDs">
+                <data type="IDREFS"/>
+              </attribute>
+              <optional>
+                <attribute name="govIDs">
+                  <data type="IDREFS"/>
+                </attribute>
+              </optional>
+            </element>
+          </zeroOrMore>
+          <optional>
+            <element name="emptytoks">
+              <oneOrMore>
+                <!-- need to put only in case dummy empty token(s) is(are) added to this parse -->
+                <element name="emptytok">
+                  <attribute name="ID">
+                    <data type="string"/>
+                  </attribute>
+                  <optional>
+                    <data type="string"/>
+                  </optional>
+                </element>
+              </oneOrMore>
+            </element>
+          </optional>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="relations">
+    <element name="relations">
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <zeroOrMore>
+        <element name="relation">
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="func">
+              <data type="string"/>
+            </attribute>
+          </optional>
+          <attribute name="refIDs">
+            <data type="IDREFS"/>
+          </attribute>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    CHANGES:
+    attribute type is added to differentiate between different entity type annotations
+    e.g. type="MUC1990" presupposes PERSON, LOCATION, ORGANIZATION, DATE, TIME, MONEY, PERCENT entity annotations
+    e.g. type="ENAMEX" presupposes PERSON, LOCATION, ORGANIZATION entity annotations
+    e.g. type="TIMEX" presupposes DATE, TIME entity annotations
+    e.g. type="NUMEX" presupposes MONEY, PERCENT entity annotations
+    e.g. type="CoNLL2002" presupposes PER, LOC, ORG, MISC entity annotations
+  -->
+  <define name="namedEntities">
+    <element name="namedEntities">
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <optional>
+        <attribute name="charOffsets">
+          <value>true</value>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <element name="entity">
+          <attribute name="class">
+            <data type="string"/>
+          </attribute>
+          <optional>
+            <attribute name="ID">
+              <data type="ID"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="start">
+              <data type="int"/>
+            </attribute>
+            <attribute name="end">
+              <data type="int"/>
+            </attribute>
+          </optional>
+          <attribute name="tokenIDs">
+            <data type="IDREFS"/>
+          </attribute>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="WordSplittings">
+    <element name="WordSplittings">
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <zeroOrMore>
+        <element name="split">
+          <attribute name="tokID">
+            <data type="IDREF"/>
+          </attribute>
+          <list>
+            <oneOrMore>
+              <data type="int"/>
+            </oneOrMore>
+          </list>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    CHANGES:
+    attribute transcription is added to differentiate between different pronunciation systems
+    e.g. transcription="IPA" presupposes the use of IPA alphabet in the transcribed words
+  -->
+  <define name="Phonetics">
+    <element name="Phonetics">
+      <attribute name="transcription">
+        <data type="string"/>
+      </attribute>
+      <zeroOrMore>
+        <element name="pron">
+          <attribute name="tokID">
+            <data type="IDREF"/>
+          </attribute>
+          <data type="string"/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    CHANGES:
+    attribute segmentation is added to declare the use of morphology segmentation sub-element
+  -->
+  <define name="morphology">
+    <element name="morphology">
+      <optional>
+        <attribute name="segmentation">
+          <value>true</value>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="charOffsets">
+          <value>true</value>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <ref name="analysis"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="analysis">
+    <element name="analysis">
+      <attribute name="tokenIDs">
+        <data type="IDREFS"/>
+      </attribute>
+      <element name="tag">
+        <ref name="fs"/>
+      </element>
+      <optional>
+        <ref name="segmentation"/>
+      </optional>
+    </element>
+  </define>
+  <define name="fs">
+    <element name="fs">
+      <oneOrMore>
+        <element name="f">
+          <attribute name="name">
+            <data type="string"/>
+          </attribute>
+          <choice>
+            <data type="string"/>
+            <ref name="fs"/>
+          </choice>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="segmentation">
+    <element name="segmentation">
+      <oneOrMore>
+        <ref name="segment"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="segment">
+    <element name="segment">
+      <optional>
+        <attribute name="type">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="cat">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="func">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="start">
+          <data type="int"/>
+        </attribute>
+        <attribute name="end">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <choice>
+        <data type="string"/>
+        <oneOrMore>
+          <ref name="segment"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+  <!--
+    CHANGES - 'coreferences' are replaced by 'references' with possibility to specify relations between references:
+    coreferences =
+     element coreferences {
+       attribute tagset { xsd:string }, 
+       attribute extrefs { xsd:string }?,
+       referent*
+     }
+    referent =
+     element referent {
+       attribute ID { xsd:ID }?,
+       attribute type { xsd:string }?,
+       extref?,
+       coreference+
+     }  
+    extref =
+     element extref {
+       attribute refid { xsd:string }
+     }  
+    coreference =
+     element coreference {
+       attribute tokenIDs { xsd:IDREFS },
+       attribute mintokIDs { xsd:IDREFS }?,
+       attribute type { xsd:string }?,
+       attribute srole { xsd:string }?
+     }
+  -->
+  <!-- a layer for representing reference relations between entity mentions in a text -->
+  <define name="references">
+    <element name="references">
+      <optional>
+        <!-- for the case when linguistic type of reference tokens is specified (i.e. tagset of type attribute of reference element): -->
+        <attribute name="typetagset">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <!-- for the case when relations between reference elements are specified (i.e. tagset of rel attribute of reference element): -->
+        <attribute name="reltagset">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <!-- for the case when entity (referent) is resolved to some entry in external source (i.e. source of external reference, e.g. wikipedia, id of some database, etc.): -->
+        <attribute name="extrefs">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <ref name="entity"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- an entity (referent) to which some mention (token sequence) in a text refers to -->
+  <define name="entity">
+    <element name="entity">
+      <optional>
+        <attribute name="ID">
+          <data type="ID"/>
+        </attribute>
+      </optional>
+      <optional>
+        <ref name="extref"/>
+      </optional>
+      <oneOrMore>
+        <ref name="reference"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <!-- reference to an entity in an external source   -->
+  <define name="extref">
+    <element name="extref">
+      <!-- id of the external reference, e.g. url of a Wikipedia article for the entity, id of the entity in a database, etc.: -->
+      <attribute name="refid">
+        <data type="string"/>
+      </attribute>
+    </element>
+  </define>
+  <!-- reference represented by a mention (token sequence) that refers to an entity (to its parent element 'entity') -->
+  <define name="reference">
+    <element name="reference">
+      <optional>
+        <attribute name="ID">
+          <data type="ID"/>
+        </attribute>
+      </optional>
+      <optional>
+        <!-- relation from this reference to another reference (to target reference), or to itself: -->
+        <attribute name="rel">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <!-- id of the target reference of the relation specified in rel attribute: -->
+        <attribute name="target">
+          <data type="IDREFS"/>
+        </attribute>
+      </optional>
+      <!-- ids of all the tokens this reference is represented by: -->
+      <attribute name="tokenIDs">
+        <data type="IDREFS"/>
+      </attribute>
+      <optional>
+        <!-- ids of all the head tokens of this reference: -->
+        <attribute name="mintokIDs">
+          <data type="IDREFS"/>
+        </attribute>
+      </optional>
+      <optional>
+        <!-- the linguistic type of the mention (pronoun/nominal/name/demonstrative/zero pronoun, other/finer distinctions are possible): -->
+        <attribute name="type">
+          <data type="string"/>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <!--
+    CHANGES - 'QueryResults' are replaced by 'matches':
+    QueryResults =
+     element QueryResults {
+       attribute query { xsd:string }?,
+       match+
+     }
+    match =
+     element match {
+       attribute tokenIDs   { xsd:IDREFS },
+       element key {
+         attribute tokenIDs   { xsd:IDREFS }
+       }?
+     }
+  -->
+  <define name="matches">
+    <element name="matches">
+      <element name="query">
+        <attribute name="type">
+          <data type="string"/>
+        </attribute>
+        <!-- type of a query (query language) -->
+        <data type="string"/>
+      </element>
+      <oneOrMore>
+        <element name="corpus">
+          <attribute name="name">
+            <data type="string"/>
+          </attribute>
+          <!-- name of the corpus -->
+          <attribute name="pid">
+            <data type="string"/>
+          </attribute>
+          <zeroOrMore>
+            <!-- pid of the corpus -->
+            <ref name="item"/>
+          </zeroOrMore>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="item">
+    <element name="item">
+      <attribute name="tokenIDs">
+        <data type="IDREFS"/>
+      </attribute>
+      <optional>
+        <!-- reference to the tokens -->
+        <attribute name="srcIDs">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <!-- reference to the original tokens from the original corpus -->
+        <element name="target">
+          <attribute name="name">
+            <data type="string"/>
+          </attribute>
+          <attribute name="value">
+            <data type="string"/>
+          </attribute>
+        </element>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element name="category">
+          <attribute name="name">
+            <data type="string"/>
+          </attribute>
+          <attribute name="value">
+            <data type="string"/>
+          </attribute>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    The remaining declarations are needed for representing the
+    semantic relations from GermanNet
+    
+    CHANGES:
+    separate layers for each semantic (lexical) relation;
+    attribute tokenIDs is removed and attribute lemmaRefs is added.
+    
+    lemmaRefs attribute value should contain ids of all lemmas that
+    refer to the given orthform. I.e. orthform doesn't need to be
+    repeated more than once inside one semantic-lexical relation,
+    instead, the lemma reference is added to lemmaRefs list.
+  -->
+  <define name="synonymy">
+    <element name="synonymy">
+      <zeroOrMore>
+        <!-- attribute src { xsd:string }, -->
+        <ref name="orthform"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="antonymy">
+    <element name="antonymy">
+      <zeroOrMore>
+        <!-- attribute src { xsd:string }, -->
+        <ref name="orthform"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="hyponymy">
+    <element name="hyponymy">
+      <zeroOrMore>
+        <!-- attribute src { xsd:string }, -->
+        <ref name="orthform"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="hyperonymy">
+    <element name="hyperonymy">
+      <zeroOrMore>
+        <!-- attribute src { xsd:string }, -->
+        <ref name="orthform"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="orthform">
+    <element name="orthform">
+      <optional>
+        <attribute name="ID">
+          <data type="ID"/>
+        </attribute>
+      </optional>
+      <attribute name="lemmaRefs">
+        <data type="IDREFS"/>
+      </attribute>
+      <data type="string"/>
+    </element>
+  </define>
+  <!-- layer to specify geographical coordinates of an entity or of an event -->
+  <define name="geo">
+    <element name="geo">
+      <!--
+        According to http://en.wikipedia.org/wiki/Geographic_coordinate_conversion 3 basic types of longitude and latitude representation is
+        1) DMS - Coordinate containing degrees (integer), minutes (integer), and seconds (integer, or real number);
+        2) MinDec - Coordinate containing degrees (integer) and minutes (real number);
+        3) DegDec - Coordinate containing only degrees (real number).
+        Extend the enumeration if other formats are to be supported
+      -->
+      <attribute name="coordFormat">
+        <choice>
+          <value>DegDec</value>
+          <value>MinDec</value>
+          <value>DMS</value>
+        </choice>
+      </attribute>
+      <optional>
+        <attribute name="continentFormat">
+          <value>name</value>
+        </attribute>
+      </optional>
+      <optional>
+        <!-- According to http://userpage.chemie.fu-berlin.de/diverse/doc/ISO_3166.html: -->
+        <attribute name="countryFormat">
+          <choice>
+            <value>ISO3166_A2</value>
+            <value>ISO3166_A3</value>
+            <value>ISO3166_Number</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="capitalFormat">
+          <value>name</value>
+        </attribute>
+      </optional>
+      <!-- source from where the coordinates are taken (database id, etc.) -->
+      <element name="src">
+        <data type="anyURI"/>
+      </element>
+      <zeroOrMore>
+        <element name="gpoint">
+          <attribute name="tokenIDs">
+            <data type="IDREFS"/>
+          </attribute>
+          <attribute name="lon">
+            <data type="string"/>
+          </attribute>
+          <attribute name="lat">
+            <data type="string"/>
+          </attribute>
+          <optional>
+            <attribute name="alt">
+              <data type="decimal"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="continent">
+              <data type="string"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="country">
+              <data type="string"/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="capital">
+              <data type="string"/>
+            </attribute>
+          </optional>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- discourse connectives layer -->
+  <define name="discourseconnectives">
+    <element name="discourseconnectives">
+      <attribute name="tagset">
+        <data type="string"/>
+      </attribute>
+      <zeroOrMore>
+        <element name="connective">
+          <!-- reference to the tokens -->
+          <attribute name="tokenIDs">
+            <data type="IDREFS"/>
+          </attribute>
+          <optional>
+            <!-- semantic type of the connective -->
+            <attribute name="type">
+              <data type="string"/>
+            </attribute>
+          </optional>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!-- word-sense-disambiguation layer -->
+  <define name="wsd">
+    <element name="wsd">
+      <!-- source from where the word senses are taken, e.g. GermaNet8.0 -->
+      <attribute name="src">
+        <data type="string"/>
+      </attribute>
+      <zeroOrMore>
+        <element name="ws">
+          <!-- reference to the tokens -->
+          <attribute name="tokenIDs">
+            <data type="IDREFS"/>
+          </attribute>
+          <!-- lexical units as lexical unit IDs in the source -->
+          <attribute name="lexunits">
+            <list>
+              <oneOrMore>
+                <data type="string"/>
+              </oneOrMore>
+            </list>
+          </attribute>
+          <optional>
+            <!-- comment for the word-sense -->
+            <attribute name="comment">
+              <data type="string"/>
+            </attribute>
+          </optional>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+  <!--
+    The source of the text and/or tokens can be embedded here or
+    referred to as an external reference.
+    Motivated by TEI to TCF convertion effort, but can be used for 
+    spcifying other types of input sources, too.
+  -->
+  <define name="textSource">
+    <element name="textSource">
+      <!--
+        type of text source, e.g,
+         This should be set to the mime type of the source content.
+        
+         For TEI documents, the follwoing guidelines apply.
+          type=""application/tei+xml" - default 
+          type=""application/tei+xml; tokenized=no"  : non-tokenized
+          type=""application/tei+xml; tokenized=0"   : non-tokenized
+          type=""application/tei+xml; tokenized=yes" : tokenized
+          type=""application/tei+xml; tokenized=1"   : tokenized
+      -->
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <optional>
+        <!-- actual source content, supplied as external reference -->
+        <attribute name="extref">
+          <data type="anyURI"/>
+        </attribute>
+      </optional>
+      <optional>
+        <!-- actual source content as embedded text node -->
+        <data type="string"/>
+      </optional>
+    </element>
+  </define>
+</grammar>

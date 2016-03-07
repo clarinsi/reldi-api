@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://www.dspin.de/data/extdata" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="ExternalData">
+      <interleave>
+        <optional>
+          <ref name="speechsignal"/>
+        </optional>
+        <optional>
+          <ref name="tokensegmentation"/>
+        </optional>
+        <optional>
+          <ref name="canonicalsegmentation"/>
+        </optional>
+        <optional>
+          <ref name="phoneticsegmentation"/>
+        </optional>
+        <optional>
+          <ref name="namedentitymodel"/>
+        </optional>
+      </interleave>
+    </element>
+  </start>
+  <define name="speechsignal">
+    <element name="speechsignal">
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <optional>
+        <attribute name="numberchannels">
+          <data type="integer"/>
+        </attribute>
+      </optional>
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <define name="tokensegmentation">
+    <element name="tokensegmentation">
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <define name="canonicalsegmentation">
+    <element name="canonicalsegmentation">
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <define name="phoneticsegmentation">
+    <element name="phoneticsegmentation">
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <define name="namedentitymodel">
+    <element name="namedentitymodel">
+      <attribute name="type">
+        <data type="string"/>
+      </attribute>
+      <attribute name="netype">
+        <data type="string"/>
+      </attribute>
+      <attribute name="modeltype">
+        <data type="string"/>
+      </attribute>
+      <data type="anyURI"/>
+    </element>
+  </define>
+</grammar>
