@@ -40,16 +40,16 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="inputProject" class="col-sm-3 control-label">Request monthly limit</label>
+						<label for="inputProject" class="col-sm-3 control-label">Monthly request limit</label>
 						<div class="col-sm-9">
 							<input type="text" class="form-control" id="inputRequestLimit" name="requests_limit"
-								   value="{{ form.get('requests_limit', '10.000') }}" placeholder="Request limit" required="required">
+								   value="{{ form.get('requests_limit', '10000') }}" placeholder="Request limit" required="required">
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="textAreaNote" class="col-sm-3 control-label">Note</label>
 						<div class="col-sm-9">
-							<textarea class="form-control" rows="3" name="note" placeholder="If you want monthly requests more than 10.000, please explain why" id="textAreaNote">{{ form.get('note', '') }}</textarea>
+							<textarea class="form-control" rows="3" name="note" placeholder="" id="textAreaNote">{{ form.get('note', '') }}</textarea>
 						</div>
 					</div>
 					<div class="form-group last">
@@ -65,4 +65,19 @@
 		</div>
 	</div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	$('#inputRequestLimit').keyup(function(e) {
+		var value = $(this).val();
+		if (value > 10000) {
+			$('#textAreaNote').attr('required', 'required');
+			$('#textAreaNote').attr('placeholder', 'Please let us know why you would need more than 10.000 requests per month');
+		} else {
+			$('#textAreaNote').removeAttr('required');
+			$('#textAreaNote').attr('placeholder', '');
+		}
+	});
+</script>
 {% endblock %}

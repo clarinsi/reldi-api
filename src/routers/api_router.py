@@ -6,6 +6,7 @@ from ..helpers import jsonify, TCF, jsonTCF, isset
 from flask import Blueprint
 from flask import request
 from flask import Response
+from flask import current_app
 from functools import wraps
 from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
@@ -75,6 +76,9 @@ class ApiRouter(Blueprint):
             @wraps(api_method)
             def verify(*args, **kwargs):
                 auth_token_string = request.cookies.get('auth-token')
+                if auth_token_string is None:
+                    auth_token_string = request.headers.get('Authorization')
+
                 authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
                 if authToken is None or not authToken.isValid():
                     raise Unauthorized('Invalid token')
@@ -107,9 +111,9 @@ class ApiRouter(Blueprint):
 
         @self.errorhandler(Exception)
         def handle_error(error):
-           response = jsonify(error.message)
-           response.status_code = error.status_code
-           return response
+            current_app.logger.error(error)
+            response = jsonify(error.message)
+            return response
 
         @self.route('/<lang>/lexicon', methods=['GET'])
         @authenticate

@@ -67,7 +67,6 @@ class UsersDB(DB):
                 created TEXT NOT NULL
                 CHECK (role IN ("admin", "user"))
                 CHECK (status IN ("pending", "blocked", "active"))
-                
             );
         """
         db.command(statement)

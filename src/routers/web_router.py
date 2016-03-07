@@ -99,29 +99,31 @@ class WebRouter(Blueprint):
 
         @self.route('/register', methods=["POST"])
         def do_register():
-            user = UserModel()
-            user.role = 'user'
-            user.status = 'pending'
-            user.requests_made = 0
-            user.requests_limit = request.form.get("requests_limit")
-            user.username = request.form.get("username")
-            user.project = request.form.get("project")
 
-            is_valid = validate_email(request.form.get("email"),verify=True)
-            if is_valid == 1:
-                user.email = request.form.get("email")
-            else:
-                session['form'] = request.form
-                flash('Invalid email address', 'danger')
-                return make_response(redirect(url_for('.register')))
-            if request.form.get("password") != request.form.get("confirm_password"):
-                session['form'] = request.form
-                flash('Passwords do not match', 'danger')
-                return make_response(redirect(url_for('.register')))
-
-            user.setPassword(request.form.get("password"))
             try:
+                user = UserModel()
+                user.role = 'user'
+                user.status = 'pending'
+                user.requests_made = 0
+                user.requests_limit = int(request.form.get("requests_limit"))
+                user.username = request.form.get("username")
+                user.project = request.form.get("project")
+
+                is_valid = validate_email(request.form.get("email"), verify=True)
+                if is_valid == 1:
+                    user.email = request.form.get("email")
+                else:
+                    session['form'] = request.form
+                    flash('Email address does not exist', 'danger')
+                    return make_response(redirect(url_for('.register')))
+                if request.form.get("password") != request.form.get("confirm_password"):
+                    session['form'] = request.form
+                    flash('Passwords do not match', 'danger')
+                    return make_response(redirect(url_for('.register')))
+
+                user.setPassword(request.form.get("password"))
                 user.save()
+
                 #sender = 'blagorodna.ilievska@yahoo.com'
                 #receivers = ['blagorodna.ilievska@gmail.com']
 
@@ -144,6 +146,10 @@ class WebRouter(Blueprint):
                 elif e.message == 'UNIQUE constraint failed: users.email':
                     flash('Email ' + request.form.get('email') + ' is already in use', 'danger')
 
+                return make_response(redirect(url_for('.register')))
+            except ValueError as e:
+                session['form'] = request.form
+                flash('Invalid value for monthly request limit', 'danger')
                 return make_response(redirect(url_for('.register')))
 
             return render_template('register_success.html')
