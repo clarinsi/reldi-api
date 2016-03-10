@@ -13,6 +13,8 @@ from src.api.lematiser import Lematiser
 from src.routers.api_router import ApiRouter
 from src.routers.web_router import WebRouter
 
+from src.services.mail_service import MailService
+
 from flask import make_response, redirect
 
 reload(sys)
@@ -32,6 +34,8 @@ def init():
         dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
         dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
         dc['lexicon.' + lang] = lambda: Lexicon(lang)
+
+    dc['mail_service'] = lambda: MailService()
     print 'Models initialized'
 
     api_router = ApiRouter(dc)

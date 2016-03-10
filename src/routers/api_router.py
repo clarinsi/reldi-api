@@ -1,6 +1,4 @@
 
-import sys
-import xml.etree.ElementTree as ET
 from ..helpers import jsonify, TCF, jsonTCF, isset
 from lxml import etree
 from StringIO import StringIO
@@ -12,6 +10,7 @@ from flask import current_app
 from functools import wraps
 from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
+import re
 
 
 class ServerError(Exception):
@@ -67,13 +66,6 @@ class ApiRouter(Blueprint):
         Blueprint.__init__(self, 'api_router', 'api_router')
 
         def authenticate(api_method):
-            def error_message(message):
-                return jsonify({
-                    'success': False,
-                    'result': [],
-                    'count': 0,
-                    'message': message
-                }, ensure_ascii=False)
 
             @wraps(api_method)
             def verify(*args, **kwargs):
@@ -89,7 +81,10 @@ class ApiRouter(Blueprint):
                 user = UserModel.getByPk(authToken.user_id)
                 if user is None:
                     raise Unauthorized('Invalid token')
-                
+
+                if user.status != 'active':
+                    raise Unauthorized('User has no access')
+
                 user.logRequest()
                 user.save()
                 return api_method(*args, **kwargs)
@@ -103,11 +98,12 @@ class ApiRouter(Blueprint):
                 with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
                     relaxng_doc = etree.parse(f)
                     relaxng = etree.RelaxNG(relaxng_doc)
-                    doc = etree.parse(StringIO(request.args.get('text').encode('utf-8')))
-                    if relaxng.validate(doc):
-                        return 'Modeli su zakon'
+                    inputXml = re.sub(">\\s*<", "><", request.args.get('text').encode('utf-8'))
+                    doc = etree.parse(StringIO(inputXml))
+                    if '<' not in inputXml or not relaxng.validate(doc):
+                        return doc.getroot()[1][0].text
                     else:
-                        raise InvalidUsage('Input xml does not comply to TCF schema')
+                        raise InvalidUsage('Input XML does not comply to the TCF schema')
             else:
                 raise InvalidUsage('Unknown format ' + format)
 
@@ -180,7 +176,6 @@ class ApiRouter(Blueprint):
             result = map(lambda x: map(lambda y: (y,), x), segmenter.segment(text))
 
             if format == 'json':
-                # return jsonify(result)
                 return jsonify(jsonTCF(lang, text, result), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result), mimetype='text/xml')
@@ -196,10 +191,8 @@ class ApiRouter(Blueprint):
             tagger = dc['tagger.' + lang]
             result = tagger.tag(text)
             if format == 'json':
-                print 4
                 return jsonify(jsonTCF(lang, text, result, tag_idx=1), ensure_ascii=False)
             elif format == 'tcf':
-                print 5
                 return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
 
         @self.route('/<lang>/tag_lemmatise', methods=['GET'])
@@ -233,3 +226,21 @@ class ApiRouter(Blueprint):
                 return jsonify(jsonTCF(lang, text, result, lemma_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
+
+        @self.route('/login', methods=['POST'])
+        def login():
+            username = request.form.get('username')
+            password = request.form.get('password')
+
+            if username is None or password is None:
+                raise Unauthorized("Invalid username or password")
+            user = UserModel.getByUsername(username)
+            if user is None:
+                raise Unauthorized("Invalid username or password")
+            else:
+                try:
+                    token = user.generateToken(password)
+                    token.save()
+                    return jsonify(token.token, ensure_ascii=False)
+                except ValueError as e:
+                    raise Unauthorized(e.__str__())

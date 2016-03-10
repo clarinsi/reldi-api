@@ -173,3 +173,16 @@ input[type="text"]:disabled {
   margin: 0;
   float: right;
 }
+
+#error-message {
+    color: red;
+}
+
+#result-col .nav.nav-pills {
+    margin-bottom: 10px;
+}
+
+#result-col table th,
+#result-col table td {
+    font-size: 14px;
+}

@@ -1,254 +1,246 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="panel panel-default">
-  <div class="panel-heading"> <strong class="">Query</strong>
-  </div>
-  <div class="panel-body">
-      <div class="col-md-6">
-          <div class="bs-component">
-              <div class="tab-content">
-                  <form id="search-form" class="form-horizontal tab-pane fade in active" >
-                      <fieldset>
-                          <div class="form-group">
-                            <label for="input-text" class="col-md-3 control-label">Input</label>
-                            <div class="col-md-9">
-                             <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
-                         </div>
-                      </div>
+    <div class="panel-heading"> <strong class="">Query</strong>
+    </div>
+    <div class="panel-body">
+        <div class="col-md-5">
+            <div class="bs-component">
+                <div class="tab-content">
+                    <form id="search-form" class="form-horizontal tab-pane fade in active" >
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="input-text" class="col-md-3 control-label" style="text-align:left">Input</label>
+                                <div class="col-md-12">
+                                    <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
+                                </div>
+                            </div>
 
-                      <div class="form-group">
-                          <label for="inputLanguage" class="col-md-3 control-label">Language</label>
-                          <div class="col-md-3">
-                              <select class="form-control" id="inputLanguage" name="language" required="required">
-                                  <option value="hr" selected="selected">Croatian</option>
-                                  <option value="sr">Serbian</option>
-                                  <option value="sl">Slovenian</option>
-                              </select>
-                          </div>
-                      </div>
+                            <div class="form-group">
+                                <label for="inputLanguage" class="col-md-3 control-label" style="text-align:left">Language</label>
+                                <div class="col-md-3">
+                                    <select class="form-control" id="inputLanguage" name="language" required="required">
+                                        <option value="hr" selected="selected">Croatian</option>
+                                        <option value="sr">Serbian</option>
+                                        <option value="sl">Slovenian</option>
+                                    </select>
+                                </div>
+                            </div>
 
-                     <div class="form-group">
-                        <label class="col-md-3 control-label">Input format</label>
-                        <div class="col-md-9">
-                            <label class="radio-inline">
-                            <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
-                                Text
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
-                                TCF
-                            </label>
-                        </div>
-                    </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" style="text-align:left">Input format</label>
+                                <div class="col-md-9">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
+                                        Text
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
+                                        TCF
+                                    </label>
+                                </div>
+                            </div>
 
-                <div class="form-group">
-                  <label class="col-md-3 control-label">Function</label>
-                  <div class="col-md-9">
-                    <label class="radio-inline">
-                      <input type="radio" name="method" required="required" id="method1" value="tag">
-                      Tag
-                  </label>
-                  <label class="radio-inline">
-                      <input type="radio" name="method" required="required" id="method2" value="lemmatise">
-                      Lemmatise
-                  </label>
-                  <label class="radio-inline">
-                      <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
-                      Tag  +  Lemmatise
-                  </label>
-              </div>
-          </div>
-          <div class="form-group">
-            <div class="col-md-9 col-md-offset-3">
-                <button id="search-button" type="submit" class="btn btn-primary">Process</button>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" style="text-align:left">Function</label>
+                                <div class="col-md-9">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="method" required="required" id="method1" value="tag">
+                                        Tag
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="method" required="required" id="method2" value="lemmatise">
+                                        Lemmatise
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
+                                        Tag  +  Lemmatise
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-md-offset-3">
+                                    <button id="search-button" type="submit" class="btn btn-primary">Process</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
             </div>
         </div>
-    </fieldset>
-</form>
-</div>
-</div>
-</div>
-<div class="col-md-6">
-  <div class="form-group">
-    <label for="textArea" class="col-md-12 control-label">Result</label>
-    <ul class="nav nav-pills">
-        <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
-        <li class=""><a data-toggle="tab" href="#raw-results">Raw</a></li>
-    </ul>
-    <div class="bs-component">
-      <div class="tab-content">
-            <div id="table-results" class="form-horizontal tab-pane fade in active" >
-              <table id="results"  class="table table-hover"></table>
+        <div id="result-col" class="col-md-7">
+            <div class="form-group">
+                <label for="textArea" class="col-md-12 control-label">Result</label>
+                <ul class="nav nav-pills">
+                    <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
+                    <li class=""><a data-toggle="tab" href="#raw-results">Raw output</a></li>
+                </ul>
+                <div class="bs-component">
+                    <div class="tab-content">
+                        <div id="table-results" class="form-horizontal tab-pane fade in active" >
+                            <table id="results"  class="table table-hover"></table>
+                        </div>
+                        <div id="raw-results" class="form-horizontal  tab-pane fade">
+                            <div class="col-md-12">
+                                <textarea id="result-area" readonly="readonly" class="form-control"
+                                rows="16" id="textArea"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="raw-results" class="form-horizontal  tab-pane fade">
-              <div class="col-md-12">
-                  <textarea id="result-area" readonly="readonly" class="form-control"
-                  rows="18" id="textArea"></textarea>
-              </div>
+            <div class="col-md-12 help-block">
+                <div>
+                    <span id="error-message"></span>
+                </div>
+                <div>
+                    <span id="response-time"></span>
+                </div>
             </div>
-            <div class="help-block">
-                Result set
-                <span id="response-time"></span>
-            </div>
-      </div>
+        </div>
     </div>
-
-</div>
-</div>
-</div>
 </div>
 {% endblock %}
 
 
 {% block scripts %}
 <script>
-
-    function xmlToString(xmlData) {
-        xmlData= $(xmlData);
-        if (window.ActiveXObject) {
-            return xmlData.xml;
-        } else {
-            var oSerializer = new XMLSerializer();
-            return oSerializer.serializeToString(xmlData[0]);
-        }
+function xmlToString(xmlData) {
+    xmlData = $(xmlData);
+    if (window.ActiveXObject) {
+        return xmlData.xml;
+    } else {
+        var oSerializer = new XMLSerializer();
+        return oSerializer.serializeToString(xmlData[0]);
     }
+}
 
-    var baseUrl = '/api/v1/'
-    $('#search-form').submit(function(e) {
-      e.preventDefault();
-  });
-    $("#search-button").click(function (e) {
-      e.preventDefault();
+var baseUrl = '/api/v1/'
+$('#search-form').submit(function(e) {
+    e.preventDefault();
+});
 
-      var text = $("#input-text").val();
-      var inputFormat = $('input[name="input-format"]:checked').val();
-      var method = $('input[name="method"]:checked').val();
+$("#search-button").click(function(e) {
+    e.preventDefault();
 
-      if (!text || !inputFormat || !method) {
+    var text = $("#input-text").val();
+    var inputFormat = $('input[name="input-format"]:checked').val();
+    var method = $('input[name="method"]:checked').val();
+
+    if (!text || !inputFormat || !method) {
         return;
     }
 
     $(".display-result-search").empty();
     var url = baseUrl + $('#inputLanguage option:selected').val() + '/' + method;
     var data = {
-      text: text !== '' ? text : null,
-      format: inputFormat
-  };
+        text: text !== '' ? text : null,
+        format: inputFormat
+    };
 
-  $("#search-button").text('Processing ...').attr('disabled', 'disabled');
-  var sendDate = (new Date()).getTime();
-  var trHTML='';
-  $('#results').empty();
-  jQuery.ajax({
-      type: "GET",
-      dataType: inputFormat == 'json' ? 'json': 'xml',
-      url: url,
-      data: data,
-      success:function (data, status, xml) {
+    $("#search-button").text('Processing ...').attr('disabled', 'disabled');
+    var sendDate = (new Date()).getTime();
+    var trHTML = '';
+    $('#results').empty();
+    jQuery.ajax({
+        type: "GET",
+        dataType: inputFormat == 'json' ? 'json' : 'xml',
+        url: url,
+        data: data,
+        success: function(data, status, xml) {
+            if (inputFormat == 'json') {
+                $("#result-area").text(JSON.stringify(data, null, 4));
+                if (method == "tag") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+                    $.each(data.tokens, function(i, item) {
 
-        if (inputFormat == 'json') {
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_tag></td></tr></tbody>';
 
-            $("#result-area").text(JSON.stringify(data, null, 4));
-            if(method=="tag"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
-              $.each(data.tokens, function (i, item) {
+                    });
+                    $('#results').append(trHTML);
+                    $.each(data.POSTags, function(i, tags) {
+                        $.each(tags, function(j, tag) {
+                            $("#" + j + "_tag").html(tag.value);
+                        });
+                    });
 
-                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_tag></td></tr></tbody>';
+                } else if (method == "lemmatise") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemma</th></tr></thead>");
+                    $.each(data.tokens, function(i, item) {
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_lemma></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
 
-             });
-             $('#results').append(trHTML);
-             $.each(data.POSTags, function (i, tags) {
-               $.each(tags, function (j, tag) {
-                  $("#"+j+"_tag").html(tag.value);
-               });
-             });
-
+                    $.each(data.lemmas, function(i, lemmas) {
+                        $.each(lemmas, function(j, lemma) {
+                            $("#" + j + "_lemma").html(lemma.value);
+                            //console.log(tag.value);
+                        });
+                    });
+                } else if (method == "tag_lemmatise") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemma</th></tr></thead>");
+                    $.each(data.tokens, function(i, item) {
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_tag></td><td id=' + i + '_lemma></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+                    $.each(data.POSTags, function(i, tags) {
+                        $.each(tags, function(j, tag) {
+                            $("#" + j + "_tag").html(tag.value);
+                        });
+                    });
+                    $.each(data.lemmas, function(i, lemmas) {
+                        $.each(lemmas, function(j, lemma) {
+                            $("#" + j + "_lemma").html(lemma.value);
+                        });
+                    });
+                }
+            } else {
+                $("#result-area").text(xml.responseText);
+                if (method == "tag") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+                    $(xml.responseText).find("token").each(function(index) {
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_tag></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+                    $(xml.responseText).find("tag").each(function(index) {
+                        $("#" + index + "_tag").html($(this).text());
+                    });
+                } else if (method == "lemmatise") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemma</th></tr></thead>");
+                    $(xml.responseText).find("token").each(function(index) {
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_lemma></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+                    $(xml.responseText).find("lemma").each(function(index) {
+                        $("#" + index + "_lemma").html($(this).text());
+                    });
+                } else if (method == "tag_lemmatise") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemma</th></tr></thead>");
+                    $(xml.responseText).find("token").each(function(index) {
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_tag></td><td id=' + index + '_lemma></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+                    $(xml.responseText).find("lemma").each(function(index) {
+                        $("#" + index + "_lemma").html($(this).text());
+                    });
+                    $(xml.responseText).find("tag").each(function(index) {
+                        $("#" + index + "_tag").html($(this).text());
+                    });
+                }
             }
-            else if(method=="lemmatise") {
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
-              $.each(data.tokens, function (i, item) {
-                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_lemma></td></tr></tbody>';
-             });
-             $('#results').append(trHTML);
-
-             $.each(data.lemmas, function (i, lemmas) {
-
-               $.each(lemmas, function (j, lemma) {
-                  $("#"+j+"_lemma").html(lemma.value);
-                  //console.log(tag.value);
-               });
-             });
-            }
-            else if(method=="tag_lemmatise"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
-              $.each(data.tokens, function (i, item) {
-                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_tag></td><td id='+i+'_lemma></td></tr></tbody>';
-             });
-             $('#results').append(trHTML);
-             $.each(data.POSTags, function (i, tags) {
-               $.each(tags, function (j, tag) {
-                  $("#"+j+"_tag").html(tag.value);
-               });
-             });
-             $.each(data.lemmas, function (i, lemmas) {
-
-               $.each(lemmas, function (j, lemma) {
-                  $("#"+j+"_lemma").html(lemma.value);
-                  //console.log(tag.value);
-               });
-             });
-            }
-        } else {
-            $("#result-area").text(xml.responseText);
-            if(method=="tag"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
-              $(xml.responseText).find("token").each(function(index){
-                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_tag></td></tr></tbody>';
-              });
-              $('#results').append(trHTML);
-              $(xml.responseText).find("tag").each(function(index){
-                  $("#"+index+"_tag").html($(this).text());
-              });
-            }
-            else if(method=="lemmatise"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
-              $(xml.responseText).find("token").each(function(index){
-                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_lemma></td></tr></tbody>';
-              });
-              $('#results').append(trHTML);
-              $(xml.responseText).find("lemma").each(function(index){
-                  $("#"+index+"_lemma").html($(this).text());
-              });
-            }
-            else if(method=="tag_lemmatise"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
-              $(xml.responseText).find("token").each(function(index){
-                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_tag></td><td id='+index+'_lemma></td></tr></tbody>';
-              });
-              $('#results').append(trHTML);
-              $(xml.responseText).find("lemma").each(function(index){
-                  $("#"+index+"_lemma").html($(this).text());
-              });
-              $(xml.responseText).find("tag").each(function(index){
-                  $("#"+index+"_tag").html($(this).text());
-              });
-            }
+            $("#error-message").text('');
+        },
+        error: function(response) {
+            $("#error-message").text(JSON.parse(response.responseText));
+        },
+        complete: function(data) {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var responseTimeText = 'Response time: ' + (responseTimeMs / 1000.0) + 's';
+            $('#response-time').text(responseTimeText);
+            $("#search-button").text('Process').removeAttr('disabled');
         }
-
-    },
-    error: function(response) {
-      $("#result-area").text(JSON.parse(response.responseText));
-  },
-  complete: function(data) {
-      var receiveDate = (new Date()).getTime();
-      var responseTimeMs = receiveDate - sendDate;
-      var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-      $('#response-time').text(responseTimeText);
-      $("#search-button").text('Process').removeAttr('disabled');
-  }
-});
-
-
+    });
 });
 </script>
 {% endblock %}

@@ -126,30 +126,30 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=True)
     for s_idx, sentence in enumerate(result):
         token_ids = []
         for token in sentence:
-            token_output += "\t<token ID=\"t_{0}\" startChar=\"{1}\" endChar=\"{2}\">{3}</token>\n".format(token_id,
+            token_output += "<token ID=\"t_{0}\" startChar=\"{1}\" endChar=\"{2}\">{3}</token>".format(token_id,
                                                                                                            token[0][1],
                                                                                                            token[0][2],
                                                                                                            token[0][0])
             token_ids.append("t_" + str(token_id))
 
             if lemma_idx is not None:
-                lemmas_output += "\t<lemma ID=\"le_{0}\" tokenIDs=\"t_{0}\">{1}</lemma>\n".format(token_id,
+                lemmas_output += "<lemma ID=\"le_{0}\" tokenIDs=\"t_{0}\">{1}</lemma>".format(token_id,
                                                                                                   token[lemma_idx])
 
             if tag_idx is not None:
-                tags_output += "\t<tag ID=\"pt_{0}\" tokenIDs=\"t_{0}\">{1}</tag>\n".format(token_id, token[tag_idx])
+                tags_output += "<tag ID=\"pt_{0}\" tokenIDs=\"t_{0}\">{1}</tag>".format(token_id, token[tag_idx])
 
-            token_id += 1;
+            token_id += 1
 
-        sentence_output += "\t<sentence ID=\"s_{0}\" tokenIDs=\"{1}\" />".format(s_idx, " ".join(token_ids))
+        sentence_output += "<sentence ID=\"s_{0}\" tokenIDs=\"{1}\" />".format(s_idx, " ".join(token_ids))
 
-    output += "<tokens>\n" + token_output + "</tokens>\n"
+    output += "<tokens>" + token_output + "</tokens>"
     if output_sentences:
-        output += "<sentences>\n" + sentence_output + "</sentences>\n"
+        output += "<sentences>" + sentence_output + "</sentences>"
     if not empty(lemmas_output):
-        output += "<lemmas>\n" + lemmas_output + "</lemmas>\n"
+        output += "<lemmas>" + lemmas_output + "</lemmas>"
     if not empty(tags_output):
-        output += "<POStags tagset=\"mte-hr-v4r\">\n" + tags_output + "</POStags>\n"
+        output += "<POStags tagset=\"mte-hr-v4r\">" + tags_output + "</POStags>"
 
     output = """<?xml version="1.0" encoding="UTF-8"?>
     <D-Spin xmlns="http://www.dspin.de/data" version="0.4">
@@ -160,5 +160,5 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=True)
         </TextCorpus>
     </D-Spin>""".format(lang, output, text)
 
-    x = etree.parse(StringIO(output))
-    return etree.tostring(x, pretty_print=True)
+    x = etree.parse(StringIO(output), etree.XMLParser(remove_blank_text=True))
+    return etree.tostring(x.getroot(), pretty_print=True)

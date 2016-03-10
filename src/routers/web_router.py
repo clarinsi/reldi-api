@@ -1,6 +1,6 @@
 import os
 import sys
-#import smtplib
+# import smtplib
 from sqlite3 import IntegrityError
 from flask import Blueprint
 from flask import render_template, request, flash, Response, session
@@ -40,6 +40,7 @@ class WebRouter(Blueprint):
                     return make_response(redirect(url_for('.query')))
 
                 return check_token
+
             return wrapper
 
         @self.route('/', methods=['GET'])
@@ -99,7 +100,6 @@ class WebRouter(Blueprint):
 
         @self.route('/register', methods=["POST"])
         def do_register():
-
             try:
                 user = UserModel()
                 user.role = 'user'
@@ -124,21 +124,9 @@ class WebRouter(Blueprint):
                 user.setPassword(request.form.get("password"))
                 user.save()
 
-                #sender = 'blagorodna.ilievska@yahoo.com'
-                #receivers = ['blagorodna.ilievska@gmail.com']
+                note = request.form.get("note", "")
+                dc['mail_service'].sendAccessRequestEmail(user.username, note, url_for('.login', _external=True))
 
-                #message = """From: From Person <blagorodna.ilievska@yahoo.com>
-                #To: To Person <blagorodna.ilievska@gmail.com>
-                #Subject: SMTP e-mail test
-
-                #This is a test e-mail message."""
-
-                #try:
-                    #smtpObj = smtplib.SMTP('localhost')
-                    #smtpObj.sendmail(sender, receivers, message)
-                    #print "Successfully sent email"
-                #except SMTPException:
-                    #print "Error: unable to send email"
             except IntegrityError as e:
                 session['form'] = request.form
                 if e.message == 'UNIQUE constraint failed: users.username':
@@ -152,7 +140,7 @@ class WebRouter(Blueprint):
                 flash('Invalid value for monthly request limit', 'danger')
                 return make_response(redirect(url_for('.register')))
 
-            return render_template('register_success.html')
+            return render_template('register_success.html', login_url=url_for('.login'))
 
         @self.route('/query')
         @authenticate(['admin', 'user'])
@@ -169,8 +157,8 @@ class WebRouter(Blueprint):
                 'blocked': 'Blocked'
             }
             roles = {
-                'admin' : 'Admin',
-                'user' : 'User'
+                'admin': 'Admin',
+                'user': 'User'
             }
             return render_template('edit-user.html', user=user, statuses=statuses, roles=roles)
 
@@ -178,9 +166,9 @@ class WebRouter(Blueprint):
         @authenticate(['admin'])
         def do_edit(id):
             user = UserModel.getById(id)
-            user.role = request.form.get("role","")
-            user. status= request.form.get("status","")
-            user.requests_limit= request.form.get("requests_limit","")
+            user.role = request.form.get("role", "")
+            user.status = request.form.get("status", "")
+            user.requests_limit = request.form.get("requests_limit", "")
             user.save()
 
             return make_response(redirect(url_for('.admin')))
@@ -214,6 +202,7 @@ class WebRouter(Blueprint):
             if user is not None:
                 user.block()
                 user.save()
+                dc['mail_service'].sendUserBlockedEmail(user.username, user.email)
 
             return make_response(redirect(url_for('.admin')))
 
@@ -221,8 +210,13 @@ class WebRouter(Blueprint):
         @authenticate(['admin'])
         def activate_user(id):
             user = UserModel.getByPk(id)
+            oldStatus = user.status
             if user is not None:
                 user.activate()
                 user.save()
+                if oldStatus == 'pending':
+                    dc['mail_service'].sendUserActivatedEmail(user.username, user.email, url_for('.login', _external=True))
+                else:
+                    dc['mail_service'].sendUserReactivatedEmail(user.username, user.email, url_for('.login', _external=True))
 
             return make_response(redirect(url_for('.admin')))
