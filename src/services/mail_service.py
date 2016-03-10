@@ -15,6 +15,9 @@ class MailService(object):
         sender = 'projectreldi@gmail.com'
         receivers = ['projectreldi@gmail.com']
 
+        if note != "":
+            note = "The following note has been left by the user: {0}".format(note)
+
         message = """From: Project ReLDI <projectreldi@gmail.com>
 MIME-Version: 1.0
 Content-type: text/plain
@@ -22,7 +25,9 @@ To: <{0}>
 Subject: New ReLDI user
 
 A new user with the username *{0}* has requested access.
-Click the link to log in and review the user details: {2}""".format(username, note, login_link)
+Click the link to log in and review the user details: {2}
+
+{1}""".format(username, note, login_link)
 
         try:
             server = smtplib.SMTP('smtp.gmail.com', 587)
