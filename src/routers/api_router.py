@@ -73,6 +73,9 @@ class ApiRouter(Blueprint):
                 if auth_token_string is None:
                     auth_token_string = request.headers.get('Authorization')
 
+                if auth_token_string is None:
+                    raise Unauthorized('Invalid token')
+                
                 authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
                 if authToken is None or not authToken.isValid():
                     raise Unauthorized('Invalid token')
