@@ -185,7 +185,7 @@ class ApiRouter(Blueprint):
         def tag(lang):
             format = request.args.get('format')
             if not isset(format):
-                raise InvalidUsage('Please specify a formatx', status_code=422)
+                raise InvalidUsage('Please specify a format', status_code=422)
 
             text = get_text(format, request)
             tagger = dc['tagger.' + lang]
