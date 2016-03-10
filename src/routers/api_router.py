@@ -117,7 +117,7 @@ class ApiRouter(Blueprint):
             response = jsonify(error.message)
             return response
 
-        @self.route('/<lang>/lexicon', methods=['GET'])
+        @self.route('/<lang>/lexicon', methods=['GET', 'POST'])
         @authenticate
         def lexicon(lang):
 
@@ -162,7 +162,7 @@ class ApiRouter(Blueprint):
                 'count': len(result)
             }, ensure_ascii=False)
 
-        @self.route('/<lang>/segment', methods=['GET'])
+        @self.route('/<lang>/segment', methods=['GET', 'POST'])
         @authenticate
         def segment(lang):
             format = request.args.get('format')
@@ -180,7 +180,7 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result), mimetype='text/xml')
 
-        @self.route('/<lang>/tag', methods=['GET'])
+        @self.route('/<lang>/tag', methods=['GET', 'POST'])
         @authenticate
         def tag(lang):
             format = request.args.get('format')
@@ -195,7 +195,7 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
 
-        @self.route('/<lang>/tag_lemmatise', methods=['GET'])
+        @self.route('/<lang>/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate
         def tag_lematise(lang):
             format = request.args.get('format')
@@ -211,7 +211,7 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
 
-        @self.route('/<lang>/lemmatise', methods=['GET'])
+        @self.route('/<lang>/lemmatise', methods=['GET', 'POST'])
         @authenticate
         def lemmatise(lang):
             format = request.args.get('format')
