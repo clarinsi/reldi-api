@@ -1,0 +1,347 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="panel panel-default">
+  <div class="panel-heading"> <strong class="">Query</strong>
+  </div>
+  <div class="panel-body">
+    <ul class="nav nav-pills">
+          <li class="active"><a data-toggle="tab" href="#search-form">Search</a></li>
+          <li class=""><a data-toggle="tab" href="#lexicon-form">Lexicon</a></li>
+      </ul>
+      <div class="col-md-6">
+          <div class="bs-component">
+              <div class="tab-content">
+                  <form id="search-form" class="form-horizontal tab-pane fade in active" >
+                      <fieldset>
+                          <div class="form-group">
+                            <label for="input-text" class="col-md-2 control-label">Input</label>
+                            <div class="col-md-10">
+                             <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
+                         </div>
+                     </div>
+
+                     <div class="form-group">
+                        <label class="col-md-2 control-label">Input format</label>
+                        <div class="col-md-10">
+                           <label class="radio-inline">
+                            <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
+                            Text
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
+                            TCF
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-2 control-label">Function</label>
+                  <div class="col-md-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="method" required="required" id="method1" value="tag">
+                      Tag
+                  </label>
+                  <label class="radio-inline">
+                      <input type="radio" name="method" required="required" id="method2" value="lemmatise">
+                      Lemmatise
+                  </label>
+                  <label class="radio-inline">
+                      <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
+                      Tag  +  Lemmatise
+                  </label>
+              </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-10 col-md-offset-2">
+                <button id="search-button" type="submit" class="btn btn-primary">Process</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
+<form id="lexicon-form" class="form-horizontal tab-pane fade">
+  <fieldset>
+      <div class="form-group">
+          <label for="inputSurface" class="col-md-2 control-label">Surface</label>
+          <div class="col-md-10">
+              <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
+              <div class="col-md-10">
+                  <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
+              </div>
+          </div>
+          <div class="form-group">
+            <label for="inputMsd" class="col-md-2 control-label">Msd</label>
+                <div class="col-md-10">
+                    <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
+                </div>
+            </div>
+            <div class="form-group">
+              <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
+                  <div class="col-md-10">
+                    <input type="text" class="form-control" id="inputRhymesWith" placeholder="Rhymes with">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="inputNoOfSyllables" class="col-md-2 control-label">No od syllables</label>
+                  <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
+                            </div>
+              </div>
+              <div class="form-group">
+                  <div class="col-md-10 col-md-offset-2">
+                        <button id="lexicon-button" type="submit" class="btn btn-primary search-lexicon">Search</button>
+                  </div>
+              </div>
+      </fieldset>
+</form>
+</div>
+</div>
+</div>
+<div class="col-md-6">
+  <div class="form-group">
+    <label for="textArea" class="col-md-12 control-label">Result</label>
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
+        <li class=""><a data-toggle="tab" href="#raw-results">Raw</a></li>
+    </ul>
+    <div class="bs-component">
+      <div class="tab-content">
+            <div id="table-results" class="form-horizontal tab-pane fade in active" >
+              <table id="results"  class="table table-hover"></table>
+            </div>
+            <div id="raw-results" class="form-horizontal  tab-pane fade">
+              <div class="col-md-12">
+                  <textarea id="result-area" readonly="readonly" class="form-control"
+                  rows="20" id="textArea"></textarea>
+
+              </div>
+            </div>
+            <div class="help-block">
+                Result set
+                <span id="response-time"></span>
+            </div>
+      </div>
+    </div>
+
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+
+    function xmlToString(xmlData) {
+        xmlData= $(xmlData);
+        if (window.ActiveXObject) {
+            return xmlData.xml;
+        } else {
+            var oSerializer = new XMLSerializer();
+            return oSerializer.serializeToString(xmlData[0]);
+        }
+    }
+
+    var baseUrl = 'http://faustjr.ffzg.hr:8080/api/v1/';
+    $('#search-form').submit(function(e) {
+      e.preventDefault();
+  });
+  $('#lexicon-form').submit(function(e) {
+    e.preventDefault();
+});
+    $("#search-button").click(function (e) {
+      e.preventDefault();
+
+      var text = $("#input-text").val();
+      var inputFormat = $('input[name="input-format"]:checked').val();
+      var method = $('input[name="method"]:checked').val();
+
+      if (!text || !inputFormat || !method) {
+        return;
+    }
+
+    $(".display-result-search").empty();
+    var lang = 'hr';
+    var url = baseUrl + lang + '/' + method;
+    var data = {
+      text: text !== '' ? text : null,
+      format: inputFormat
+  };
+
+  $("#search-button").text('Processing ...').attr('disabled', 'disabled');
+  var sendDate = (new Date()).getTime();
+  var trHTML='';
+  $('#results').empty();
+  jQuery.ajax({
+      type: "GET",
+      dataType: inputFormat == 'json' ? 'json': 'xml',
+      url: url,
+      data: data,
+      success:function (data, status, xml) {
+
+        if (inputFormat == 'json') {
+
+            $("#result-area").text(JSON.stringify(data, null, 4));
+            if(method=="tag"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+              $.each(data.tokens, function (i, item) {
+
+                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_tag></td></tr></tbody>';
+
+             });
+             $('#results').append(trHTML);
+             $.each(data.POSTags, function (i, tags) {
+               $.each(tags, function (j, tag) {
+                  $("#"+j+"_tag").html(tag.value);
+               });
+             });
+
+            }
+            else if(method=="lemmatise") {
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
+              $.each(data.tokens, function (i, item) {
+                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_lemma></td></tr></tbody>';
+             });
+             $('#results').append(trHTML);
+
+             $.each(data.lemmas, function (i, lemmas) {
+
+               $.each(lemmas, function (j, lemma) {
+                  $("#"+j+"_lemma").html(lemma.value);
+                  //console.log(tag.value);
+               });
+             });
+            }
+            else if(method=="tag_lemmatise"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
+              $.each(data.tokens, function (i, item) {
+                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_tag></td><td id='+i+'_lemma></td></tr></tbody>';
+             });
+             $('#results').append(trHTML);
+             $.each(data.POSTags, function (i, tags) {
+               $.each(tags, function (j, tag) {
+                  $("#"+j+"_tag").html(tag.value);
+               });
+             });
+             $.each(data.lemmas, function (i, lemmas) {
+
+               $.each(lemmas, function (j, lemma) {
+                  $("#"+j+"_lemma").html(lemma.value);
+                  //console.log(tag.value);
+               });
+             });
+            }
+        } else {
+            $("#result-area").text(xml.responseText);
+            if(method=="tag"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+              $(xml.responseText).find("token").each(function(index){
+                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_tag></td></tr></tbody>';
+              });
+              $('#results').append(trHTML);
+              $(xml.responseText).find("tag").each(function(index){
+                  $("#"+index+"_tag").html($(this).text());
+              });
+            }
+            else if(method=="lemmatise"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
+              $(xml.responseText).find("token").each(function(index){
+                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_lemma></td></tr></tbody>';
+              });
+              $('#results').append(trHTML);
+              $(xml.responseText).find("lemma").each(function(index){
+                  $("#"+index+"_lemma").html($(this).text());
+              });
+            }
+            else if(method=="tag_lemmatise"){
+              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
+              $(xml.responseText).find("token").each(function(index){
+                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_tag></td><td id='+index+'_lemma></td></tr></tbody>';
+              });
+              $('#results').append(trHTML);
+              $(xml.responseText).find("lemma").each(function(index){
+                  $("#"+index+"_lemma").html($(this).text());
+              });
+              $(xml.responseText).find("tag").each(function(index){
+                  $("#"+index+"_tag").html($(this).text());
+              });
+            }
+        }
+
+    },
+    error: function(response) {
+      $("#result-area").text(JSON.parse(response.responseText));
+  },
+  complete: function(data) {
+      var receiveDate = (new Date()).getTime();
+      var responseTimeMs = receiveDate - sendDate;
+      var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+      $('#response-time').text(responseTimeText);
+      $("#search-button").text('Process').removeAttr('disabled');
+  }
+});
+
+
+});
+$("#lexicon-button").click(function (e) {
+  e.preventDefault();
+  var surface = $("#inputSurface").val();
+  var lemma = $("#inputLemma").val();
+  var msd = $("#inputMsd").val();
+  var rhymes_with= $("#inputRhymesWith").val();
+  var no_of_syllables = $("#inputNoOfSyllables").val();
+
+
+$(".display-result-search").empty();
+var lang = 'hr';
+var method='lexicon';
+var inputFormat='json';
+var url = baseUrl + lang + '/' + method;
+var data = {
+            surface: surface !== '' ? surface : null,
+            lemma: lemma !== '' ? lemma : null,
+            msd: msd !== '' ? msd : null,
+            rhymes_with: rhymes_with !== '' ? rhymes_with : null,
+            no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null
+};
+
+$("#lexicon-button").text('Processing ...').attr('disabled', 'disabled');
+var sendDate = (new Date()).getTime();
+var trHTML='';
+$('#results').empty();
+jQuery.ajax({
+  type: "GET",
+  dataType: 'json' ,
+  url: url,
+  data: data,
+  success:function (data) {
+
+    if (inputFormat == 'json') {
+      console.log(data)
+        $("#result-area").text(JSON.stringify(data, null, 4));
+
+    } else {
+        $("#result-area").text(xml.responseText);
+    }
+
+},
+error: function(response) {
+  $("#result-area").text(JSON.parse(response.responseText));
+},
+complete: function(data) {
+  var receiveDate = (new Date()).getTime();
+  var responseTimeMs = receiveDate - sendDate;
+  var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+  $('#response-time').text(responseTimeText);
+  $("#lexicon-button").text('Process').removeAttr('disabled');
+}
+});
+
+
+});
+</script>
+{% endblock %}

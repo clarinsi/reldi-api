@@ -8,6 +8,7 @@ Flask==0.10.1
 Flask-Cors==2.1.2
 itsdangerous==0.24
 Jinja2==2.8
+lxml==3.5.0
 mandrill==1.0.57
 marisa-trie==0.7.2
 MarkupSafe==0.23
