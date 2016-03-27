@@ -5,8 +5,8 @@
   </div>
   <div class="panel-body">
     <ul class="nav nav-pills">
-          <li class="active"><a data-toggle="tab" href="#search-form">Search</a></li>
-          <li class=""><a data-toggle="tab" href="#lexicon-form">Lexicon</a></li>
+          <li class="active"><a data-toggle="tab" href="#search-form" id="search_link">Search</a></li>
+          <li class=""><a data-toggle="tab" href="#lexicon-form" id="lexicon_link">Lexicon</a></li>
       </ul>
       <div class="col-md-6">
           <div class="bs-component">
@@ -85,7 +85,7 @@
                   </div>
               </div>
               <div class="form-group">
-                  <label for="inputNoOfSyllables" class="col-md-2 control-label">No od syllables</label>
+                  <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
                   <div class="col-md-10">
                                 <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
                             </div>
@@ -110,7 +110,7 @@
     <div class="bs-component">
       <div class="tab-content">
             <div id="table-results" class="form-horizontal tab-pane fade in active" >
-              <table id="results"  class="table table-hover"></table>
+              <table id="results"  class="table table-striped table-bordered" cellspacing="0" width="100%" ></table>
             </div>
             <div id="raw-results" class="form-horizontal  tab-pane fade">
               <div class="col-md-12">
@@ -135,7 +135,16 @@
 
 {% block scripts %}
 <script>
-
+$("#lexicon_link").click(function (e) {
+  $("#result-area").empty();
+  $("#results_wrapper").empty();
+  $("#results").empty();
+});
+$("#search_link").click(function (e) {
+    $("#result-area").empty();
+    $("#results_wrapper").empty();
+    $("#results").empty();
+});
     function xmlToString(xmlData) {
         xmlData= $(xmlData);
         if (window.ActiveXObject) {
@@ -313,6 +322,7 @@ $("#lexicon-button").text('Processing ...').attr('disabled', 'disabled');
 var sendDate = (new Date()).getTime();
 var trHTML='';
 $('#results').empty();
+var dataset=[];
 jQuery.ajax({
   type: "GET",
   dataType: 'json' ,
@@ -321,12 +331,23 @@ jQuery.ajax({
   success:function (data) {
 
     if (inputFormat == 'json') {
-      console.log(data)
-        $("#result-area").text(JSON.stringify(data, null, 4));
 
-    } else {
+        $("#result-area").text(JSON.stringify(data, null, 4));
+        ///$("#results").append("<thead><tr><th>Lemma</th><th>Tags</th><th>Surface form</th></tr></thead>");
+        dataset=data.result;
+        //console.log(dataset);
+
+        var table=$('#results').DataTable({
+            data:dataset,
+            columns:[
+              {title:"Lemma"},
+              {title:"Tags"},
+              {title:"Surface from"}
+            ]
+        });
+        } else {
         $("#result-area").text(xml.responseText);
-    }
+        }
 
 },
 error: function(response) {
