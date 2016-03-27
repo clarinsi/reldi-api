@@ -7,8 +7,36 @@ class MailService(object):
 
     MANDRILL_KEY = 'zbtMhO3YBEppH8OzqB528A'
 
+    MAILBOX_USERNAME = 'projectreldi@gmail.com'
+    MAILBOX_PASSWORD = 'linguistics1020'
+
     def __init__(self):
         self.client = mandrill.Mandrill(MailService.MANDRILL_KEY)
+
+    def sendEmailConfirmationEmail(self, username, email, confirm_email_url):
+
+        sender = 'projectreldi@gmail.com'
+        receivers = [email]
+
+        message = """From: Project ReLDI <projectreldi@gmail.com>
+MIME-Version: 1.0
+Content-type: text/plain
+To: <{1}>
+Subject: Confirm your email address
+
+Hello {0},
+
+please click the following link to confirm your email address {1}""".format(username, confirm_email_url)
+
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.ehlo()
+            server.starttls()
+            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
+            server.sendmail(sender, receivers, message)
+            server.close()
+        except SMTPException:
+            print "Error: unable to send email"
 
     def sendAccessRequestEmail(self, username, note, login_link):
 
@@ -33,7 +61,7 @@ Click the link to log in and review the user details: {2}
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login('projectreldi@gmail.com', 'linguistics1020')
+            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
@@ -60,7 +88,7 @@ Click the link to go to the login page: {2}""".format(username, email, login_url
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login('projectreldi@gmail.com', 'linguistics1020')
+            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
@@ -88,7 +116,7 @@ Click the link to go to the login page: {2}""".format(username, email, login_url
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login('projectreldi@gmail.com', 'linguistics1020')
+            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
@@ -113,7 +141,7 @@ your ReLDI account has been blocked by the administrator.""".format(username, em
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login('projectreldi@gmail.com', 'linguistics1020')
+            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:

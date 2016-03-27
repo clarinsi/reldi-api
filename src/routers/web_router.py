@@ -6,7 +6,8 @@ from flask import Blueprint
 from flask import render_template, request, flash, Response, session
 from flask import redirect, make_response, url_for
 from functools import wraps
-from validate_email import validate_email
+
+from ..helpers import generate_token
 
 modelsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../models')
 sys.path.append(modelsPath)
@@ -103,29 +104,28 @@ class WebRouter(Blueprint):
             try:
                 user = UserModel()
                 user.role = 'user'
-                user.status = 'pending'
+                user.status = 'not-verified'
                 user.requests_made = 0
                 user.requests_limit = int(request.form.get("requests_limit"))
                 user.username = request.form.get("username")
+                user.email = request.form.get("email")
                 user.project = request.form.get("project")
+                user.note = request.form.get("note")
 
-                is_valid = validate_email(request.form.get("email"), verify=True)
-                if is_valid == 1:
-                    user.email = request.form.get("email")
-                else:
-                    session['form'] = request.form
-                    flash('Email address does not exist', 'danger')
-                    return make_response(redirect(url_for('.register')))
                 if request.form.get("password") != request.form.get("confirm_password"):
                     session['form'] = request.form
                     flash('Passwords do not match', 'danger')
                     return make_response(redirect(url_for('.register')))
 
                 user.setPassword(request.form.get("password"))
+                user.activation_token = generate_token()
                 user.save()
 
                 note = request.form.get("note", "")
-                dc['mail_service'].sendAccessRequestEmail(user.username, note, url_for('.login', _external=True))
+                dc['mail_service'].sendEmailConfirmationEmail(
+                    user.username,
+                    user.email,
+                    url_for('.confirm_email', activation_token=user.activation_token, _external=True))
 
             except IntegrityError as e:
                 session['form'] = request.form
@@ -141,6 +141,19 @@ class WebRouter(Blueprint):
                 return make_response(redirect(url_for('.register')))
 
             return render_template('register_success.html', login_url=url_for('.login'))
+
+        @self.route('/confirm_email/<activation_token>', methods=["GET"])
+        def confirm_email(activation_token):
+            try:
+                user = UserModel.getByAttributeSingle('activation_token', activation_token)
+                user.status = 'pending'
+                user.activation_token = None
+                user.save()
+                dc['mail_service'].sendAccessRequestEmail(user.username, user.note, url_for('.login', _external=True))
+                return render_template('activate_success.html', login_url=url_for('.login'))
+            except ValueError as e:
+                flash('Error activating account', 'danger')
+                return make_response(redirect(url_for('.login')))
 
         @self.route('/query')
         @authenticate(['admin', 'user'])
@@ -166,10 +179,16 @@ class WebRouter(Blueprint):
         @authenticate(['admin'])
         def do_edit(id):
             user = UserModel.getById(id)
-            user.role = request.form.get("role", "")
+            old_status = user.status
             user.status = request.form.get("status", "")
             user.requests_limit = request.form.get("requests_limit", "")
             user.save()
+
+            if old_status != 'active' and user.status == 'active':
+                dc['mail_service'].sendUserActivatedEmail(user.username, user.email, url_for('.login', _external=True))
+
+            elif old_status != 'blocked' and user.status == 'blocked':
+                dc['mail_service'].sendUserBlockedEmail(user.username, user.email)
 
             return make_response(redirect(url_for('.admin')))
 

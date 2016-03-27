@@ -64,9 +64,10 @@ class UsersDB(DB):
                 role TEXT NOT NULL,
                 status TEXT NOT NULL,
                 updated TEXT NOT NULL,
-                created TEXT NOT NULL
+                created TEXT NOT NULL,
+                activation_token TEXT,
                 CHECK (role IN ("admin", "user"))
-                CHECK (status IN ("pending", "blocked", "active"))
+                CHECK (status IN ("pending", "blocked", "active", "not-verified"))
             );
         """
         db.command(statement)

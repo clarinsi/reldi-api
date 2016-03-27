@@ -10,8 +10,8 @@ class UserModel(Model):
     @classmethod
     def model_props(cls):
         return [
-            'username', 'email', 'password', 'project', 'requests_limit',
-            'requests_made', 'last_request_datetime', 'role', 'status'
+            'username', 'email', 'password', 'project', 'requests_limit', 'note',
+            'requests_made', 'last_request_datetime', 'role', 'status', 'activation_token'
         ]
 
     @classmethod

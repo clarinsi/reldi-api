@@ -21,7 +21,7 @@
           <div class="form-group">
             <label for="inputUsername" class="col-sm-3 control-label">Role</label>
             <div class="col-sm-9">
-              <select class="form-control" id="role" name="role">
+              <select class="form-control" id="role" name="role" readonly="readonly">
                 {% for key, status in roles.iteritems() %}
                   <option value="{{ key }}" {% if key == user.role %}selected="selected"{% endif %}>{{ status }}</option>
                 {% endfor %}
