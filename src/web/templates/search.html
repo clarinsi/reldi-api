@@ -1,134 +1,134 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="panel panel-default">
-  <div class="panel-heading"> <strong class="">Query</strong>
-  </div>
-  <div class="panel-body">
-    <ul class="nav nav-pills">
-          <li class="active"><a data-toggle="tab" href="#search-form" id="search_link">Search</a></li>
-          <li class=""><a data-toggle="tab" href="#lexicon-form" id="lexicon_link">Lexicon</a></li>
-      </ul>
-      <div class="col-md-6">
-          <div class="bs-component">
-              <div class="tab-content">
-                  <form id="search-form" class="form-horizontal tab-pane fade in active" >
-                      <fieldset>
-                          <div class="form-group">
-                            <label for="input-text" class="col-md-2 control-label">Input</label>
-                            <div class="col-md-10">
-                             <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
-                         </div>
-                     </div>
+    <div class="panel-heading"> <strong class="">Query</strong>
+    </div>
+    <div class="panel-body">
+        <ul class="nav nav-pills">
+            <li class="active"><a data-toggle="tab" href="#search-form" id="search_link">Search</a></li>
+            <li class=""><a data-toggle="tab" href="#lexicon-form" id="lexicon_link">Lexicon</a></li>
+        </ul>
+        <div class="col-md-5">
+            <div class="bs-component">
+                <div class="tab-content">
+                    <form id="search-form" class="form-horizontal tab-pane fade in active" >
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="input-text" class="col-md-2 control-label">Input</label>
+                                <div class="col-md-10">
+                                    <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
+                                </div>
+                            </div>
 
-                     <div class="form-group">
-                        <label class="col-md-2 control-label">Input format</label>
-                        <div class="col-md-10">
-                           <label class="radio-inline">
-                            <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
-                            Text
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
-                            TCF
-                        </label>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Format</label>
+                                <div class="col-md-10">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
+                                        Text
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
+                                        TCF
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Function</label>
+                                <div class="col-md-10">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="method" required="required" id="method1" value="tag">
+                                        Tag
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="method" required="required" id="method2" value="lemmatise">
+                                        Lemmatise
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
+                                        Tag  +  Lemmatise
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button id="search-button" type="submit" class="btn btn-primary">Process</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                    <form id="lexicon-form" class="form-horizontal tab-pane fade">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="inputSurface" class="col-md-2 control-label">Surface</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputMsd" class="col-md-2 control-label">Msd</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputRhymesWith" placeholder="Rhymes with">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button id="lexicon-button" type="submit" class="btn btn-primary search-lexicon">Search</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="form-group">
+                <label for="textArea" class="col-md-12 control-label">Result</label>
+                <ul class="nav nav-pills">
+                    <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
+                    <li class=""><a data-toggle="tab" href="#raw-results">Raw</a></li>
+                </ul>
+                <div class="bs-component">
+                    <div class="tab-content">
+                        <div id="table-results" class="form-horizontal tab-pane fade in active" >
+                            <table id="results"  class="table table-striped table-bordered" cellspacing="0" width="100%" ></table>
+                        </div>
+                        <div id="raw-results" class="form-horizontal  tab-pane fade">
+                            <div class="col-md-12">
+                  <textarea id="result-area" readonly="readonly" class="form-control"
+                            rows="20" id="textArea"></textarea>
+
+                            </div>
+                        </div>
+                        <div class="help-block">
+                            Result set
+                            <span id="response-time"></span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                  <label class="col-md-2 control-label">Function</label>
-                  <div class="col-md-10">
-                    <label class="radio-inline">
-                      <input type="radio" name="method" required="required" id="method1" value="tag">
-                      Tag
-                  </label>
-                  <label class="radio-inline">
-                      <input type="radio" name="method" required="required" id="method2" value="lemmatise">
-                      Lemmatise
-                  </label>
-                  <label class="radio-inline">
-                      <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
-                      Tag  +  Lemmatise
-                  </label>
-              </div>
-          </div>
-          <div class="form-group">
-            <div class="col-md-10 col-md-offset-2">
-                <button id="search-button" type="submit" class="btn btn-primary">Process</button>
             </div>
         </div>
-    </fieldset>
-</form>
-<form id="lexicon-form" class="form-horizontal tab-pane fade">
-  <fieldset>
-      <div class="form-group">
-          <label for="inputSurface" class="col-md-2 control-label">Surface</label>
-          <div class="col-md-10">
-              <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
-              <div class="col-md-10">
-                  <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
-              </div>
-          </div>
-          <div class="form-group">
-            <label for="inputMsd" class="col-md-2 control-label">Msd</label>
-                <div class="col-md-10">
-                    <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
-                </div>
-            </div>
-            <div class="form-group">
-              <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
-                  <div class="col-md-10">
-                    <input type="text" class="form-control" id="inputRhymesWith" placeholder="Rhymes with">
-                  </div>
-              </div>
-              <div class="form-group">
-                  <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
-                  <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
-                            </div>
-              </div>
-              <div class="form-group">
-                  <div class="col-md-10 col-md-offset-2">
-                        <button id="lexicon-button" type="submit" class="btn btn-primary search-lexicon">Search</button>
-                  </div>
-              </div>
-      </fieldset>
-</form>
-</div>
-</div>
-</div>
-<div class="col-md-6">
-  <div class="form-group">
-    <label for="textArea" class="col-md-12 control-label">Result</label>
-    <ul class="nav nav-pills">
-        <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
-        <li class=""><a data-toggle="tab" href="#raw-results">Raw</a></li>
-    </ul>
-    <div class="bs-component">
-      <div class="tab-content">
-            <div id="table-results" class="form-horizontal tab-pane fade in active" >
-              <table id="results"  class="table table-striped table-bordered" cellspacing="0" width="100%" ></table>
-            </div>
-            <div id="raw-results" class="form-horizontal  tab-pane fade">
-              <div class="col-md-12">
-                  <textarea id="result-area" readonly="readonly" class="form-control"
-                  rows="20" id="textArea"></textarea>
-
-              </div>
-            </div>
-            <div class="help-block">
-                Result set
-                <span id="response-time"></span>
-            </div>
-      </div>
     </div>
-
-</div>
-</div>
-</div>
 </div>
 {% endblock %}
 
@@ -323,6 +323,14 @@ var sendDate = (new Date()).getTime();
 var trHTML='';
 $('#results').empty();
 var dataset=[];
+var table=$('#results').DataTable({
+    data: dataset,
+    columns:[
+      { title: "Lemma" },
+      { title: "Tags" },
+      { title: "Surface from" }
+    ]
+});
 jQuery.ajax({
   type: "GET",
   dataType: 'json' ,
@@ -331,23 +339,14 @@ jQuery.ajax({
   success:function (data) {
 
     if (inputFormat == 'json') {
-
+        $('#results')
         $("#result-area").text(JSON.stringify(data, null, 4));
-        ///$("#results").append("<thead><tr><th>Lemma</th><th>Tags</th><th>Surface form</th></tr></thead>");
-        dataset=data.result;
-        //console.log(dataset);
+        dataset = data.result;
 
-        var table=$('#results').DataTable({
-            data:dataset,
-            columns:[
-              {title:"Lemma"},
-              {title:"Tags"},
-              {title:"Surface from"}
-            ]
-        });
-        } else {
+
+    } else {
         $("#result-area").text(xml.responseText);
-        }
+    }
 
 },
 error: function(response) {
