@@ -111,12 +111,22 @@
                     <div class="tab-content">
                         <div id="table-results" class="form-horizontal tab-pane fade in active" >
                             <table id="results"  class="table table-striped table-bordered" cellspacing="0" width="100%" ></table>
+                            <div id="lexicon-results-wrapper">
+                                <table id="lexicon-results" class="table table-striped table-bordered" cellspacing="0" width="100%" >
+                                    <thead>
+                                        <tr>
+                                            <th>Lemma</th>
+                                            <th>Tags</th>
+                                            <th>Surface</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
                         </div>
                         <div id="raw-results" class="form-horizontal  tab-pane fade">
                             <div class="col-md-12">
-                  <textarea id="result-area" readonly="readonly" class="form-control"
-                            rows="20" id="textArea"></textarea>
-
+                            <textarea id="result-area" readonly="readonly" class="form-control" rows="20"></textarea>
+                            <textarea id="lexicon-result-area" readonly="readonly" class="form-control" rows="20"></textarea>
                             </div>
                         </div>
                         <div class="help-block">
@@ -135,41 +145,45 @@
 
 {% block scripts %}
 <script>
-$("#lexicon_link").click(function (e) {
-  $("#result-area").empty();
-  $("#results_wrapper").empty();
-  $("#results").empty();
+$('#lexicon-results-wrapper').hide();
+$("#lexicon_link").click(function(e) {
+    $('#lexicon-results-wrapper').show();
+    $('#lexicon-result-area').show();
+    $('#results').hide();
+    $('#result-area').hide();
 });
-$("#search_link").click(function (e) {
-    $("#result-area").empty();
-    $("#results_wrapper").empty();
-    $("#results").empty();
+$("#search_link").click(function(e) {
+    $('#lexicon-results-wrapper').hide();
+    $('#lexicon-result-area').hide();
+    $('#results').show();
+    $('#result-area').show();
 });
-    function xmlToString(xmlData) {
-        xmlData= $(xmlData);
-        if (window.ActiveXObject) {
-            return xmlData.xml;
-        } else {
-            var oSerializer = new XMLSerializer();
-            return oSerializer.serializeToString(xmlData[0]);
-        }
-    }
 
-    var baseUrl = '/api/v1/';
-    $('#search-form').submit(function(e) {
-      e.preventDefault();
-  });
-  $('#lexicon-form').submit(function(e) {
+function xmlToString(xmlData) {
+    xmlData = $(xmlData);
+    if (window.ActiveXObject) {
+        return xmlData.xml;
+    } else {
+        var oSerializer = new XMLSerializer();
+        return oSerializer.serializeToString(xmlData[0]);
+    }
+}
+
+var baseUrl = '/api/v1/';
+$('#search-form').submit(function(e) {
     e.preventDefault();
 });
-    $("#search-button").click(function (e) {
-      e.preventDefault();
+$('#lexicon-form').submit(function(e) {
+    e.preventDefault();
+});
+$("#search-button").click(function(e) {
+    e.preventDefault();
 
-      var text = $("#input-text").val();
-      var inputFormat = $('input[name="input-format"]:checked').val();
-      var method = $('input[name="method"]:checked').val();
+    var text = $("#input-text").val();
+    var inputFormat = $('input[name="input-format"]:checked').val();
+    var method = $('input[name="method"]:checked').val();
 
-      if (!text || !inputFormat || !method) {
+    if (!text || !inputFormat || !method) {
         return;
     }
 
@@ -177,191 +191,188 @@ $("#search_link").click(function (e) {
     var lang = 'hr';
     var url = baseUrl + lang + '/' + method;
     var data = {
-      text: text !== '' ? text : null,
-      format: inputFormat
-  };
+        text: text !== '' ? text : null,
+        format: inputFormat
+    };
 
-  $("#search-button").text('Processing ...').attr('disabled', 'disabled');
-  var sendDate = (new Date()).getTime();
-  var trHTML='';
-  $('#results').empty();
-  jQuery.ajax({
-      type: "GET",
-      dataType: inputFormat == 'json' ? 'json': 'xml',
-      url: url,
-      data: data,
-      success:function (data, status, xml) {
+    $("#search-button").text('Processing ...').attr('disabled', 'disabled');
+    var sendDate = (new Date()).getTime();
+    var trHTML = '';
+    $('#results').empty();
+    jQuery.ajax({
+        type: "GET",
+        dataType: inputFormat == 'json' ? 'json' : 'xml',
+        url: url,
+        data: data,
+        success: function(data, status, xml) {
 
-        if (inputFormat == 'json') {
+            if (inputFormat == 'json') {
 
-            $("#result-area").text(JSON.stringify(data, null, 4));
-            if(method=="tag"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
-              $.each(data.tokens, function (i, item) {
+                $("#result-area").text(JSON.stringify(data, null, 4));
+                if (method == "tag") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+                    $.each(data.tokens, function(i, item) {
 
-                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_tag></td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_tag></td></tr></tbody>';
 
-             });
-             $('#results').append(trHTML);
-             $.each(data.POSTags, function (i, tags) {
-               $.each(tags, function (j, tag) {
-                  $("#"+j+"_tag").html(tag.value);
-               });
-             });
+                    });
+                    $('#results').append(trHTML);
+                    $.each(data.POSTags, function(i, tags) {
+                        $.each(tags, function(j, tag) {
+                            $("#" + j + "_tag").html(tag.value);
+                        });
+                    });
 
+                } else if (method == "lemmatise") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
+                    $.each(data.tokens, function(i, item) {
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_lemma></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+
+                    $.each(data.lemmas, function(i, lemmas) {
+
+                        $.each(lemmas, function(j, lemma) {
+                            $("#" + j + "_lemma").html(lemma.value);
+                            //console.log(tag.value);
+                        });
+                    });
+                } else if (method == "tag_lemmatise") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
+                    $.each(data.tokens, function(i, item) {
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_tag></td><td id=' + i + '_lemma></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+                    $.each(data.POSTags, function(i, tags) {
+                        $.each(tags, function(j, tag) {
+                            $("#" + j + "_tag").html(tag.value);
+                        });
+                    });
+                    $.each(data.lemmas, function(i, lemmas) {
+
+                        $.each(lemmas, function(j, lemma) {
+                            $("#" + j + "_lemma").html(lemma.value);
+                            //console.log(tag.value);
+                        });
+                    });
+                }
+            } else {
+                $("#result-area").text(xml.responseText);
+                if (method == "tag") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+                    $(xml.responseText).find("token").each(function(index) {
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_tag></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+                    $(xml.responseText).find("tag").each(function(index) {
+                        $("#" + index + "_tag").html($(this).text());
+                    });
+                } else if (method == "lemmatise") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
+                    $(xml.responseText).find("token").each(function(index) {
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_lemma></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+                    $(xml.responseText).find("lemma").each(function(index) {
+                        $("#" + index + "_lemma").html($(this).text());
+                    });
+                } else if (method == "tag_lemmatise") {
+                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
+                    $(xml.responseText).find("token").each(function(index) {
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_tag></td><td id=' + index + '_lemma></td></tr></tbody>';
+                    });
+                    $('#results').append(trHTML);
+                    $(xml.responseText).find("lemma").each(function(index) {
+                        $("#" + index + "_lemma").html($(this).text());
+                    });
+                    $(xml.responseText).find("tag").each(function(index) {
+                        $("#" + index + "_tag").html($(this).text());
+                    });
+                }
             }
-            else if(method=="lemmatise") {
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
-              $.each(data.tokens, function (i, item) {
-                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_lemma></td></tr></tbody>';
-             });
-             $('#results').append(trHTML);
 
-             $.each(data.lemmas, function (i, lemmas) {
-
-               $.each(lemmas, function (j, lemma) {
-                  $("#"+j+"_lemma").html(lemma.value);
-                  //console.log(tag.value);
-               });
-             });
-            }
-            else if(method=="tag_lemmatise"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
-              $.each(data.tokens, function (i, item) {
-                   trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id='+i+'_tag></td><td id='+i+'_lemma></td></tr></tbody>';
-             });
-             $('#results').append(trHTML);
-             $.each(data.POSTags, function (i, tags) {
-               $.each(tags, function (j, tag) {
-                  $("#"+j+"_tag").html(tag.value);
-               });
-             });
-             $.each(data.lemmas, function (i, lemmas) {
-
-               $.each(lemmas, function (j, lemma) {
-                  $("#"+j+"_lemma").html(lemma.value);
-                  //console.log(tag.value);
-               });
-             });
-            }
-        } else {
-            $("#result-area").text(xml.responseText);
-            if(method=="tag"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
-              $(xml.responseText).find("token").each(function(index){
-                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_tag></td></tr></tbody>';
-              });
-              $('#results').append(trHTML);
-              $(xml.responseText).find("tag").each(function(index){
-                  $("#"+index+"_tag").html($(this).text());
-              });
-            }
-            else if(method=="lemmatise"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
-              $(xml.responseText).find("token").each(function(index){
-                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_lemma></td></tr></tbody>';
-              });
-              $('#results').append(trHTML);
-              $(xml.responseText).find("lemma").each(function(index){
-                  $("#"+index+"_lemma").html($(this).text());
-              });
-            }
-            else if(method=="tag_lemmatise"){
-              $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
-              $(xml.responseText).find("token").each(function(index){
-                trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id='+index+'_tag></td><td id='+index+'_lemma></td></tr></tbody>';
-              });
-              $('#results').append(trHTML);
-              $(xml.responseText).find("lemma").each(function(index){
-                  $("#"+index+"_lemma").html($(this).text());
-              });
-              $(xml.responseText).find("tag").each(function(index){
-                  $("#"+index+"_tag").html($(this).text());
-              });
-            }
+        },
+        error: function(response) {
+            $("#result-area").text(JSON.parse(response.responseText));
+        },
+        complete: function(data) {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+            $('#response-time').text(responseTimeText);
+            $("#search-button").text('Process').removeAttr('disabled');
         }
-
-    },
-    error: function(response) {
-      $("#result-area").text(JSON.parse(response.responseText));
-  },
-  complete: function(data) {
-      var receiveDate = (new Date()).getTime();
-      var responseTimeMs = receiveDate - sendDate;
-      var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-      $('#response-time').text(responseTimeText);
-      $("#search-button").text('Process').removeAttr('disabled');
-  }
-});
+    });
 
 
 });
-$("#lexicon-button").click(function (e) {
-  e.preventDefault();
-  var surface = $("#inputSurface").val();
-  var lemma = $("#inputLemma").val();
-  var msd = $("#inputMsd").val();
-  var rhymes_with= $("#inputRhymesWith").val();
-  var no_of_syllables = $("#inputNoOfSyllables").val();
+$("#lexicon-button").click(function(e) {
 
+    e.preventDefault();
+    var surface = $("#inputSurface").val();
+    var lemma = $("#inputLemma").val();
+    var msd = $("#inputMsd").val();
+    var rhymes_with = $("#inputRhymesWith").val();
+    var no_of_syllables = $("#inputNoOfSyllables").val();
 
-$(".display-result-search").empty();
-var lang = 'hr';
-var method='lexicon';
-var inputFormat='json';
-var url = baseUrl + lang + '/' + method;
-var data = {
-            surface: surface !== '' ? surface : null,
-            lemma: lemma !== '' ? lemma : null,
-            msd: msd !== '' ? msd : null,
-            rhymes_with: rhymes_with !== '' ? rhymes_with : null,
-            no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null
-};
+    $(".display-result-search").empty();
+    var lang = 'hr';
+    var method = 'lexicon';
+    var inputFormat = 'json';
+    var url = baseUrl + lang + '/' + method;
+    var data = {
+        surface: surface !== '' ? surface : null,
+        lemma: lemma !== '' ? lemma : null,
+        msd: msd !== '' ? msd : null,
+        rhymes_with: rhymes_with !== '' ? rhymes_with : null,
+        no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null
+    };
 
-$("#lexicon-button").text('Processing ...').attr('disabled', 'disabled');
-var sendDate = (new Date()).getTime();
-var trHTML='';
-$('#results').empty();
-var dataset=[];
-var table=$('#results').DataTable({
-    data: dataset,
-    columns:[
-      { title: "Lemma" },
-      { title: "Tags" },
-      { title: "Surface from" }
-    ]
-});
-jQuery.ajax({
-  type: "GET",
-  dataType: 'json' ,
-  url: url,
-  data: data,
-  success:function (data) {
+    $("#lexicon-button").text('Processing ...').attr('disabled', 'disabled');
+    var sendDate = (new Date()).getTime();
 
-    if (inputFormat == 'json') {
-        $('#results')
-        $("#result-area").text(JSON.stringify(data, null, 4));
-        dataset = data.result;
+    jQuery.ajax({
+        type: "GET",
+        dataType: 'json',
+        url: url,
+        data: data,
+        success: function(data) {
+            if (inputFormat == 'json') {
+                dataset = data.result;
+                var table = $('#lexicon-results').dataTable();
+                if (table == 'undefined') {
+                    var table = $('#lexicon-results').DataTable({
+                        data: dataset,
+                        columns: [{
+                            title: "Lemma"
+                        }, {
+                            title: "Tags"
+                        }, {
+                            title: "Surface from"
+                        }]
+                    });
+                } else {
+                    table.fnClearTable();
+                    if (dataset.length > 0) {
+                        table.fnAddData(dataset);
+                    }
+                }
+                $("#lexicon-result-area").text(JSON.stringify(dataset));
+            } else {
 
-
-    } else {
-        $("#result-area").text(xml.responseText);
-    }
-
-},
-error: function(response) {
-  $("#result-area").text(JSON.parse(response.responseText));
-},
-complete: function(data) {
-  var receiveDate = (new Date()).getTime();
-  var responseTimeMs = receiveDate - sendDate;
-  var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-  $('#response-time').text(responseTimeText);
-  $("#lexicon-button").text('Process').removeAttr('disabled');
-}
-});
-
-
+            }
+        },
+        error: function(response) {
+            $("#result-area").text(JSON.parse(response.responseText));
+        },
+        complete: function(data) {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+            $('#response-time').text(responseTimeText);
+            $("#lexicon-button").text('Process').removeAttr('disabled');
+        }
+    });
 });
 </script>
 {% endblock %}
