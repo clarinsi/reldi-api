@@ -64,18 +64,21 @@
                                 <label for="inputSurface" class="col-md-2 control-label">Surface</label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
+                                    <label><input type="checkbox" id="surface_is_regex" value="0"></label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
+                                    <label><input type="checkbox" id="lemma_is_regex" value="0"></label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputMsd" class="col-md-2 control-label">Msd</label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
+                                    <label><input type="checkbox" value="0" id="msd_is_regex"></label>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -315,6 +318,18 @@ $("#lexicon-button").click(function(e) {
     var rhymes_with = $("#inputRhymesWith").val();
     var no_of_syllables = $("#inputNoOfSyllables").val();
 
+    var surface_is_regex = $("#surface_is_regex").val();
+    var lemma_is_regex = $("#lemma_is_regex").val();
+    var msd_is_regex = $("#msd_is_regex").val();
+    if($("#surface_is_regex").is(":checked")){
+        surface_is_regex=1;
+    }
+    if($("#lemma_is_regex").is(":checked")){
+        lemma_is_regex=1;
+    }
+    if($("#msd_is_regex").is(":checked")){
+        msd_is_regex=1;
+    }
     $(".display-result-search").empty();
     var lang = 'hr';
     var method = 'lexicon';
@@ -357,6 +372,17 @@ $("#lexicon-button").click(function(e) {
                         table.fnAddData(dataset);
                     }
                 }
+
+                  $('#lexicon-results tr.even,tr.odd').mouseover(function(){
+                      $.get("/api/v1/dictionary",function(data){
+                        //var response = JSON.stringify(data, null, 4);
+                        //console.log(data.query);
+                          $('tr').append('<span>'+data.query.name+'</span>');
+                      },"json")
+                  }).mouseout(function (){
+                      $('span').remove();
+                  })
+
                 $("#lexicon-result-area").text(JSON.stringify(dataset));
             } else {
 
@@ -374,5 +400,6 @@ $("#lexicon-button").click(function(e) {
         }
     });
 });
+
 </script>
 {% endblock %}
