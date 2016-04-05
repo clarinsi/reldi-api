@@ -75,7 +75,7 @@ class ApiRouter(Blueprint):
 
                 if auth_token_string is None:
                     raise Unauthorized('Invalid token')
-                
+
                 authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
                 if authToken is None or not authToken.isValid():
                     raise Unauthorized('Invalid token')
@@ -91,7 +91,7 @@ class ApiRouter(Blueprint):
                 user.logRequest()
                 user.save()
                 return api_method(*args, **kwargs)
-                
+
             return verify
 
         def get_text(format, request):
@@ -130,7 +130,10 @@ class ApiRouter(Blueprint):
             rhymes_with = request.args.get('rhymes_with')
             no_of_syllables = request.args.get('no_of_syllables')
             rhyming_function_bytecode = request.args.get('rhyming_function')
-            
+            #surface_is_regex = request.args.get('surface_is_regex')
+            #lemma_is_regex = request.args.get('lemma_is_regex')
+            #msd_is_regex = request.args.get('msd_is_regex')
+
             surface = surface if isset(surface) else None
             lemma = lemma if isset(lemma) else None
             msd = msd if isset(msd) else None
@@ -163,6 +166,16 @@ class ApiRouter(Blueprint):
                 'success': True,
                 'result': result,
                 'count': len(result)
+            }, ensure_ascii=False)
+
+        @self.route('/dictionary', methods=['GET'])
+        @authenticate
+        def dictionary():
+            return jsonify({
+                'query': {
+                    'name': 'None'
+
+                }
             }, ensure_ascii=False)
 
         @self.route('/<lang>/segment', methods=['GET', 'POST'])
