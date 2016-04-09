@@ -15,8 +15,16 @@ import re
 
 class ServerError(Exception):
     status_code = 500
-
     def __init__(self, message, status_code=None, payload=None):
+        '''
+
+        @param message:
+        @type message: string
+        @param status_code:
+        @type status_code: string
+        @param payload:
+        @type payload: string
+        '''
         Exception.__init__(self)
         self.message = message
         if status_code is not None:
@@ -24,6 +32,11 @@ class ServerError(Exception):
         self.payload = payload
 
     def to_dict(self):
+        '''
+
+        @return:
+        @rtype: string
+        '''
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
@@ -33,6 +46,15 @@ class Unauthorized(Exception):
     status_code = 401
 
     def __init__(self, message, status_code=None, payload=None):
+        '''
+
+        @param message:
+        @type message: string
+        @param status_code:
+        @type status_code: string
+        @param payload:
+        @type payload: string
+        '''
         Exception.__init__(self)
         self.message = message
         if status_code is not None:
@@ -40,6 +62,11 @@ class Unauthorized(Exception):
         self.payload = payload
 
     def to_dict(self):
+        '''
+
+        @return:
+        @rtype: string
+        '''
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
@@ -49,6 +76,14 @@ class InvalidUsage(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None, payload=None):
+        '''
+        @param message:
+        @type message: string
+        @param status_code:
+        @type status_code: string
+        @param payload:
+        @type payload: string
+        '''
         Exception.__init__(self)
         self.message = message
         if status_code is not None:
@@ -56,6 +91,11 @@ class InvalidUsage(Exception):
         self.payload = payload
 
     def to_dict(self):
+        '''
+
+        @return:
+        @rtype: string
+        '''
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
@@ -63,12 +103,32 @@ class InvalidUsage(Exception):
 
 class ApiRouter(Blueprint):
     def __init__(self, dc):
+        '''
+
+        @param dc:
+        @type dc: string
+        '''
         Blueprint.__init__(self, 'api_router', 'api_router')
 
         def authenticate(api_method):
+            '''
 
+            @param api_method:
+            @type api_method: string
+            @return:
+            @rtype: string
+            '''
             @wraps(api_method)
             def verify(*args, **kwargs):
+                '''
+
+                @param args:
+                @type args: string
+                @param kwargs:
+                @type kwargs: string
+                @return:
+                @rtype: string
+                '''
                 auth_token_string = request.cookies.get('auth-token')
                 if auth_token_string is None:
                     auth_token_string = request.headers.get('Authorization')
@@ -95,6 +155,15 @@ class ApiRouter(Blueprint):
             return verify
 
         def get_text(format, request):
+            '''
+
+            @param format:
+            @type format: string
+            @param request:
+            @type request: string
+            @return:
+            @rtype: string
+            '''
             if format == 'json':
                 return request.args.get('text')
             elif format == 'tcf':
@@ -112,10 +181,22 @@ class ApiRouter(Blueprint):
 
         @self.route('/')
         def index():
+            '''
+
+            @return:
+            @rtype: string
+            '''
             return "Main"
 
         @self.errorhandler(Exception)
         def handle_error(error):
+            '''
+
+            @param error:
+            @type error: string
+            @return:
+            @rtype: string
+            '''
             current_app.logger.error(error)
             response = jsonify(error.message)
             return response
@@ -123,7 +204,13 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/lexicon', methods=['GET', 'POST'])
         @authenticate
         def lexicon(lang):
+            '''
 
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
             surface = request.args.get('surface')
             lemma = request.args.get('lemma')
             msd = request.args.get('msd')
@@ -171,6 +258,11 @@ class ApiRouter(Blueprint):
         @self.route('/dictionary', methods=['GET'])
         @authenticate
         def dictionary():
+            '''
+
+            @return:
+            @rtype: string
+            '''
             return jsonify({
                 'query': {
                     'name': 'None'
@@ -181,6 +273,13 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/segment', methods=['GET', 'POST'])
         @authenticate
         def segment(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
             format = request.args.get('format')
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
@@ -199,6 +298,13 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/tag', methods=['GET', 'POST'])
         @authenticate
         def tag(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
             format = request.args.get('format')
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
@@ -214,6 +320,15 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate
         def tag_lematise(lang):
+            '''
+
+            @return:
+            @rtype:
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
             format = request.args.get('format')
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
@@ -230,6 +345,13 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/lemmatise', methods=['GET', 'POST'])
         @authenticate
         def lemmatise(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
             format = request.args.get('format')
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
@@ -245,6 +367,11 @@ class ApiRouter(Blueprint):
 
         @self.route('/login', methods=['POST'])
         def login():
+            '''
+
+            @return:
+            @rtype: string
+            '''
             username = request.form.get('username')
             password = request.form.get('password')
 
