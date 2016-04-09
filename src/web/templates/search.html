@@ -54,12 +54,20 @@
                             <div class="form-group">
                                 <div class="col-md-10 col-md-offset-2">
                                     <button id="search-button" type="submit" class="btn btn-primary">Process</button>
+                                    <button id="tagger-clear-button" type="submit" class="btn btn-primary clear-tag">Clear</button>
                                 </div>
                             </div>
                         </fieldset>
                     </form>
                     <form id="lexicon-form" class="form-horizontal tab-pane fade">
                         <fieldset>
+                          <div>
+                            <ul class="list-group"><small>Legend test</small>
+                              <li><small>% text test</small></li>
+                              <li><small>sign text test</small></li>
+                              <li><small>one more test</small></li>
+                            </ul>
+                          </div>
                             <div class="form-group">
                                 <label for="inputSurface" class="col-md-2 control-label">Surface</label>
                                 <div class="col-md-10">
@@ -95,7 +103,8 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-md-10 col-md-offset-2">
-                                    <button id="lexicon-button" type="submit" class="btn btn-primary search-lexicon">Search</button>
+                                    <button id="lexicon-button" type="submit" class="btn btn-primary search-lexicon">Process</button>
+                                    <button id="lexicon-clear-button" type="submit" class="btn btn-primary clear-lexicon">Clear</button>
                                 </div>
                             </div>
                         </fieldset>
@@ -171,6 +180,47 @@ function xmlToString(xmlData) {
         return oSerializer.serializeToString(xmlData[0]);
     }
 }
+/*clear functions*/
+$("#tagger-clear-button").click(function() {
+  $("#input-text").val('');
+  if($("#input-format-1").prop("checked")){
+    $("#input-format-1").prop("checked", false);
+  }
+  else if($("#input-format-2").prop("checked")){
+    $("#input-format-2").prop("checked", false);
+  }
+  if($("#method1").prop("checked")){
+      $("#method1").prop("checked", false);
+  }
+  else if($("#method2").prop("checked")){
+    $("#method2").prop("checked", false);
+  }
+  else if($("#method3").prop("checked")){
+    $("#method3").prop("checked", false);
+  }
+  $("#results").empty();
+  $(".display-result-search").empty();
+});
+$("#lexicon-clear-button").click(function() {
+  $("#inputSurface").val("");
+  $("#inputLemma").val("");
+  $("#inputMsd").val("");
+  $("#inputRhymesWith").val("");
+  $("#inputNoOfSyllables").val("");
+  if($("#surface_is_regex").prop("checked")){
+      $("#surface_is_regex").prop("checked",false);
+  }
+  if($("#lemma_is_regex").prop("checked")){
+    $("#lemma_is_regex").prop("checked", false);
+  }
+  if($("#msd_is_regex").prop("checked")){
+    $("#msd_is_regex").prop("checked", false);
+  }
+  $("#lexicon-result-area").empty();
+  $("#lexicon-results-wrapper").empty();
+  $("#lexicon-results-wrapper").append("<table id='lexicon-results' class='table table-striped table-bordered' cellspacing='0' width='100%'><thead><th>Lemma</th><th>Tag</th><th>Surface</th></thead></table>");
+
+});
 
 var baseUrl = '/api/v1/';
 $('#search-form').submit(function(e) {
@@ -214,15 +264,19 @@ $("#search-button").click(function(e) {
                 $("#result-area").text(JSON.stringify(data, null, 4));
                 if (method == "tag") {
                     $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+
                     $.each(data.tokens, function(i, item) {
 
                         trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_tag></td></tr></tbody>';
 
                     });
+                    var k=0;
                     $('#results').append(trHTML);
                     $.each(data.POSTags, function(i, tags) {
+
                         $.each(tags, function(j, tag) {
-                            $("#" + j + "_tag").html(tag.value);
+                            $("#" + k + "_tag").html(tag.value);
+                            k=k+1;
                         });
                     });
 
@@ -232,11 +286,12 @@ $("#search-button").click(function(e) {
                         trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_lemma></td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
-
+                    var k=0
                     $.each(data.lemmas, function(i, lemmas) {
 
                         $.each(lemmas, function(j, lemma) {
-                            $("#" + j + "_lemma").html(lemma.value);
+                            $("#" + k + "_lemma").html(lemma.value);
+                            k=k+1;
                             //console.log(tag.value);
                         });
                     });
@@ -246,15 +301,19 @@ $("#search-button").click(function(e) {
                         trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_tag></td><td id=' + i + '_lemma></td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
+                    var k=0;
                     $.each(data.POSTags, function(i, tags) {
                         $.each(tags, function(j, tag) {
-                            $("#" + j + "_tag").html(tag.value);
+                            $("#" + k + "_tag").html(tag.value);
+                            k=k+1;
                         });
                     });
+                    var m=0;
                     $.each(data.lemmas, function(i, lemmas) {
 
                         $.each(lemmas, function(j, lemma) {
-                            $("#" + j + "_lemma").html(lemma.value);
+                            $("#" + m + "_lemma").html(lemma.value);
+                            m=m+1;
                             //console.log(tag.value);
                         });
                     });
@@ -377,7 +436,7 @@ $("#lexicon-button").click(function(e) {
                       $.get("/api/v1/dictionary",function(data){
                         //var response = JSON.stringify(data, null, 4);
                         //console.log(data.query);
-                          $('tr').append('<span>'+data.query.name+'</span>');
+                          $('tr').append('<span data-toggle="tooltip" data-placement="bottom" title="'+data.query.name+'"></span>');
                       },"json")
                   }).mouseout(function (){
                       $('span').remove();
