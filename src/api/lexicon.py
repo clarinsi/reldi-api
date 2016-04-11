@@ -2,71 +2,72 @@
 import time
 import sys
 import os
+
 sys.path.append(os.path.realpath('src/db'))
-from query_expression import QueryExpression
-from lexicon_db import LexiconDB
+from ..db.query_expression import QueryExpression
+from ..db.lexicon_db import LexiconDB
+
 
 def isRegex(s):
-	regexChars = ['[', ']', '-', '*', '+', '(', ')', '^', '$', '+']
+    regexChars = ['[', ']', '-', '*', '+', '(', ')', '^', '$', '+']
 
 # Main lexicon class
-class Lexicon(object,):
-	'''Class lexicon'''
+class Lexicon(object, ):
+    '''Class lexicon'''
 
-	def __init__(self, lang):
-		if lang is None:
-			raise ValueError("Language not set")
+    def __init__(self, lang):
+        if lang is None:
+            raise ValueError("Language not set")
 
-		self.language = lang
+        self.language = lang
 
-	def query_entry(self, surface = None, lemma = None, msd = None, rhymes_with = None, no_of_syllables = None):
-		"""Queries the lexicon for entries that match the input parameters
+    def query_entry(self, surface=None, lemma=None, msd=None, rhymes_with=None, no_of_syllables=None):
+        """Queries the lexicon for entries that match the input parameters
 
-			Parameters:
-			surface - surface from
-			lemma - lemma
-			msd - descriptor tags
-			rhymes_wyth - rhymes with word
-			no_of_syllables - number of syllabels
+        Parameters:
+        surface - surface from
+        lemma - lemma
+        msd - descriptor tags
+        rhymes_wyth - rhymes with word
+        no_of_syllables - number of syllabels
 
-		"""
+        """
 
-		# Instantiate a query expression
-		expr = QueryExpression()
+        # Instantiate a query expression
+        expr = QueryExpression()
 
-		# Select from table lexicon_{language}
-		expr.select(['surface', 'tags', 'lemma']).fromTable('lexicon')
+        # Select from table lexicon_{language}
+        expr.select(['surface', 'tags', 'lemma']).fromTable('lexicon')
 
-		# Set surface
-		if surface is not None and '%' in surface:
-			expr.where('surface', 'like', surface)
-		elif surface is not None:
-			expr.where('surface', '=', surface)
+        # Set surface
+        if surface is not None and '%' in surface:
+            expr.where('surface', 'like', surface)
+        elif surface is not None:
+            expr.where('surface', '=', surface)
 
-		# Set lemma
-		if lemma is not None and '%' in lemma:
-			expr.where('lemma', 'like', lemma)
-		elif lemma is not None:
-			expr.where('lemma', '=', lemma)
-		
-		# Set tags
-		if msd is not None and '%' in msd:
-			expr.where('tags', 'like', msd)
-		elif msd is not None:
-			expr.where('tags', '=', msd)
+        # Set lemma
+        if lemma is not None and '%' in lemma:
+            expr.where('lemma', 'like', lemma)
+        elif lemma is not None:
+            expr.where('lemma', '=', lemma)
 
-		# Set number of syllables
-		if no_of_syllables is not None:
-			expr.where('no_of_syllables', '=', no_of_syllables)
+        # Set tags
+        if msd is not None and '%' in msd:
+            expr.where('tags', 'like', msd)
+        elif msd is not None:
+            expr.where('tags', '=', msd)
 
-		db = LexiconDB.getInstance(self.language)
-		sql = expr.toSQL()
-		result = db.query(sql)
-		resultMap = map(lambda x: (
-			x[0].encode('utf-8'),
-			x[1].encode('utf-8'),
-			x[2].encode('utf-8')	
-		), result)
+        # Set number of syllables
+        if no_of_syllables is not None:
+            expr.where('no_of_syllables', '=', no_of_syllables)
 
-		return resultMap
+        db = LexiconDB.getInstance(self.language)
+        sql = expr.toSQL()
+        result = db.query(sql)
+        resultMap = map(lambda x: (
+            x[0].encode('utf-8'),
+            x[1].encode('utf-8'),
+            x[2].encode('utf-8')
+        ), result)
 
+        return resultMap

@@ -180,45 +180,42 @@ function xmlToString(xmlData) {
         return oSerializer.serializeToString(xmlData[0]);
     }
 }
-/*clear functions*/
+/* clear functions */
 $("#tagger-clear-button").click(function() {
-  $("#input-text").val('');
-  if($("#input-format-1").prop("checked")){
-    $("#input-format-1").prop("checked", false);
-  }
-  else if($("#input-format-2").prop("checked")){
-    $("#input-format-2").prop("checked", false);
-  }
-  if($("#method1").prop("checked")){
-      $("#method1").prop("checked", false);
-  }
-  else if($("#method2").prop("checked")){
-    $("#method2").prop("checked", false);
-  }
-  else if($("#method3").prop("checked")){
-    $("#method3").prop("checked", false);
-  }
-  $("#results").empty();
-  $(".display-result-search").empty();
+    $("#input-text").val('');
+    if ($("#input-format-1").prop("checked")) {
+        $("#input-format-1").prop("checked", false);
+    } else if ($("#input-format-2").prop("checked")) {
+        $("#input-format-2").prop("checked", false);
+    }
+    if ($("#method1").prop("checked")) {
+        $("#method1").prop("checked", false);
+    } else if ($("#method2").prop("checked")) {
+        $("#method2").prop("checked", false);
+    } else if ($("#method3").prop("checked")) {
+        $("#method3").prop("checked", false);
+    }
+    $("#results").empty();
+    $(".display-result-search").empty();
 });
 $("#lexicon-clear-button").click(function() {
-  $("#inputSurface").val("");
-  $("#inputLemma").val("");
-  $("#inputMsd").val("");
-  $("#inputRhymesWith").val("");
-  $("#inputNoOfSyllables").val("");
-  if($("#surface_is_regex").prop("checked")){
-      $("#surface_is_regex").prop("checked",false);
-  }
-  if($("#lemma_is_regex").prop("checked")){
-    $("#lemma_is_regex").prop("checked", false);
-  }
-  if($("#msd_is_regex").prop("checked")){
-    $("#msd_is_regex").prop("checked", false);
-  }
-  $("#lexicon-result-area").empty();
-  $("#lexicon-results-wrapper").empty();
-  $("#lexicon-results-wrapper").append("<table id='lexicon-results' class='table table-striped table-bordered' cellspacing='0' width='100%'><thead><th>Lemma</th><th>Tag</th><th>Surface</th></thead></table>");
+    $("#inputSurface").val("");
+    $("#inputLemma").val("");
+    $("#inputMsd").val("");
+    $("#inputRhymesWith").val("");
+    $("#inputNoOfSyllables").val("");
+    if ($("#surface_is_regex").prop("checked")) {
+        $("#surface_is_regex").prop("checked", false);
+    }
+    if ($("#lemma_is_regex").prop("checked")) {
+        $("#lemma_is_regex").prop("checked", false);
+    }
+    if ($("#msd_is_regex").prop("checked")) {
+        $("#msd_is_regex").prop("checked", false);
+    }
+    $("#lexicon-result-area").empty();
+    $("#lexicon-results-wrapper").empty();
+    $("#lexicon-results-wrapper").append("<table id='lexicon-results' class='table table-striped table-bordered' cellspacing='0' width='100%'><thead><th>Lemma</th><th>Tag</th><th>Surface</th></thead></table>");
 
 });
 
