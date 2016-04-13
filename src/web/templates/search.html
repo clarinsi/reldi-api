@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="panel panel-default">
-    <div class="panel-heading"> <strong class="">Query</strong>
-    </div>
+
+    {% with title = 'Query' %}
+        {% include 'parts/heading.html' %}
+    {% endwith %}
     <div class="panel-body">
         <ul class="nav nav-pills">
             <li class="active"><a data-toggle="tab" href="#search-form" id="search_link">Tagger</a></li>
@@ -11,7 +13,7 @@
         <div class="col-md-5">
             <div class="bs-component">
                 <div class="tab-content">
-                    <form id="search-form" class="form-horizontal tab-pane fade in active" >
+                    <form id="search-form" class="form-horizontal tab-pane fade in active">
                         <fieldset>
                             <div class="form-group">
                                 <label for="input-text" class="col-md-2 control-label">Input</label>
@@ -19,6 +21,8 @@
                                     <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
                                 </div>
                             </div>
+
+                            {% include 'language-choice.html' %}
 
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Format</label>
@@ -61,46 +65,66 @@
                     </form>
                     <form id="lexicon-form" class="form-horizontal tab-pane fade">
                         <fieldset>
-                          <div>
-                            <ul class="list-group"><small>Legend test</small>
-                              <li><small>% text test</small></li>
-                              <li><small>sign text test</small></li>
-                              <li><small>one more test</small></li>
-                            </ul>
-                          </div>
+                            <div class="form-group">
+                                <div class="col-md-12" style="background-color: #F7F7F7">
+                                    <ul class="list-group" style="padding-left: 20px;">
+                                        <h4>Parameter description</h4>
+                                        <li><strong>Regular input:</strong>
+                                            In addition to completely matching a string, you can use the special character %
+                                            as a wildcard to match an arbitrary string, including an empty string
+                                        </li>
+                                        <ul><strong>Examples:</strong>
+                                            <li>pet% matches pet, petodnevni, peteročlan, petostran etc.</li>
+                                            <li>%pet matches pet, napet, trepet, opet etc.</li>
+                                            <li>%pet% matches any string containing the substring pet.</li>
+                                        </ul>
+                                        <li><strong>Regex input:</strong> all regular expression characters are allowed</li>
+                                    </ul>
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="inputSurface" class="col-md-2 control-label">Surface</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
-                                    <label><input type="checkbox" id="surface_is_regex" value="0"></label>
+                                    <input type="text" class="form-control" id="inputSurface">
+                                    <label style="font-weight: normal; color: gray">
+                                        <input type="checkbox" id="surface_is_regex" value="0">
+                                        <span>regex input</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
-                                    <label><input type="checkbox" id="lemma_is_regex" value="0"></label>
+                                    <input type="text" class="form-control" id="inputLemma">
+                                    <label style="font-weight: normal; color: gray">
+                                        <input type="checkbox" id="lemma_is_regex" value="0">
+                                        <span>regex input</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputMsd" class="col-md-2 control-label">Msd</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
-                                    <label><input type="checkbox" value="0" id="msd_is_regex"></label>
+                                    <input type="text" class="form-control" id="inputMsd">
+                                    <label style="font-weight: normal; color: gray">
+                                        <input type="checkbox" value="0" id="msd_is_regex">
+                                        <span>regex input</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputRhymesWith" placeholder="Rhymes with">
+                                    <input type="text" class="form-control" id="inputRhymesWith">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
+                                    <input type="text" class="form-control" id="inputNoOfSyllables">
                                 </div>
                             </div>
+                            {% include 'language-choice.html' %}
                             <div class="form-group">
                                 <div class="col-md-10 col-md-offset-2">
                                     <button id="lexicon-button" type="submit" class="btn btn-primary search-lexicon">Process</button>
@@ -122,9 +146,9 @@
                 <div class="bs-component">
                     <div class="tab-content">
                         <div id="table-results" class="form-horizontal tab-pane fade in active" >
-                            <table id="results"  class="table table-striped table-bordered" cellspacing="0" width="100%" ></table>
+                            <table id="results"  class="table" cellspacing="0" width="100%" ></table>
                             <div id="lexicon-results-wrapper">
-                                <table id="lexicon-results" class="table table-striped table-bordered" cellspacing="0" width="100%" >
+                                <table id="lexicon-results" class="table" cellspacing="0" width="100%" >
                                     <thead>
                                         <tr>
                                             <th>Lemma</th>
@@ -215,7 +239,7 @@ $("#lexicon-clear-button").click(function() {
     }
     $("#lexicon-result-area").empty();
     $("#lexicon-results-wrapper").empty();
-    $("#lexicon-results-wrapper").append("<table id='lexicon-results' class='table table-striped table-bordered' cellspacing='0' width='100%'><thead><th>Lemma</th><th>Tag</th><th>Surface</th></thead></table>");
+    $("#lexicon-results-wrapper").append("<table id='lexicon-results' class='table' cellspacing='0' width='100%'><thead><th>Lemma</th><th>Tag</th><th>Surface</th></thead></table>");
 
 });
 
@@ -238,7 +262,7 @@ $("#search-button").click(function(e) {
     }
 
     $(".display-result-search").empty();
-    var lang = 'hr';
+    var lang = $('#language').val();
     var url = baseUrl + lang + '/' + method;
     var data = {
         text: text !== '' ? text : null,
@@ -374,20 +398,12 @@ $("#lexicon-button").click(function(e) {
     var rhymes_with = $("#inputRhymesWith").val();
     var no_of_syllables = $("#inputNoOfSyllables").val();
 
-    var surface_is_regex = $("#surface_is_regex").val();
-    var lemma_is_regex = $("#lemma_is_regex").val();
-    var msd_is_regex = $("#msd_is_regex").val();
-    if($("#surface_is_regex").is(":checked")){
-        surface_is_regex=1;
-    }
-    if($("#lemma_is_regex").is(":checked")){
-        lemma_is_regex=1;
-    }
-    if($("#msd_is_regex").is(":checked")){
-        msd_is_regex=1;
-    }
+    var surface_is_regex = $("#surface_is_regex").is(":checked") ? 1 : 0;
+    var lemma_is_regex = $("#lemma_is_regex").is(":checked") ? 1 : 0;
+    var msd_is_regex = $("#msd_is_regex").is(":checked") ? 1 : 0;
+
     $(".display-result-search").empty();
-    var lang = 'hr';
+    var lang = $('#language').val();
     var method = 'lexicon';
     var inputFormat = 'json';
     var url = baseUrl + lang + '/' + method;
@@ -396,7 +412,10 @@ $("#lexicon-button").click(function(e) {
         lemma: lemma !== '' ? lemma : null,
         msd: msd !== '' ? msd : null,
         rhymes_with: rhymes_with !== '' ? rhymes_with : null,
-        no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null
+        no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null,
+        surface_is_regex: surface_is_regex,
+        lemma_is_regex: lemma_is_regex,
+        msd_is_regex: msd_is_regex
     };
 
     $("#lexicon-button").text('Processing ...').attr('disabled', 'disabled');
@@ -406,54 +425,30 @@ $("#lexicon-button").click(function(e) {
         type: "GET",
         dataType: 'json',
         url: url,
-        data: data,
-        success: function(data) {
-            if (inputFormat == 'json') {
-                dataset = data.result;
-                var table = $('#lexicon-results').dataTable();
-                if (table == 'undefined') {
-                    var table = $('#lexicon-results').DataTable({
-                        data: dataset,
-                        columns: [{
-                            title: "Lemma"
-                        }, {
-                            title: "Tags"
-                        }, {
-                            title: "Surface from"
-                        }]
-                    });
-                } else {
-                    table.fnClearTable();
-                    if (dataset.length > 0) {
-                        table.fnAddData(dataset);
-                    }
-                }
-
-                  $('#lexicon-results tr.even,tr.odd').mouseover(function(){
-                      $.get("/api/v1/dictionary",function(data){
-                        //var response = JSON.stringify(data, null, 4);
-                        //console.log(data.query);
-                          $('tr').append('<span data-toggle="tooltip" data-placement="bottom" title="'+data.query.name+'"></span>');
-                      },"json")
-                  }).mouseout(function (){
-                      $('span').remove();
-                  })
-
-                $("#lexicon-result-area").text(JSON.stringify(dataset));
-            } else {
-
+        data: data
+    }).success(function(data) {
+        dataset = data.result;
+        var table = $('#lexicon-results').dataTable();
+        if (table == 'undefined') {
+            var table = $('#lexicon-results').DataTable({
+                data: dataset,
+                columns: [{ title: "Lemma" }, { title: "Tags" }, { title: "Surface from" }]
+            });
+        } else {
+            table.fnClearTable();
+            if (dataset.length > 0) {
+                table.fnAddData(dataset);
             }
-        },
-        error: function(response) {
-            $("#result-area").text(JSON.parse(response.responseText));
-        },
-        complete: function(data) {
-            var receiveDate = (new Date()).getTime();
-            var responseTimeMs = receiveDate - sendDate;
-            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-            $('#response-time').text(responseTimeText);
-            $("#lexicon-button").text('Process').removeAttr('disabled');
         }
+        $("#lexicon-result-area").text(JSON.stringify(dataset));
+    }).fail(function(response) {
+        $("#result-area").text(JSON.parse(response.responseText));
+    }).always(function(data) {
+        var receiveDate = (new Date()).getTime();
+        var responseTimeMs = receiveDate - sendDate;
+        var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+        $('#response-time').text(responseTimeText);
+        $("#lexicon-button").text('Process').removeAttr('disabled');
     });
 });
 

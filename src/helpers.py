@@ -96,7 +96,7 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=T
                     'value': token[tag_idx]
                 })
 
-            token_id += 1;
+            token_id += 1
 
         output['sentences'][-1].append({
             'ID': 's_' + str(s_idx),

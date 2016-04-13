@@ -14,8 +14,23 @@ class QueryLexiconCommand(Command):
 
     arguments = [
         {
+            'name': 'lang',
+            'description': 'Language',
+            'required': True
+        },
+        {
             'name': 'surface',
             'description': 'Surface form',
+            'required': False
+        },
+        {
+            'name': 'lemma',
+            'description': 'Lemma',
+            'required': False
+        },
+        {
+            'name': 'msd',
+            'description': 'MSD',
             'required': False
         },
     ]
@@ -31,5 +46,9 @@ class QueryLexiconCommand(Command):
         :type o: cleo.outputs.output.Output
         """
 
-        lexicon = Lexicon()
-        lexicon.query_entry('sample')
+        surface = i.get_argument('surface')
+        lemma = i.get_argument('lemma')
+        msd = i.get_argument('msd')
+
+        lexicon = Lexicon('hr')
+        print lexicon.query_entry(surface, lemma, msd).__str__()

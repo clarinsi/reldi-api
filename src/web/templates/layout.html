@@ -12,20 +12,6 @@
 </head>
 <body>
 	<div class="container">
-		{% if request.path in [url_for('.query'), url_for('.admin')] %}
-			<div class="row">
-				<div class="col-md-12">
-					<div class="panel panel-default">
-			        	<div class="panel-heading">
-		    				<form method="POST" action="/web/logout" style="overflow: auto; margin: 0;">
-		    					<button class="pull-right btn btn-sm" style="margin: 0;">Logout</button>
-		    				</form>
-		    			</div>
-		    		</div>
-				</div>
-			</div>
-		{% endif %}
-
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				{% with messages = get_flashed_messages(with_categories=true) %}

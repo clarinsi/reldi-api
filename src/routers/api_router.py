@@ -106,7 +106,7 @@ class ApiRouter(Blueprint):
         '''
 
         @param dc:
-        @type dc: string
+        @type dc: DependencyContainer
         '''
         Blueprint.__init__(self, 'api_router', 'api_router')
 
@@ -204,22 +204,29 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/lexicon', methods=['GET', 'POST'])
         @authenticate
         def lexicon(lang):
-            '''
+            """
 
-            @param lang:
-            @type lang: string
-            @return:
-            @rtype: string
-            '''
+            Parameters
+            ----------
+            lang
+
+            Returns
+            -------
+
+            """
+            input_parameters = ['surface', 'lemma', 'msd', 'rhymes_with',
+                                'no_of_syllables', 'rhyming_function_bytecode',
+                                'surface_is_regex', 'lemma_is_regex', 'msd_is_regex']
+
             surface = request.args.get('surface')
             lemma = request.args.get('lemma')
             msd = request.args.get('msd')
             rhymes_with = request.args.get('rhymes_with')
             no_of_syllables = request.args.get('no_of_syllables')
             rhyming_function_bytecode = request.args.get('rhyming_function')
-            #surface_is_regex = request.args.get('surface_is_regex')
-            #lemma_is_regex = request.args.get('lemma_is_regex')
-            #msd_is_regex = request.args.get('msd_is_regex')
+            surface_is_regex = (request.args.get('surface_is_regex') == "1")
+            lemma_is_regex = (request.args.get('lemma_is_regex') == "1")
+            msd_is_regex = (request.args.get('msd_is_regex') == "1")
 
             surface = surface if isset(surface) else None
             lemma = lemma if isset(lemma) else None
@@ -227,11 +234,11 @@ class ApiRouter(Blueprint):
             rhymes_with = rhymes_with if isset(rhymes_with) else None
             no_of_syllables = no_of_syllables if isset(no_of_syllables) else None
 
-            if not isset(surface) and not isset(lemma) and not isset(msd):
+            if not isset(surface) and not isset(lemma) and not isset(msd) and not isset(rhymes_with) and not isset(no_of_syllables):
                 raise InvalidUsage('Please specify a surface form, lemma or msd', status_code=422)
 
             for arg in request.args:
-                if arg not in ['surface', 'lemma', 'msd', 'rhymes_with', 'no_of_syllables', 'rhyming_function_bytecode']:
+                if arg not in input_parameters:
                     raise InvalidUsage(arg + ' is an invalid input parameter', status_code=422)
 
             # if rhyming_function_bytecode is not None:
@@ -239,8 +246,11 @@ class ApiRouter(Blueprint):
             #   func = types.FunctionType(code, globals(), "some_func_name")
 
             #   return jsonify(func(10, 10))
+
             lex = dc['lexicon.' + lang]
-            result = lex.query_entry(surface, lemma, msd, rhymes_with, no_of_syllables)
+            """:type : Lexicon """
+            result = lex.query_entry(surface, lemma, msd, rhymes_with, no_of_syllables,
+                                     surface_is_regex, msd_is_regex, lemma_is_regex)
 
             return jsonify({
                 'query': {

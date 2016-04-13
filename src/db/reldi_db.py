@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-import sqlite3
-import re
-
-def regexp(expr, item):
-    reg = re.compile(expr)
-    return reg.search(item) is not None
 
 def dict_factory(cursor, row):
     d = {}
@@ -22,23 +15,18 @@ class DB(object):
     def __init__(self, token):
         self._connection = None
         self._client = None
-        if (token is not self._THE_MAGIC_WORD):
+        if token is not self._THE_MAGIC_WORD:
             raise ValueError('This is a private constructor. Plase use ::getInstance()')
 
     @staticmethod
     def set_row_factory(connection):
         connection.row_factory = dict_factory
 
-    @staticmethod
-    def defineRegexp(connection):
-        connection.create_function("REGEXP", 2, regexp)
-
     # Method to execute sql query
     def query(self, sql):
         '''Execute an SQL query'''
         if not self._client:
             raise ValueError("Client not initialized") 
-            return False
 
         self._client.execute(sql)
         self._connection.commit()
@@ -48,8 +36,16 @@ class DB(object):
     def command(self, sql, params = ()):
         '''Execute an SQL query'''
         if not self._client:
-            raise ValueError("Client not initialized") 
-            return False
+            raise ValueError("Client not initialized")
 
         self._client.execute(sql, params)
+        self._connection.commit()
+
+    # Method to execute sql command
+    def script(self, sql):
+        '''Execute an SQL query'''
+        if not self._client:
+            raise ValueError("Client not initialized")
+
+        self._client.executescript(sql)
         self._connection.commit()

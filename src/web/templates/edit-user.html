@@ -1,82 +1,82 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="row">
-	<div class="col-md-8 col-md-offset-2">
-		<div class="panel panel-default">
-		<div class="panel-heading"> <strong class="">Edit user</strong></div>
-			<div class="panel-body">
-				<form class="form-horizontal" role="form" id="editUserForm" method="POST" action="{{ url_for('.edit', id=user.id) }}">
-					<div class="form-group">
-						<label for="inputUsername" class="col-sm-3 control-label">Username</label>
-						<div class="col-sm-9">
-							<input type="text" class="form-control" id="inputUsername" value="{{user.username}}" required="" readonly="readonly">
-						</div>
-					</div>
-          <div class="form-group">
-            <label for="inputUsername" class="col-sm-3 control-label">Email</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" id="inputEmail" value="{{user.email}}" required="" readonly="">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputUsername" class="col-sm-3 control-label">Role</label>
-            <div class="col-sm-9">
-              <select class="form-control" id="role" name="role" readonly="readonly">
-                {% for key, status in roles.iteritems() %}
-                  <option value="{{ key }}" {% if key == user.role %}selected="selected"{% endif %}>{{ status }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputUsername" class="col-sm-3 control-label">Status</label>
-            <div class="col-sm-9">
-              <select class="form-control" id="status" name="status">
-                {% for key, status in statuses.iteritems() %}
-                  <option value="{{ key }}" {% if key == user.status %}selected="selected"{% endif %}>{{ status }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputUsername" class="col-sm-3 control-label">Requests made</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" id="inputRequestMade"  value="{{user.requests_made}}" required="" readonly="readonly">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputUsername" class="col-sm-3 control-label">Requests limit</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" id="inputRequestLimit"  name="requests_limit" value="{{user.requests_limit}}" required="">
-            </div>
-          </div>
-					<div class="form-group last">
-						<div class="col-sm-offset-3 col-sm-9">
-							<button type="submit" class="btn btn-success btn-sm request-access">Save</button>
-							<button type="button" class="btn btn-danger btn-sm cancel-request" >Cancel</button>
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading"> <strong class="">Edit user</strong></div>
+            <div class="panel-body">
+                <form class="form-horizontal" role="form" id="editUserForm" method="POST" action="{{ url_for('.edit', id=user.id) }}">
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">Username</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="inputUsername" value="{{user.username}}" required="" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">Email</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="inputEmail" value="{{user.email}}" required="" readonly="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">Role</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="role" name="role" readonly="readonly">
+                                {% for key, status in roles.iteritems() %}
+                                <option value="{{ key }}" {% if key == user.role %}selected="selected"{% endif %}>{{ status }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">Status</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="status" name="status">
+                                {% for key, status in statuses.iteritems() %}
+                                <option value="{{ key }}" {% if key == user.status %}selected="selected"{% endif %}>{{ status }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">Requests made</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="inputRequestMade"  value="{{user.requests_made}}" required="" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">Requests limit</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="inputRequestLimit"  name="requests_limit" value="{{user.requests_limit}}" required="">
+                        </div>
+                    </div>
+                    <div class="form-group last">
+                        <div class="col-sm-offset-3 col-sm-9">
+                            <button type="submit" class="btn btn-success btn-sm request-access">Save</button>
+                            <button type="button" class="btn btn-danger btn-sm cancel-request" >Cancel</button>
                             <a href="#" data-toggle="modal" class="btn btn-xs btn-default" data-target="#confirm-delete">Delete</a>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">Confirm Deletion</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Confirm Deletion</h4>
             </div>
             <div class="modal-body">
-                    <p>Are you sure that you want to delete this user?</p>
-                    <p class="debug-url"></p>
+                <p>Are you sure that you want to delete this user?</p>
+                <p class="debug-url"></p>
             </div>
             <div class="modal-footer">
-                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Cancel</button>
-                    <a href="{{url_for('.delete_user', id=user.id)}}" class="btn btn-primary btn-sm" name="button">Proceed</a>
+                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Cancel</button>
+                <a href="{{url_for('.delete_user', id=user.id)}}" class="btn btn-primary btn-sm" name="button">Proceed</a>
             </div>
         </div>
     </div>
