@@ -46,9 +46,10 @@ class QueryLexiconCommand(Command):
         :type o: cleo.outputs.output.Output
         """
 
+        lang = i.get_argument('lang')
         surface = i.get_argument('surface')
         lemma = i.get_argument('lemma')
         msd = i.get_argument('msd')
 
-        lexicon = Lexicon('hr')
-        print lexicon.query_entry(surface, lemma, msd).__str__()
+        lexicon = Lexicon(lang)
+        print lexicon.query_entry(surface, lemma, msd, 'pet').__str__()

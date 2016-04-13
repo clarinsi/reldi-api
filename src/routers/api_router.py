@@ -199,7 +199,7 @@ class ApiRouter(Blueprint):
             '''
             current_app.logger.error(error)
             response = jsonify(error.message)
-            return response
+            return response, error.status_code
 
         @self.route('/<lang>/lexicon', methods=['GET', 'POST'])
         @authenticate
