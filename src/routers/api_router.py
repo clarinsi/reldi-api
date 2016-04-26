@@ -1,4 +1,3 @@
-
 from ..helpers import jsonify, TCF, jsonTCF, isset
 from lxml import etree
 from StringIO import StringIO
@@ -15,6 +14,7 @@ import re
 
 class ServerError(Exception):
     status_code = 500
+
     def __init__(self, message, status_code=None, payload=None):
         '''
 
@@ -118,6 +118,7 @@ class ApiRouter(Blueprint):
             @return:
             @rtype: string
             '''
+
             @wraps(api_method)
             def verify(*args, **kwargs):
                 '''
@@ -171,11 +172,14 @@ class ApiRouter(Blueprint):
                     relaxng_doc = etree.parse(f)
                     relaxng = etree.RelaxNG(relaxng_doc)
                     inputXml = re.sub(">\\s*<", "><", request.args.get('text').encode('utf-8'))
+                    inputXml = re.sub("^\\s*<", "<", inputXml)
+
                     doc = etree.parse(StringIO(inputXml))
-                    if '<' not in inputXml or not relaxng.validate(doc):
+                    try:
+                        relaxng.assertValid(doc)
                         return doc.getroot()[1][0].text
-                    else:
-                        raise InvalidUsage('Input XML does not comply to the TCF schema')
+                    except Exception as e:
+                        raise InvalidUsage(e.message)
             else:
                 raise InvalidUsage('Unknown format ' + format)
 
@@ -199,7 +203,7 @@ class ApiRouter(Blueprint):
             '''
             current_app.logger.error(error)
             response = jsonify(error.message)
-            return response, error.status_code
+            return response, error.status_code if hasattr(error, 'status_code') else 500
 
         @self.route('/<lang>/lexicon', methods=['GET', 'POST'])
         @authenticate
@@ -234,7 +238,8 @@ class ApiRouter(Blueprint):
             rhymes_with = rhymes_with if isset(rhymes_with) else None
             no_of_syllables = no_of_syllables if isset(no_of_syllables) else None
 
-            if not isset(surface) and not isset(lemma) and not isset(msd) and not isset(rhymes_with) and not isset(no_of_syllables):
+            if not isset(surface) and not isset(lemma) and not isset(msd) and not isset(rhymes_with) and not isset(
+                    no_of_syllables):
                 raise InvalidUsage('Please specify a surface form, lemma or msd', status_code=422)
 
             for arg in request.args:
