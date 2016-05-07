@@ -4,7 +4,7 @@ import sys
 from sqlite3 import IntegrityError
 from flask import Blueprint
 from flask import render_template, request, flash, Response, session
-from flask import redirect, make_response, url_for
+from flask import redirect, make_response, url_for, send_from_directory
 from functools import wraps
 
 from ..helpers import generate_token
@@ -16,6 +16,10 @@ from ..models.auth_token_model import AuthTokenModel
 
 
 class WebRouter(Blueprint):
+    def register(self, app, options, first_registration=False):
+        super(WebRouter, self).register(app, options, first_registration=False)
+        self.config = app.config
+
     def __init__(self, dc):
         templateFolder = os.path.realpath('src/web/templates')
         staticFolder = os.path.realpath('src/web/templates/static')
@@ -159,6 +163,15 @@ class WebRouter(Blueprint):
         @authenticate(['admin', 'user'])
         def query():
             return render_template('search.html')
+
+        @authenticate(['user'])
+        @self.route('/download', methods=['GET'])
+        def download():
+            auth_token_string = request.cookies.get('auth-token')
+            authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
+
+            return send_from_directory(directory=self.config['UPLOAD_FOLDER'], filename=authToken.user_id.__str__())
+
 
         @self.route('/user/<id>/edit', methods=["GET"])
         @authenticate(['admin'])

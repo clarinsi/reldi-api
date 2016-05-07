@@ -15,24 +15,33 @@
                 <div class="tab-content">
                     <form id="search-form" class="form-horizontal tab-pane fade in active">
                         <fieldset>
-                            <div class="form-group">
-                                <label for="input-text" class="col-md-2 control-label">Input</label>
-                                <div class="col-md-10">
-                                    <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
+                            <div class="bordered">
+                                <div class="form-group">
+                                    <label for="input-text" class="col-md-2 control-label">Text</label>
+                                    <div class="col-md-9 col-md-offset-2">
+                                        <textarea class="form-control" rows="10" id="input-text"></textarea>
+                                    </div>
+                                </div>
+                                <div class="separator"><span>or</span></div>
+                                <div class="form-group">
+                                    <label for="input-text" class="col-md-2 control-label no-top-padding">File</label>
+                                    <div class="col-md-7">
+                                        <input id="tagger-file-chooser" type="file" name="input-file" />
+                                    </div>
+                                    <button id="remove-file" class="btn btn-primary btn-xs no-top-margin">remove</button>
                                 </div>
                             </div>
-
                             {% include 'language-choice.html' %}
 
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Format</label>
                                 <div class="col-md-10">
                                     <label class="radio-inline">
-                                        <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
+                                        <input type="radio" name="input-format" id="input-format-1" value="json">
                                         Text
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
+                                        <input type="radio" name="input-format" id="input-format-2" value="tcf">
                                         TCF
                                     </label>
                                 </div>
@@ -42,15 +51,15 @@
                                 <label class="col-md-2 control-label">Function</label>
                                 <div class="col-md-10">
                                     <label class="radio-inline">
-                                        <input type="radio" name="method" required="required" id="method1" value="tag">
+                                        <input type="radio" name="method" id="method1" value="tag">
                                         Tag
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="method" required="required" id="method2" value="lemmatise">
+                                        <input type="radio" name="method" id="method2" value="lemmatise">
                                         Lemmatise
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
+                                        <input type="radio" name="method" id="method3" value="tag_lemmatise">
                                         Tag  +  Lemmatise
                                     </label>
                                 </div>
@@ -171,7 +180,9 @@
                         </div>
                     </div>
                 </div>
-
+                <div>
+                    <a id="download-result" href="{{ url_for('web_router.download') }}" target="_blank" class="btn btn-primary btn-md">Download</a>
+                </div>
             </div>
         </div>
     </div>
@@ -181,23 +192,28 @@
 
 {% block scripts %}
 <script>
-$('#lexicon-results-wrapper').hide();
-$("#lexicon_link").click(function(e) {
-    $('#lexicon-results-wrapper').show();
-    $('#lexicon-result-area').show();
-    $('#results').hide();
-    $('#result-area').hide();
-});
-$("#search_link").click(function(e) {
+
+function showSearch(e) {
     $('#lexicon-results-wrapper').hide();
     $('#lexicon-result-area').hide();
     $('#results').show();
     $('#result-area').show();
-});
-$('#lexicon-results-wrapper').hide();
-$('#lexicon-result-area').hide();
-$('#results').show();
-$('#result-area').show();
+    $('#download-result').show();
+
+}
+
+function showLexicon() {
+    $('#lexicon-results-wrapper').show();
+    $('#lexicon-result-area').show();
+    $('#results').hide();
+    $('#result-area').hide();
+    $('#download-result').hide();
+}
+$("#lexicon_link").click(showLexicon);
+$("#search_link").click(showSearch);
+showSearch();
+
+
 
 function xmlToString(xmlData) {
     xmlData = $(xmlData);
@@ -208,21 +224,31 @@ function xmlToString(xmlData) {
         return oSerializer.serializeToString(xmlData[0]);
     }
 }
+
+
+$('#tagger-file-chooser').change(function(e) {
+    if ($(this).val() != '') {
+        $('#input-text').attr('disabled', 'disabled');
+    } else {
+        $('#input-text').removeAttr('disabled');
+    }
+});
+
+$('#remove-file').click(function(e) {
+    $('#tagger-file-chooser').val('');
+    $('#input-text').removeAttr('disabled');
+});
+
 /* clear functions */
 $("#tagger-clear-button").click(function() {
     $("#input-text").val('');
-    if ($("#input-format-1").prop("checked")) {
-        $("#input-format-1").prop("checked", false);
-    } else if ($("#input-format-2").prop("checked")) {
-        $("#input-format-2").prop("checked", false);
-    }
-    if ($("#method1").prop("checked")) {
-        $("#method1").prop("checked", false);
-    } else if ($("#method2").prop("checked")) {
-        $("#method2").prop("checked", false);
-    } else if ($("#method3").prop("checked")) {
-        $("#method3").prop("checked", false);
-    }
+    $("#input-format-1").prop("checked", false);
+    $("#input-format-2").prop("checked", false);
+
+    $("#method1").prop("checked", false);
+    $("#method2").prop("checked", false);
+    $("#method3").prop("checked", false);
+
     $("#results").empty();
     $(".display-result-search").empty();
 });
@@ -232,15 +258,9 @@ $("#lexicon-clear-button").click(function() {
     $("#inputMsd").val("");
     $("#inputRhymesWith").val("");
     $("#inputNoOfSyllables").val("");
-    if ($("#surface_is_regex").prop("checked")) {
-        $("#surface_is_regex").prop("checked", false);
-    }
-    if ($("#lemma_is_regex").prop("checked")) {
-        $("#lemma_is_regex").prop("checked", false);
-    }
-    if ($("#msd_is_regex").prop("checked")) {
-        $("#msd_is_regex").prop("checked", false);
-    }
+    $("#surface_is_regex").prop("checked", false);
+    $("#lemma_is_regex").prop("checked", false);
+    $("#msd_is_regex").prop("checked", false);
     $("#lexicon-result-area").empty();
     $("#lexicon-results-wrapper").empty();
     $("#lexicon-results-wrapper").append("<table id='lexicon-results' class='table' cellspacing='0' width='100%'><thead><th>Lemma</th><th>Tag</th><th>Surface</th></thead></table>");
@@ -258,30 +278,37 @@ $("#search-button").click(function(e) {
     e.preventDefault();
 
     var text = $("#input-text").val();
+    var file = $('#tagger-file-chooser').val();
     var inputFormat = $('input[name="input-format"]:checked').val();
     var method = $('input[name="method"]:checked').val();
 
-    if (!text || !inputFormat || !method) {
+    if ((!file && !text) || !inputFormat || !method) {
+        console.log(file, text);
         return;
     }
 
     $(".display-result-search").empty();
     var lang = $('#language').val();
     var url = baseUrl + lang + '/' + method;
-    var data = {
-        text: text !== '' ? text : null,
-        format: inputFormat
-    };
+    var data = new FormData();
+    data.append('format', inputFormat);
+    if (file) {
+        data.append('file', $('#tagger-file-chooser')[0].files[0]);
+    } else {
+        data.append('text', text)
+    }
 
     $("#search-button").text('Processing ...').attr('disabled', 'disabled');
     var sendDate = (new Date()).getTime();
     var trHTML = '';
     $('#results').empty();
     jQuery.ajax({
-        type: "GET",
+        type: "POST",
         dataType: inputFormat == 'json' ? 'json' : 'xml',
         url: url,
         data: data,
+        processData: false,
+        contentType: false,
         success: function(data, status, xml) {
 
             if (inputFormat == 'json') {
@@ -317,7 +344,6 @@ $("#search-button").click(function(e) {
                         $.each(lemmas, function(j, lemma) {
                             $("#" + k + "_lemma").html(lemma.value);
                             k=k+1;
-                            //console.log(tag.value);
                         });
                     });
                 } else if (method == "tag_lemmatise") {
@@ -339,7 +365,6 @@ $("#search-button").click(function(e) {
                         $.each(lemmas, function(j, lemma) {
                             $("#" + m + "_lemma").html(lemma.value);
                             m=m+1;
-                            //console.log(tag.value);
                         });
                     });
                 }

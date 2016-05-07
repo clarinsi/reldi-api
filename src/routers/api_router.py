@@ -10,6 +10,8 @@ from functools import wraps
 from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
 import re
+import os
+import json
 
 
 class ServerError(Exception):
@@ -102,6 +104,12 @@ class InvalidUsage(Exception):
 
 
 class ApiRouter(Blueprint):
+
+    def register(self, app, options, first_registration=False):
+        super(ApiRouter, self).register(app, options, first_registration=False)
+        self.config = app.config
+
+
     def __init__(self, dc):
         '''
 
@@ -109,6 +117,7 @@ class ApiRouter(Blueprint):
         @type dc: DependencyContainer
         '''
         Blueprint.__init__(self, 'api_router', 'api_router')
+        self.config = {}
 
         def authenticate(api_method):
             '''
@@ -155,6 +164,36 @@ class ApiRouter(Blueprint):
 
             return verify
 
+        def save_file(api_method):
+
+            @wraps(api_method)
+            def post_request(*args, **kwargs):
+                auth_token_string = request.cookies.get('auth-token')
+                if auth_token_string is None:
+                    auth_token_string = request.headers.get('Authorization')
+
+                if auth_token_string is None:
+                    raise Unauthorized('Invalid token')
+
+                authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
+                if authToken is None or not authToken.isValid():
+                    raise Unauthorized('Invalid token')
+
+                result = api_method(*args, **kwargs)
+                filePath = os.path.join(self.config['UPLOAD_FOLDER'], authToken.user_id.__str__())
+                with open(filePath, 'w') as f:
+                    f.write(result.get_data())
+
+                return result
+
+            return post_request
+
+
+        def get_format(request):
+            params = request.form if request.method == 'POST' else request.args
+            format = params.get('format')
+            return format
+
         def get_text(format, request):
             '''
 
@@ -165,13 +204,23 @@ class ApiRouter(Blueprint):
             @return:
             @rtype: string
             '''
+            params = request.form if request.method == 'POST' else request.args
+            files = request.files
             if format == 'json':
-                return request.args.get('text')
+                if 'file' in files:
+                    return files['file'].read()
+                else:
+                    return params.get('text')
             elif format == 'tcf':
                 with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
+
+                    if 'file' in files:
+                        text = files['file'].read()
+                    else:
+                        text = params.get('text').encode('utf-8')
                     relaxng_doc = etree.parse(f)
                     relaxng = etree.RelaxNG(relaxng_doc)
-                    inputXml = re.sub(">\\s*<", "><", request.args.get('text').encode('utf-8'))
+                    inputXml = re.sub(">\\s*<", "><", text)
                     inputXml = re.sub("^\\s*<", "<", inputXml)
 
                     doc = etree.parse(StringIO(inputXml))
@@ -295,7 +344,7 @@ class ApiRouter(Blueprint):
             @return:
             @rtype: string
             '''
-            format = request.args.get('format')
+            format = get_format(request)
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
 
@@ -310,8 +359,10 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result), mimetype='text/xml')
 
+
         @self.route('/<lang>/tag', methods=['GET', 'POST'])
         @authenticate
+        @save_file
         def tag(lang):
             '''
 
@@ -320,7 +371,7 @@ class ApiRouter(Blueprint):
             @return:
             @rtype: string
             '''
-            format = request.args.get('format')
+            format = get_format(request)
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
 
@@ -344,7 +395,7 @@ class ApiRouter(Blueprint):
             @return:
             @rtype: string
             '''
-            format = request.args.get('format')
+            format = get_format(request)
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
 
@@ -367,7 +418,7 @@ class ApiRouter(Blueprint):
             @return:
             @rtype: string
             '''
-            format = request.args.get('format')
+            format = get_format(request)
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
 

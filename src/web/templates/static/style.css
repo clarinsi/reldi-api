@@ -190,3 +190,43 @@ input[type="text"]:disabled {
 .dataTables_wrapper .dataTables_paginate .paginate_button {
     padding: 0;
 }
+
+.bordered {
+    border-bottom: 1px solid rgba(33, 33, 33, 0.17);
+    margin-bottom: 20px;
+}
+
+.container-full {
+    margin: 0 auto;
+    width: 90%;
+}
+
+.separator {
+    position: relative;
+    height: 0px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    /* border-top: 1px solid rgba(33, 33, 33, 0.3); */
+    border-top: 1px solid white;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.separator > span {
+    position: absolute;
+    top: -11px;
+    background-color: white;
+    left: 40%;
+    text-align: center;
+    width: 50px;
+    color: rgba(33, 33, 33, 0.3);
+}
+
+.no-top-margin {
+    margin-top: 0 !important;
+}
+
+.no-top-padding {
+    padding-top: 0 !important;
+}

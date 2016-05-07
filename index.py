@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import os
 from flask import Flask
 from flask.ext.cors import CORS
 
@@ -25,6 +26,9 @@ def init():
     app = Flask(__name__)
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['UPLOAD_FOLDER'] = os.path.dirname(os.path.realpath(__file__)) + '/uploads/'
+
+    print app.config['UPLOAD_FOLDER']
     CORS(app)
 
     print 'Initializing models'
