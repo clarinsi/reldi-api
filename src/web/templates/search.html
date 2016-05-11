@@ -346,27 +346,27 @@ $("#search-button").click(function(e) {
             } else {
                 $("#result-area").text(xml.responseText);
                 if (method == "tag") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Start and End character index</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Start - End character index</th></tr></thead>");
                     $(xml.responseText).find("token").each(function(index) {
-                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_tag></td><td>' + $(this).attr("startChar") + ' ' + $(this).attr("endChar") + '</td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_tag></td><td>' + $(this).attr("startChar") + '-' + $(this).attr("endChar") + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     $(xml.responseText).find("tag").each(function(index) {
                         $("#" + index + "_tag").html($(this).text());
                     });
                 } else if (method == "lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Lemmatise</th><th>Start and End character index</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Lemmatise</th><th>Start - End character index</th></tr></thead>");
                     $(xml.responseText).find("token").each(function(index) {
-                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_lemma></td><td>' + $(this).attr("startChar") + ' ' + $(this).attr("endChar") + '</td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_lemma></td><td>' + $(this).attr("startChar") + '-' + $(this).attr("endChar") + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     $(xml.responseText).find("lemma").each(function(index) {
                         $("#" + index + "_lemma").html($(this).text());
                     });
                 } else if (method == "tag_lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Lemmatise</th><th>Start and End character index</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Lemmatise</th><th>Start - End character index</th></tr></thead>");
                     $(xml.responseText).find("token").each(function(index) {
-                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_tag></td><td id=' + index + '_lemma></td><td>' + $(this).attr("startChar") + ' ' + $(this).attr("endChar") + '</td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_tag></td><td id=' + index + '_lemma></td><td>' + $(this).attr("startChar") + '-' + $(this).attr("endChar") + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     $(xml.responseText).find("lemma").each(function(index) {
