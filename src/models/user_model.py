@@ -11,7 +11,8 @@ class UserModel(Model):
     def model_props(cls):
         return [
             'username', 'email', 'password', 'project', 'requests_limit', 'note',
-            'requests_made', 'last_request_datetime', 'role', 'status', 'activation_token'
+            'requests_made', 'last_request_datetime', 'role', 'status', 'activation_token',
+            'password_reset_token', 'password_reset_expiration_token'
         ]
 
     @classmethod
@@ -83,7 +84,7 @@ class UserModel(Model):
 
             if this_month > last_month or this_year > last_year:
                 self.requests_made = 0
-          
+
     @classmethod
     def getByUsername(cls, username):
         return super(UserModel, cls).getByAttributeSingle('username', username)
@@ -91,6 +92,10 @@ class UserModel(Model):
     @classmethod
     def getById(cls, id):
         return super(UserModel, cls).getByAttributeSingle('id', id)
+
+    @classmethod
+    def getByEmail(cls,email):
+        return super(UserModel, cls).getByAttributeSingle('email', email)
 
     @classmethod
     def fromDatabase(cls, row):

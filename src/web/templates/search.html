@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="panel panel-default">
-    <div class="panel-heading"> <strong class="">Query</strong>
-    </div>
+
+    {% with title = 'Query' %}
+        {% include 'parts/heading.html' %}
+    {% endwith %}
     <div class="panel-body">
         <ul class="nav nav-pills">
             <li class="active"><a data-toggle="tab" href="#search-form" id="search_link">Tagger</a></li>
@@ -11,24 +13,35 @@
         <div class="col-md-5">
             <div class="bs-component">
                 <div class="tab-content">
-                    <form id="search-form" class="form-horizontal tab-pane fade in active" >
+                    <form id="search-form" class="form-horizontal tab-pane fade in active">
                         <fieldset>
-                            <div class="form-group">
-                                <label for="input-text" class="col-md-2 control-label">Input</label>
-                                <div class="col-md-10">
-                                    <textarea class="form-control" rows="10" required="required" id="input-text"></textarea>
+                            <div class="bordered">
+                                <div class="form-group">
+                                    <label for="input-text" class="col-md-2 control-label">Text</label>
+                                    <div class="col-md-9 col-md-offset-2">
+                                        <textarea class="form-control" rows="10" id="input-text"></textarea>
+                                    </div>
+                                </div>
+                                <div class="separator"><span>or</span></div>
+                                <div class="form-group">
+                                    <label for="input-text" class="col-md-2 control-label no-top-padding">File</label>
+                                    <div class="col-md-7">
+                                        <input id="tagger-file-chooser" type="file" name="input-file" />
+                                    </div>
+                                    <button id="remove-file" class="btn btn-primary btn-xs no-top-margin">remove</button>
                                 </div>
                             </div>
+                            {% include 'language-choice.html' %}
 
                             <div class="form-group">
                                 <label class="col-md-2 control-label">Format</label>
                                 <div class="col-md-10">
                                     <label class="radio-inline">
-                                        <input type="radio" name="input-format" required="required" id="input-format-1" value="json">
+                                        <input type="radio" name="input-format" id="input-format-1" value="json">
                                         Text
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="input-format" required="required" id="input-format-2" value="tcf">
+                                        <input type="radio" name="input-format" id="input-format-2" value="tcf">
                                         TCF
                                     </label>
                                 </div>
@@ -38,15 +51,15 @@
                                 <label class="col-md-2 control-label">Function</label>
                                 <div class="col-md-10">
                                     <label class="radio-inline">
-                                        <input type="radio" name="method" required="required" id="method1" value="tag">
+                                        <input type="radio" name="method" id="method1" value="tag">
                                         Tag
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="method" required="required" id="method2" value="lemmatise">
+                                        <input type="radio" name="method" id="method2" value="lemmatise">
                                         Lemmatise
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="method" required="required" id="method3" value="tag_lemmatise">
+                                        <input type="radio" name="method" id="method3" value="tag_lemmatise">
                                         Tag  +  Lemmatise
                                     </label>
                                 </div>
@@ -54,6 +67,7 @@
                             <div class="form-group">
                                 <div class="col-md-10 col-md-offset-2">
                                     <button id="search-button" type="submit" class="btn btn-primary">Process</button>
+                                    <button id="tagger-clear-button" type="submit" class="btn btn-primary clear-tag">Clear</button>
                                 </div>
                             </div>
                         </fieldset>
@@ -61,41 +75,69 @@
                     <form id="lexicon-form" class="form-horizontal tab-pane fade">
                         <fieldset>
                             <div class="form-group">
+                                <div class="col-md-12" style="background-color: #F7F7F7">
+                                    <ul class="list-group" style="padding-left: 20px;">
+                                        <h4>Parameter description</h4>
+                                        <li><strong>Regular input:</strong>
+                                            In addition to completely matching a string, you can use the special character %
+                                            as a wildcard to match an arbitrary string, including an empty string
+                                        </li>
+                                        <ul><strong>Examples:</strong>
+                                            <li>pet% matches pet, petodnevni, peteročlan, petostran etc.</li>
+                                            <li>%pet matches pet, napet, trepet, opet etc.</li>
+                                            <li>%pet% matches any string containing the substring pet.</li>
+                                        </ul>
+                                        <li><strong>Regex input:</strong> all regular expression characters are allowed</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label for="inputSurface" class="col-md-2 control-label">Surface</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputSurface" placeholder="Surface">
-                                    <label><input type="checkbox" id="surface_is_regex" value="0"></label>
+                                    <input type="text" class="form-control" id="inputSurface">
+                                    <label style="font-weight: normal; color: gray">
+                                        <input type="checkbox" id="surface_is_regex" value="0">
+                                        <span>regex input</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputLemma" class="col-md-2 control-label">Lemma</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputLemma" placeholder="Lemma">
-                                    <label><input type="checkbox" id="lemma_is_regex" value="0"></label>
+                                    <input type="text" class="form-control" id="inputLemma">
+                                    <label style="font-weight: normal; color: gray">
+                                        <input type="checkbox" id="lemma_is_regex" value="0">
+                                        <span>regex input</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputMsd" class="col-md-2 control-label">Msd</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputMsd" placeholder="Msd">
-                                    <label><input type="checkbox" value="0" id="msd_is_regex"></label>
+                                    <input type="text" class="form-control" id="inputMsd">
+                                    <label style="font-weight: normal; color: gray">
+                                        <input type="checkbox" value="0" id="msd_is_regex">
+                                        <span>regex input</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputRhymesWith" placeholder="Rhymes with">
+                                    <input type="text" class="form-control" id="inputRhymesWith">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputNoOfSyllables" placeholder="No of syllables">
+                                    <input type="text" class="form-control" id="inputNoOfSyllables">
                                 </div>
                             </div>
+                            {% include 'language-choice.html' %}
                             <div class="form-group">
                                 <div class="col-md-10 col-md-offset-2">
-                                    <button id="lexicon-button" type="submit" class="btn btn-primary search-lexicon">Search</button>
+                                    <button id="lexicon-button" type="submit" class="btn btn-primary search-lexicon">Filter</button>
+                                    <button id="lexicon-clear-button" type="submit" class="btn btn-primary clear-lexicon">Clear</button>
                                 </div>
                             </div>
                         </fieldset>
@@ -109,18 +151,22 @@
                 <ul class="nav nav-pills">
                     <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
                     <li class=""><a data-toggle="tab" href="#raw-results">Raw</a></li>
+                    <li class="">
+                        <a id="download-result" href="{{ url_for('web_router.download') }}" target="_blank" class="btn btn-default"
+                            style="margin: 0; text-transform: none;">Download</a>
+                    </li>
                 </ul>
                 <div class="bs-component">
                     <div class="tab-content">
                         <div id="table-results" class="form-horizontal tab-pane fade in active" >
-                            <table id="results"  class="table table-striped table-bordered" cellspacing="0" width="100%" ></table>
+                            <table id="results"  class="table" cellspacing="0" width="100%" ></table>
                             <div id="lexicon-results-wrapper">
-                                <table id="lexicon-results" class="table table-striped table-bordered" cellspacing="0" width="100%" >
+                                <table id="lexicon-results" class="table" cellspacing="0" width="100%" >
                                     <thead>
                                         <tr>
-                                            <th>Lemma</th>
-                                            <th>Tags</th>
                                             <th>Surface</th>
+                                            <th>Tags</th>
+                                            <th>Lemma</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -128,17 +174,17 @@
                         </div>
                         <div id="raw-results" class="form-horizontal  tab-pane fade">
                             <div class="col-md-12">
-                            <textarea id="result-area" readonly="readonly" class="form-control" rows="20"></textarea>
-                            <textarea id="lexicon-result-area" readonly="readonly" class="form-control" rows="20"></textarea>
+                                <textarea id="result-area" readonly="readonly" class="form-control" rows="20"></textarea>
+                                <textarea id="lexicon-result-area" readonly="readonly" class="form-control" rows="20"></textarea>
                             </div>
                         </div>
                         <div class="help-block">
                             Result set
                             <span id="response-time"></span>
                         </div>
+                        <div id="error-message"></div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -148,19 +194,29 @@
 
 {% block scripts %}
 <script>
-$('#lexicon-results-wrapper').hide();
-$("#lexicon_link").click(function(e) {
-    $('#lexicon-results-wrapper').show();
-    $('#lexicon-result-area').show();
-    $('#results').hide();
-    $('#result-area').hide();
-});
-$("#search_link").click(function(e) {
+
+function showSearch(e) {
     $('#lexicon-results-wrapper').hide();
     $('#lexicon-result-area').hide();
     $('#results').show();
     $('#result-area').show();
-});
+    $('#download-result').show();
+    $("#error-message").text('');
+}
+
+function showLexicon() {
+    $('#lexicon-results-wrapper').show();
+    $('#lexicon-result-area').show();
+    $('#results').hide();
+    $('#result-area').hide();
+    $('#download-result').hide();
+    $("#error-message").text('');
+}
+$("#lexicon_link").click(showLexicon);
+$("#search_link").click(showSearch);
+showSearch();
+$('#download-result').attr('disabled', 'disabled');
+
 
 function xmlToString(xmlData) {
     xmlData = $(xmlData);
@@ -172,6 +228,52 @@ function xmlToString(xmlData) {
     }
 }
 
+
+$('#tagger-file-chooser').change(function(e) {
+    if ($(this).val() != '') {
+        $('#input-text').attr('disabled', 'disabled');
+    } else {
+        $('#input-text').removeAttr('disabled');
+    }
+});
+
+$('#remove-file').click(function(e) {
+    $('#tagger-file-chooser').val('');
+    $('#input-text').removeAttr('disabled');
+});
+
+/* clear functions */
+$("#tagger-clear-button").click(function() {
+    $("#input-text").val('');
+    $("#input-format-1").prop("checked", false);
+    $("#input-format-2").prop("checked", false);
+
+    $("#method1").prop("checked", false);
+    $("#method2").prop("checked", false);
+    $("#method3").prop("checked", false);
+
+    $("#results").empty();
+    $(".display-result-search").empty();
+    $('#download-result').attr('disabled', 'disabled');
+    $("#error-message").text('');
+
+});
+$("#lexicon-clear-button").click(function() {
+    $("#inputSurface").val("");
+    $("#inputLemma").val("");
+    $("#inputMsd").val("");
+    $("#inputRhymesWith").val("");
+    $("#inputNoOfSyllables").val("");
+    $("#surface_is_regex").prop("checked", false);
+    $("#lemma_is_regex").prop("checked", false);
+    $("#msd_is_regex").prop("checked", false);
+    $("#lexicon-result-area").empty();
+    $("#lexicon-results-wrapper").empty();
+    $("#lexicon-results-wrapper").append("<table id='lexicon-results' class='table' cellspacing='0' width='100%'><thead><th>Lemma</th><th>Tag</th><th>Surface</th></thead></table>");
+    $("#error-message").text('');
+
+});
+
 var baseUrl = '/api/v1/';
 $('#search-form').submit(function(e) {
     e.preventDefault();
@@ -181,108 +283,110 @@ $('#lexicon-form').submit(function(e) {
 });
 $("#search-button").click(function(e) {
     e.preventDefault();
+    $("#error-message").text('');
 
     var text = $("#input-text").val();
+    var file = $('#tagger-file-chooser').val();
     var inputFormat = $('input[name="input-format"]:checked').val();
     var method = $('input[name="method"]:checked').val();
 
-    if (!text || !inputFormat || !method) {
+    if ((!file && !text) || !inputFormat || !method) {
+        console.log(file, text);
         return;
     }
 
     $(".display-result-search").empty();
-    var lang = 'hr';
+    var lang = $('#language').val();
     var url = baseUrl + lang + '/' + method;
-    var data = {
-        text: text !== '' ? text : null,
-        format: inputFormat
-    };
+    var data = new FormData();
+    data.append('format', inputFormat);
+    if (file) {
+        data.append('file', $('#tagger-file-chooser')[0].files[0]);
+    } else {
+        data.append('text', text)
+    }
 
     $("#search-button").text('Processing ...').attr('disabled', 'disabled');
     var sendDate = (new Date()).getTime();
     var trHTML = '';
     $('#results').empty();
+
     jQuery.ajax({
-        type: "GET",
+        type: "POST",
         dataType: inputFormat == 'json' ? 'json' : 'xml',
         url: url,
         data: data,
+        processData: false,
+        contentType: false,
         success: function(data, status, xml) {
-
+            $('#download-result').removeAttr('disabled');
             if (inputFormat == 'json') {
 
                 $("#result-area").text(JSON.stringify(data, null, 4));
                 if (method == "tag") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Start - End character index</th></tr></thead>");
                     $.each(data.tokens, function(i, item) {
-
-                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_tag></td></tr></tbody>';
-
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_tag></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
                     });
+                    var k=0;
                     $('#results').append(trHTML);
-                    $.each(data.POSTags, function(i, tags) {
-                        $.each(tags, function(j, tag) {
-                            $("#" + j + "_tag").html(tag.value);
-                        });
+                    $.each(data.POSTags, function(i, tag) {
+                        $("#" + k + "_tag").html(tag.value);
+                        k=k+1;
                     });
 
                 } else if (method == "lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Lemma</th><th>Start - End character index</th></tr></thead>");
                     $.each(data.tokens, function(i, item) {
-                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_lemma></td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_lemma></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
-
-                    $.each(data.lemmas, function(i, lemmas) {
-
-                        $.each(lemmas, function(j, lemma) {
-                            $("#" + j + "_lemma").html(lemma.value);
-                            //console.log(tag.value);
-                        });
+                    var k=0
+                    $.each(data.lemmas, function(i, lemma) {
+                        $("#" + k + "_lemma").html(lemma.value);
+                        k=k+1;
                     });
                 } else if (method == "tag_lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Lemma</th><th>Start - End character index</th></tr></thead>");
                     $.each(data.tokens, function(i, item) {
-                        trHTML += '<tbody><tr><td>' + item.value + '</td><td>' + item.startChar + '</td><td>' + item.endChar + '</td><td id=' + i + '_tag></td><td id=' + i + '_lemma></td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_tag></td><td id=' + i + '_lemma></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
-                    $.each(data.POSTags, function(i, tags) {
-                        $.each(tags, function(j, tag) {
-                            $("#" + j + "_tag").html(tag.value);
-                        });
+                    var k=0;
+                    $.each(data.POSTags, function(i, tag) {
+                        $("#" + k + "_tag").html(tag.value);
+                        k=k+1;
                     });
-                    $.each(data.lemmas, function(i, lemmas) {
-
-                        $.each(lemmas, function(j, lemma) {
-                            $("#" + j + "_lemma").html(lemma.value);
-                            //console.log(tag.value);
-                        });
+                    var m=0;
+                    $.each(data.lemmas, function(i, lemma) {
+                        $("#" + m + "_lemma").html(lemma.value);
+                        m=m+1;
                     });
                 }
             } else {
                 $("#result-area").text(xml.responseText);
                 if (method == "tag") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Start - End character index</th></tr></thead>");
                     $(xml.responseText).find("token").each(function(index) {
-                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_tag></td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_tag></td><td>' + $(this).attr("startChar") + '-' + $(this).attr("endChar") + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     $(xml.responseText).find("tag").each(function(index) {
                         $("#" + index + "_tag").html($(this).text());
                     });
                 } else if (method == "lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Lemmatise</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Lemmatise</th><th>Start - End character index</th></tr></thead>");
                     $(xml.responseText).find("token").each(function(index) {
-                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_lemma></td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_lemma></td><td>' + $(this).attr("startChar") + '-' + $(this).attr("endChar") + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     $(xml.responseText).find("lemma").each(function(index) {
                         $("#" + index + "_lemma").html($(this).text());
                     });
                 } else if (method == "tag_lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Start character index</th><th>End character index</th><th>Tag</th><th>Lemmatise</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Lemmatise</th><th>Start - End character index</th></tr></thead>");
                     $(xml.responseText).find("token").each(function(index) {
-                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td>' + $(this).attr("startChar") + '</td><td>' + $(this).attr("endChar") + '</td><td id=' + index + '_tag></td><td id=' + index + '_lemma></td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + $(this).text() + '</td><td id=' + index + '_tag></td><td id=' + index + '_lemma></td><td>' + $(this).attr("startChar") + '-' + $(this).attr("endChar") + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     $(xml.responseText).find("lemma").each(function(index) {
@@ -296,7 +400,8 @@ $("#search-button").click(function(e) {
 
         },
         error: function(response) {
-            $("#result-area").text(JSON.parse(response.responseText));
+            $('#download-result').attr('disabled', 'disabled');
+            $("#error-message").text(JSON.parse(response.responseText));
         },
         complete: function(data) {
             var receiveDate = (new Date()).getTime();
@@ -310,28 +415,21 @@ $("#search-button").click(function(e) {
 
 });
 $("#lexicon-button").click(function(e) {
-
     e.preventDefault();
+    $("#error-message").text('');
+
     var surface = $("#inputSurface").val();
     var lemma = $("#inputLemma").val();
     var msd = $("#inputMsd").val();
     var rhymes_with = $("#inputRhymesWith").val();
     var no_of_syllables = $("#inputNoOfSyllables").val();
 
-    var surface_is_regex = $("#surface_is_regex").val();
-    var lemma_is_regex = $("#lemma_is_regex").val();
-    var msd_is_regex = $("#msd_is_regex").val();
-    if($("#surface_is_regex").is(":checked")){
-        surface_is_regex=1;
-    }
-    if($("#lemma_is_regex").is(":checked")){
-        lemma_is_regex=1;
-    }
-    if($("#msd_is_regex").is(":checked")){
-        msd_is_regex=1;
-    }
+    var surface_is_regex = $("#surface_is_regex").is(":checked") ? 1 : 0;
+    var lemma_is_regex = $("#lemma_is_regex").is(":checked") ? 1 : 0;
+    var msd_is_regex = $("#msd_is_regex").is(":checked") ? 1 : 0;
+
     $(".display-result-search").empty();
-    var lang = 'hr';
+    var lang = $('#language').val();
     var method = 'lexicon';
     var inputFormat = 'json';
     var url = baseUrl + lang + '/' + method;
@@ -340,7 +438,10 @@ $("#lexicon-button").click(function(e) {
         lemma: lemma !== '' ? lemma : null,
         msd: msd !== '' ? msd : null,
         rhymes_with: rhymes_with !== '' ? rhymes_with : null,
-        no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null
+        no_of_syllables: no_of_syllables !== '' ? no_of_syllables : null,
+        surface_is_regex: surface_is_regex,
+        lemma_is_regex: lemma_is_regex,
+        msd_is_regex: msd_is_regex
     };
 
     $("#lexicon-button").text('Processing ...').attr('disabled', 'disabled');
@@ -350,54 +451,30 @@ $("#lexicon-button").click(function(e) {
         type: "GET",
         dataType: 'json',
         url: url,
-        data: data,
-        success: function(data) {
-            if (inputFormat == 'json') {
-                dataset = data.result;
-                var table = $('#lexicon-results').dataTable();
-                if (table == 'undefined') {
-                    var table = $('#lexicon-results').DataTable({
-                        data: dataset,
-                        columns: [{
-                            title: "Lemma"
-                        }, {
-                            title: "Tags"
-                        }, {
-                            title: "Surface from"
-                        }]
-                    });
-                } else {
-                    table.fnClearTable();
-                    if (dataset.length > 0) {
-                        table.fnAddData(dataset);
-                    }
-                }
-
-                  $('#lexicon-results tr.even,tr.odd').mouseover(function(){
-                      $.get("/api/v1/dictionary",function(data){
-                        //var response = JSON.stringify(data, null, 4);
-                        //console.log(data.query);
-                          $('tr').append('<span>'+data.query.name+'</span>');
-                      },"json")
-                  }).mouseout(function (){
-                      $('span').remove();
-                  })
-
-                $("#lexicon-result-area").text(JSON.stringify(dataset));
-            } else {
-
+        data: data
+    }).success(function(data) {
+        dataset = data.result;
+        var table = $('#lexicon-results').dataTable();
+        if (table == 'undefined') {
+            var table = $('#lexicon-results').DataTable({
+                data: dataset,
+                columns: [{ title: "Surface from" }, { title: "Tags" }, { title: "Lemma" }]
+            });
+        } else {
+            table.fnClearTable();
+            if (dataset.length > 0) {
+                table.fnAddData(dataset);
             }
-        },
-        error: function(response) {
-            $("#result-area").text(JSON.parse(response.responseText));
-        },
-        complete: function(data) {
-            var receiveDate = (new Date()).getTime();
-            var responseTimeMs = receiveDate - sendDate;
-            var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
-            $('#response-time').text(responseTimeText);
-            $("#lexicon-button").text('Process').removeAttr('disabled');
         }
+        $("#lexicon-result-area").text(JSON.stringify(dataset));
+    }).fail(function(response) {
+        $("#result-area").text(JSON.parse(response.responseText));
+    }).always(function(data) {
+        var receiveDate = (new Date()).getTime();
+        var responseTimeMs = receiveDate - sendDate;
+        var responseTimeText = ' (response time: ' + (responseTimeMs / 1000.0) + 's)';
+        $('#response-time').text(responseTimeText);
+        $("#lexicon-button").text('Process').removeAttr('disabled');
     });
 });
 

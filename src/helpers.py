@@ -68,11 +68,6 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=T
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
-        output['sentences'].append([])
-        if lemma_idx is not None:
-            output['lemmas'].append([])
-        if tag_idx is not None:
-            output['POSTags'].append([])
 
         for token in sentence:
             output['tokens'].append({
@@ -83,22 +78,22 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=T
             })
             token_ids.append("t_" + str(token_id))
             if lemma_idx is not None:
-                output['lemmas'][-1].append({
+                output['lemmas'].append({
                     'ID': 'le_' + str(token_id),
                     'tokenIDs': 't_' + str(token_id),
                     'value': token[lemma_idx]
                 })
 
             if tag_idx is not None:
-                output['POSTags'][-1].append({
+                output['POSTags'].append({
                     'ID': 'pt_' + str(token_id),
                     'tokenIDs': 't_' + str(token_id),
                     'value': token[tag_idx]
                 })
 
-            token_id += 1;
+            token_id += 1
 
-        output['sentences'][-1].append({
+        output['sentences'].append({
             'ID': 's_' + str(s_idx),
             'tokenIDs': " ".join(token_ids)
         })

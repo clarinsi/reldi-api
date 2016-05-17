@@ -40,13 +40,17 @@ class ImportLexiconCommand(Command):
                 no_of_syllables INTEGER,
                 last_syllable TEXT
             );
-            CREATE INDEX lemma_idx ON lexicon (lemma);
-            CREATE INDEX surface_idx ON lexicon (surface);
-            CREATE INDEX tags_idx ON lexicon (tags);
-            CREATE INDEX tags_idx ON lexicon (lemma, surface, tags);
         """
+        self.db.script(statement)
 
-        self.db.command(statement)
+        indexes = [
+            "CREATE INDEX lemma_idx ON lexicon (lemma);"
+            "CREATE INDEX surface_idx ON lexicon (surface);"
+            "CREATE INDEX tags_idx ON lexicon (tags);"
+            "CREATE INDEX compound_idx ON lexicon (lemma, surface, tags);"
+        ]
+        for index in indexes:
+            self.db.script(index)
 
     def insertLexiconEntry(self, line):
         tokens = line.split("\t")
@@ -64,10 +68,11 @@ class ImportLexiconCommand(Command):
             idx_to = idxs[1] + 1
             last_syllable = surface[idx_from:idx_to]
 
-        no_syl = len(r_syl.findall(surface)) + 1;
+        no_syl = len(r_syl.findall(surface)) + 1
+
         # Insert row into database
-        sql = "INSERT INTO lexicon (surface, lemma, tags, no_of_syllables, last_syllable) VALUES (?, ?, ?, ?, ?)"
-        self.db.command(sql, (surface, lemma, tags, no_syl, last_syllable.encode('utf-8')))
+        sql = "INSERT INTO lexicon (surface, lemma, tags, no_of_syllables, last_syllable) VALUES (?, ?, ?, ?, ?);"
+        self.db.command(sql, (surface.encode('utf-8'), lemma.encode('utf-8'), tags.encode('utf-8'), no_syl, last_syllable.encode('utf-8')))
 
     def execute(self, i, o):
         """
@@ -82,10 +87,10 @@ class ImportLexiconCommand(Command):
         language = i.get_argument('lang')
 
         # Initialize database
-        self.db = LexiconDB(language);
+        self.db = LexiconDB.getInstance(language)
 
         # Create table
-        self.createTable();
+        self.createTable()
         count = 0
         # Read lexicon and import lines
         with codecs.open(path, 'r', encoding='utf-8') as lexfile:
