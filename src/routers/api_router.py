@@ -182,48 +182,44 @@ class ApiRouter(Blueprint):
                 filePath = os.path.join(self.config['UPLOAD_FOLDER'], authToken.user_id.__str__())
 
                 raw = result.get_data()
-                # try:
-                data = json.loads(raw)
-                csvResult = []
-                posTags = {}
-                lemmas = {}
-                tokens = {}
+                try:
+                    data = json.loads(raw)
+                    csvResult = []
+                    posTags = {}
+                    lemmas = {}
+                    tokens = {}
 
-                if 'POSTags' in data:
-                    for tag in data['POSTags']:
-                        posTags[tag['tokenIDs']] = tag
+                    if 'POSTags' in data:
+                        for tag in data['POSTags']:
+                            posTags[tag['tokenIDs']] = tag
 
-                if 'lemmas' in data:
-                    for lemma in data['lemmas']:
-                        lemmas[lemma['tokenIDs']] = lemma
+                    if 'lemmas' in data:
+                        for lemma in data['lemmas']:
+                            lemmas[lemma['tokenIDs']] = lemma
 
-                if 'tokens' in data:
-                    for token in data['tokens']:
-                        tokens[token['ID']] = token
+                    if 'tokens' in data:
+                        for token in data['tokens']:
+                            tokens[token['ID']] = token
 
-                for sentence in data['sentences']:
-                    for tid in sentence['tokenIDs'].split(' '):
+                    for sentence in data['sentences']:
+                        for tid in sentence['tokenIDs'].split(' '):
+                            csvResult.append([])
+                            token = tokens[tid]
+                            csvResult[-1].append(token['value'])
+                            if tid in posTags:
+                                csvResult[-1].append(posTags[tid]['value'])
+                            if tid in lemmas:
+                                csvResult[-1].append(lemmas[tid]['value'])
+                            csvResult[-1].append(token['startChar'] + ' - ' + token['endChar'])
                         csvResult.append([])
-                        token = tokens[tid]
-                        csvResult[-1].append(token['value'])
-                        if tid in posTags:
-                            csvResult[-1].append(posTags[tid]['value'])
-                        if tid in lemmas:
-                            csvResult[-1].append(lemmas[tid]['value'])
-                        csvResult[-1].append(token['startChar'] + ' - ' + token['endChar'])
-                    csvResult.append([])
 
+                    with open(filePath, 'w') as f:
+                        w = csv.writer(f, delimiter="\t")
+                        w.writerows(csvResult)
 
-
-                print csvResult
-
-                with open(filePath, 'w') as f:
-                    w = csv.writer(f, delimiter="\t")
-                    w.writerows(csvResult)
-
-                # except:
-                #     with open(filePath, 'w') as f:
-                #         f.write(raw)
+                except:
+                    with open(filePath, 'w') as f:
+                        f.write(raw)
 
                 return result
 
