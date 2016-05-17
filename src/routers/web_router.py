@@ -6,6 +6,7 @@ from flask import Blueprint
 from flask import render_template, request, flash, Response, session
 from flask import redirect, make_response, url_for, send_from_directory
 from functools import wraps
+from datetime import datetime,timedelta
 
 from ..helpers import generate_token
 
@@ -145,6 +146,74 @@ class WebRouter(Blueprint):
                 return make_response(redirect(url_for('.register')))
 
             return render_template('register_success.html', login_url=url_for('.login'))
+
+        @self.route('/forgot_password')
+        def forgot_password():
+            form = session.get('form', {})
+            if 'form' in session:
+                del session['form']
+            return render_template('forgot_password.html', form=form)
+
+        @self.route('/forgot_password', methods=["POST"])
+        def forgot_password_send_email():
+                email = request.form.get("email")
+                user = UserModel.getByEmail(email)
+                if user is not None:
+                    user.password_reset_token = generate_token()
+                    user.password_reset_expiration_token= datetime.now()
+                    user.save()
+
+                    dc['mail_service'].sendEmailForgotPasswordEmail(
+                        user.username,
+                        user.email,
+                        url_for('.forgot_password_email', password_reset_token=user.password_reset_token, _external=True))
+
+                    return render_template('forgot_password_email_sent.html')
+                else:
+                    flash('This e-mail does not exist in our database', 'danger')
+                    return make_response(redirect(url_for('.forgot_password')))
+
+        @self.route('/forgot_password_email/<password_reset_token>', methods=["GET"])
+        def forgot_password_email(password_reset_token):
+            try:
+                user = UserModel.getByAttributeSingle('password_reset_token', password_reset_token)
+                if user is not None:
+                    if (datetime.now() - datetime.strptime(user.password_reset_expiration_token,'%Y-%m-%d %H:%M:%S.%f')) < timedelta(minutes = 15):
+                        return render_template('reset_password.html', user_id=user.id, password_reset_token=password_reset_token)
+                    else:
+                        flash('Your password reset token is expired.', 'danger')
+                        return make_response(redirect(url_for('.forgot_password')))
+                else:
+                    flash('Your token is not valid anymore. Get new one!' , 'danger')
+                    return make_response(redirect(url_for('.forgot_password')))
+                    
+            except ValueError as e:
+                flash(e.message, 'danger')
+                return make_response(redirect(url_for('.forgot_password')))
+
+        @self.route('/reset_password')
+        def reset_password():
+            form = session.get('form', {})
+            if 'form' in session:
+                del session['form']
+            return render_template('reset_password.html', form=form)
+
+        @self.route('/reset_password', methods=["POST"])
+        def do_reset_password():
+            password = request.form.get("password")
+            confirm_password = request.form.get("confirm_password")
+            user_id = request.form.get("user_id")
+            password_reset_token = request.form.get("password_reset_token")
+
+            user = UserModel.getByAttributesSingle(['id', 'password_reset_token'], [user_id, password_reset_token])
+            if request.form.get("password") != request.form.get("confirm_password"):
+                session['form'] = request.form
+                flash('Passwords do not match', 'danger')
+                return make_response(redirect(url_for('.forgot_password_email', password_reset_token=password_reset_token)))
+
+            user.setPassword(request.form.get("password"))
+            user.save()
+            return render_template('reset_success.html',login_url=url_for('.login'))
 
         @self.route('/confirm_email/<activation_token>', methods=["GET"])
         def confirm_email(activation_token):

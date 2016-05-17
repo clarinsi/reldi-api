@@ -24,7 +24,7 @@ class UsersDB(DB):
     @staticmethod
     def getInstance():
         assetsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../assets/')
-    
+
         databaseName = assetsPath + '/users';
         if (UsersDB._instance is None):
             UsersDB._instance = UsersDB(DB._THE_MAGIC_WORD)
@@ -34,7 +34,7 @@ class UsersDB(DB):
                 UsersDB._instance._connection.text_factory = str
                 UsersDB._instance._connection.row_factory = dict_factory
                 UsersDB._instance._client = UsersDB._instance._connection.cursor()
-            
+
             UsersDB._instance.__createTables()
 
         return UsersDB._instance
@@ -66,6 +66,8 @@ class UsersDB(DB):
                 updated TEXT NOT NULL,
                 created TEXT NOT NULL,
                 activation_token TEXT,
+                password_reset_token TEXT,
+                password_reset_expiration_token TEXT,
                 CHECK (role IN ("admin", "user"))
                 CHECK (status IN ("pending", "blocked", "active", "not-verified"))
             );
@@ -86,6 +88,3 @@ class UsersDB(DB):
             );
         """
         db.command(statement)
-
-
-
