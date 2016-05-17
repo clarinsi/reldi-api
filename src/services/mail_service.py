@@ -9,9 +9,6 @@ class MailService(object):
     MAILBOX_USERNAME = 'projectreldi@gmail.com'
     MAILBOX_PASSWORD = 'linguistics1020'
 
-    def __init__(self):
-        self.client = mandrill.Mandrill(MailService.MANDRILL_KEY)
-
     def sendEmailConfirmationEmail(self, username, email, confirm_email_url):
 
         sender = 'projectreldi@gmail.com'
