@@ -1,5 +1,4 @@
 import smtplib
-import mandrill
 from smtplib import SMTPException
 
 
