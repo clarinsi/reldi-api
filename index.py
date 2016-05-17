@@ -47,18 +47,18 @@ def init():
 
     web_router = WebRouter(dc)
     app.register_blueprint(web_router, url_prefix='/web')
-    #
-    # @app.errorhandler(Exception)
-    # def handle_error(error):
-    #     '''
-    #     @param error:
-    #     @type error: string
-    #     @return:
-    #     @rtype: string
-    #     '''
-    #     app.logger.error(error)
-    #     response = jsonify(error.message)
-    #     return response, error.status_code if hasattr(error, 'status_code') else 500
+
+    @app.errorhandler(Exception)
+    def handle_error(error):
+        '''
+        @param error:
+        @type error: string
+        @return:
+        @rtype: string
+        '''
+        app.logger.error(error)
+        response = jsonify(error.message)
+        return response, error.status_code if hasattr(error, 'status_code') else 500
 
     @app.route('/', methods=['GET'])
     def main():
