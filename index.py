@@ -13,8 +13,8 @@ from src.api.lematiser import Lematiser
 
 from src.routers.api_router import ApiRouter
 from src.routers.web_router import WebRouter
-
 from src.services.mail_service import MailService
+from src.helpers import jsonify
 
 from flask import make_response, redirect
 
@@ -47,6 +47,18 @@ def init():
 
     web_router = WebRouter(dc)
     app.register_blueprint(web_router, url_prefix='/web')
+    #
+    # @app.errorhandler(Exception)
+    # def handle_error(error):
+    #     '''
+    #     @param error:
+    #     @type error: string
+    #     @return:
+    #     @rtype: string
+    #     '''
+    #     app.logger.error(error)
+    #     response = jsonify(error.message)
+    #     return response, error.status_code if hasattr(error, 'status_code') else 500
 
     @app.route('/', methods=['GET'])
     def main():

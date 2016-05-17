@@ -12,7 +12,7 @@ from ..models.auth_token_model import AuthTokenModel
 import re
 import os
 import json
-
+import csv
 
 class ServerError(Exception):
     status_code = 500
@@ -165,7 +165,6 @@ class ApiRouter(Blueprint):
             return verify
 
         def save_file(api_method):
-
             @wraps(api_method)
             def post_request(*args, **kwargs):
                 auth_token_string = request.cookies.get('auth-token')
@@ -181,8 +180,50 @@ class ApiRouter(Blueprint):
 
                 result = api_method(*args, **kwargs)
                 filePath = os.path.join(self.config['UPLOAD_FOLDER'], authToken.user_id.__str__())
+
+                raw = result.get_data()
+                # try:
+                data = json.loads(raw)
+                csvResult = []
+                posTags = {}
+                lemmas = {}
+                tokens = {}
+
+                if 'POSTags' in data:
+                    for tag in data['POSTags']:
+                        posTags[tag['tokenIDs']] = tag
+
+                if 'lemmas' in data:
+                    for lemma in data['lemmas']:
+                        lemmas[lemma['tokenIDs']] = lemma
+
+                if 'tokens' in data:
+                    for token in data['tokens']:
+                        tokens[token['ID']] = token
+
+                for sentence in data['sentences']:
+                    for tid in sentence['tokenIDs'].split(' '):
+                        csvResult.append([])
+                        token = tokens[tid]
+                        csvResult[-1].append(token['value'])
+                        if tid in posTags:
+                            csvResult[-1].append(posTags[tid]['value'])
+                        if tid in lemmas:
+                            csvResult[-1].append(lemmas[tid]['value'])
+                        csvResult[-1].append(token['startChar'] + ' - ' + token['endChar'])
+                    csvResult.append([])
+
+
+
+                print csvResult
+
                 with open(filePath, 'w') as f:
-                    f.write(result.get_data())
+                    w = csv.writer(f, delimiter="\t")
+                    w.writerows(csvResult)
+
+                # except:
+                #     with open(filePath, 'w') as f:
+                #         f.write(raw)
 
                 return result
 
@@ -385,6 +426,7 @@ class ApiRouter(Blueprint):
 
         @self.route('/<lang>/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate
+        @save_file
         def tag_lematise(lang):
             '''
 
@@ -410,6 +452,7 @@ class ApiRouter(Blueprint):
 
         @self.route('/<lang>/lemmatise', methods=['GET', 'POST'])
         @authenticate
+        @save_file
         def lemmatise(lang):
             '''
 

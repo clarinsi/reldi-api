@@ -151,6 +151,10 @@
                 <ul class="nav nav-pills">
                     <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
                     <li class=""><a data-toggle="tab" href="#raw-results">Raw</a></li>
+                    <li class="">
+                        <a id="download-result" href="{{ url_for('web_router.download') }}" target="_blank" class="btn btn-default"
+                            style="margin: 0; text-transform: none;">Download</a>
+                    </li>
                 </ul>
                 <div class="bs-component">
                     <div class="tab-content">
@@ -170,18 +174,16 @@
                         </div>
                         <div id="raw-results" class="form-horizontal  tab-pane fade">
                             <div class="col-md-12">
-                            <textarea id="result-area" readonly="readonly" class="form-control" rows="20"></textarea>
-                            <textarea id="lexicon-result-area" readonly="readonly" class="form-control" rows="20"></textarea>
+                                <textarea id="result-area" readonly="readonly" class="form-control" rows="20"></textarea>
+                                <textarea id="lexicon-result-area" readonly="readonly" class="form-control" rows="20"></textarea>
                             </div>
                         </div>
                         <div class="help-block">
                             Result set
                             <span id="response-time"></span>
                         </div>
+                        <div id="error-message"></div>
                     </div>
-                </div>
-                <div>
-                    <a id="download-result" href="{{ url_for('web_router.download') }}" target="_blank" class="btn btn-primary btn-md">Download</a>
                 </div>
             </div>
         </div>
@@ -199,7 +201,7 @@ function showSearch(e) {
     $('#results').show();
     $('#result-area').show();
     $('#download-result').show();
-
+    $("#error-message").text('');
 }
 
 function showLexicon() {
@@ -208,11 +210,12 @@ function showLexicon() {
     $('#results').hide();
     $('#result-area').hide();
     $('#download-result').hide();
+    $("#error-message").text('');
 }
 $("#lexicon_link").click(showLexicon);
 $("#search_link").click(showSearch);
 showSearch();
-
+$('#download-result').attr('disabled', 'disabled');
 
 
 function xmlToString(xmlData) {
@@ -251,6 +254,9 @@ $("#tagger-clear-button").click(function() {
 
     $("#results").empty();
     $(".display-result-search").empty();
+    $('#download-result').attr('disabled', 'disabled');
+    $("#error-message").text('');
+
 });
 $("#lexicon-clear-button").click(function() {
     $("#inputSurface").val("");
@@ -264,6 +270,7 @@ $("#lexicon-clear-button").click(function() {
     $("#lexicon-result-area").empty();
     $("#lexicon-results-wrapper").empty();
     $("#lexicon-results-wrapper").append("<table id='lexicon-results' class='table' cellspacing='0' width='100%'><thead><th>Lemma</th><th>Tag</th><th>Surface</th></thead></table>");
+    $("#error-message").text('');
 
 });
 
@@ -276,6 +283,7 @@ $('#lexicon-form').submit(function(e) {
 });
 $("#search-button").click(function(e) {
     e.preventDefault();
+    $("#error-message").text('');
 
     var text = $("#input-text").val();
     var file = $('#tagger-file-chooser').val();
@@ -302,6 +310,7 @@ $("#search-button").click(function(e) {
     var sendDate = (new Date()).getTime();
     var trHTML = '';
     $('#results').empty();
+
     jQuery.ajax({
         type: "POST",
         dataType: inputFormat == 'json' ? 'json' : 'xml',
@@ -310,62 +319,48 @@ $("#search-button").click(function(e) {
         processData: false,
         contentType: false,
         success: function(data, status, xml) {
-
+            $('#download-result').removeAttr('disabled');
             if (inputFormat == 'json') {
 
                 $("#result-area").text(JSON.stringify(data, null, 4));
                 if (method == "tag") {
                     $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Start - End character index</th></tr></thead>");
-
                     $.each(data.tokens, function(i, item) {
-
                         trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_tag></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
-
                     });
                     var k=0;
                     $('#results').append(trHTML);
-                    $.each(data.POSTags, function(i, tags) {
-
-                        $.each(tags, function(j, tag) {
-                            $("#" + k + "_tag").html(tag.value);
-                            k=k+1;
-                        });
+                    $.each(data.POSTags, function(i, tag) {
+                        $("#" + k + "_tag").html(tag.value);
+                        k=k+1;
                     });
 
                 } else if (method == "lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Lemmatise</th><th>Start - End character index</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Lemma</th><th>Start - End character index</th></tr></thead>");
                     $.each(data.tokens, function(i, item) {
                         trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_lemma></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     var k=0
-                    $.each(data.lemmas, function(i, lemmas) {
-
-                        $.each(lemmas, function(j, lemma) {
-                            $("#" + k + "_lemma").html(lemma.value);
-                            k=k+1;
-                        });
+                    $.each(data.lemmas, function(i, lemma) {
+                        $("#" + k + "_lemma").html(lemma.value);
+                        k=k+1;
                     });
                 } else if (method == "tag_lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Lemmatise</th><th>Start - End character index</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Lemma</th><th>Start - End character index</th></tr></thead>");
                     $.each(data.tokens, function(i, item) {
                         trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_tag></td><td id=' + i + '_lemma></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     var k=0;
-                    $.each(data.POSTags, function(i, tags) {
-                        $.each(tags, function(j, tag) {
-                            $("#" + k + "_tag").html(tag.value);
-                            k=k+1;
-                        });
+                    $.each(data.POSTags, function(i, tag) {
+                        $("#" + k + "_tag").html(tag.value);
+                        k=k+1;
                     });
                     var m=0;
-                    $.each(data.lemmas, function(i, lemmas) {
-
-                        $.each(lemmas, function(j, lemma) {
-                            $("#" + m + "_lemma").html(lemma.value);
-                            m=m+1;
-                        });
+                    $.each(data.lemmas, function(i, lemma) {
+                        $("#" + m + "_lemma").html(lemma.value);
+                        m=m+1;
                     });
                 }
             } else {
@@ -405,7 +400,8 @@ $("#search-button").click(function(e) {
 
         },
         error: function(response) {
-            $("#result-area").text(JSON.parse(response.responseText));
+            $('#download-result').attr('disabled', 'disabled');
+            $("#error-message").text(JSON.parse(response.responseText));
         },
         complete: function(data) {
             var receiveDate = (new Date()).getTime();
@@ -419,8 +415,9 @@ $("#search-button").click(function(e) {
 
 });
 $("#lexicon-button").click(function(e) {
-
     e.preventDefault();
+    $("#error-message").text('');
+
     var surface = $("#inputSurface").val();
     var lemma = $("#inputLemma").val();
     var msd = $("#inputMsd").val();
