@@ -173,12 +173,11 @@ class WebRouter(Blueprint):
         def forgot_password_email(password_reset_token):
             try:
                 user = UserModel.getByAttributeSingle('password_reset_token', password_reset_token)
-                #print(datetime.now() - datetime.strptime(user.password_reset_expiration_token,'%Y-%m-%d %H:%M:%S.%f'))
                 if user is not None:
-                    if (datetime.now() - datetime.strptime(user.password_reset_expiration_token,'%Y-%m-%d %H:%M:%S.%f')) <  timedelta(minutes = 15):
-                        return render_template('reset_password.html',user_id=user.id,password_reset_token=password_reset_token)
+                    if (datetime.now() - datetime.strptime(user.password_reset_expiration_token,'%Y-%m-%d %H:%M:%S.%f')) < timedelta(minutes = 15):
+                        return render_template('reset_password.html', user_id=user.id, password_reset_token=password_reset_token)
                     else:
-                        flash('Your token is expired. Get new one!' , 'danger')
+                        flash('Your password reset token is expired.', 'danger')
                         return make_response(redirect(url_for('.forgot_password')))
                 else:
                     flash('Your token is not valid anymore. Get new one!' , 'danger')
@@ -197,16 +196,16 @@ class WebRouter(Blueprint):
 
         @self.route('/reset_password', methods=["POST"])
         def do_reset_password():
-            password=request.form.get("password")
-            confirm_password=request.form.get("confirm_password")
-            user_id=request.form.get("user_id")
-            password_reset_token=request.form.get("password_reset_token")
+            password = request.form.get("password")
+            confirm_password = request.form.get("confirm_password")
+            user_id = request.form.get("user_id")
+            password_reset_token = request.form.get("password_reset_token")
 
-            user = UserModel.getByAttributesSingle(['id','password_reset_token'],[user_id,password_reset_token])
+            user = UserModel.getByAttributesSingle(['id', 'password_reset_token'], [user_id, password_reset_token])
             if request.form.get("password") != request.form.get("confirm_password"):
                 session['form'] = request.form
                 flash('Passwords do not match', 'danger')
-                return make_response(redirect(url_for('.reset_password')))
+                return make_response(redirect(url_for('.forgot_password_email', password_reset_token=password_reset_token)))
 
             user.setPassword(request.form.get("password"))
             user.save()
