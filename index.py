@@ -10,6 +10,7 @@ from src.api.lexicon import Lexicon
 from src.api.segmenter import Segmenter
 from src.api.tagger import Tagger
 from src.api.lematiser import Lematiser
+from src.api.restorer import DiacriticRestorer
 
 from src.routers.api_router import ApiRouter
 from src.routers.web_router import WebRouter
@@ -21,14 +22,12 @@ from flask import make_response, redirect
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-
 def init():
     app = Flask(__name__)
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['UPLOAD_FOLDER'] = os.path.dirname(os.path.realpath(__file__)) + '/uploads/'
 
-    print app.config['UPLOAD_FOLDER']
     CORS(app)
 
     print 'Initializing models'
@@ -38,6 +37,7 @@ def init():
         dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
         dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
         dc['lexicon.' + lang] = lambda: Lexicon(lang)
+        dc['restorer.'+lang] = lambda: DiacriticRestorer(lang, dc['segmenter.' + lang])
 
     dc['mail_service'] = lambda: MailService()
     print 'Models initialized'
@@ -67,13 +67,12 @@ def init():
     return app
 
 
-def index():
-    application = init()
-    application.run()
+application = init()
+#application.run()
 
 if __name__ == "__main__":
 
-    # text = 'Modeli su učitani! Vrlo uspješno.'
+    text = 'Modeli su učitani! Vrlo uspješno.'
 
     # lemmatiser = dc['lemmatiser.hr']
     # tagger = dc['tagger.hr']

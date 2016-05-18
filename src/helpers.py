@@ -57,13 +57,14 @@ def jsonResponse(query, data):
     }, ensure_ascii=False)
 
 
-def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=True):
+def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, output_sentences=True):
     output = {}
     output['text'] = text
     output['tokens'] = []
     output['sentences'] = []
     output['lemmas'] = []
     output['POSTags'] = []
+    output['orthography'] = []
 
     token_id = 0
     for s_idx, sentence in enumerate(result):
@@ -90,6 +91,12 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=T
                     'tokenIDs': 't_' + str(token_id),
                     'value': token[tag_idx]
                 })
+            if correction_idx is not None:
+                output['orthography'].append({
+                    'ID': 'pt_' + str(token_id),
+                    'tokenIDs': 't_' + str(token_id),
+                    'value': token[correction_idx]
+                })
 
             token_id += 1
 
@@ -106,16 +113,20 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=T
 
     if len(output['lemmas']) == 0:
         del output['lemmas']
+    
+    if len(output['orthography']) == 0:
+        del output['orthography']
 
     return output
 
 
-def TCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=True):
+def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, output_sentences=True):
     output = ''
     sentence_output = ''
     token_output = ''
     tags_output = ''
     lemmas_output = ''
+    orthography_output = ''
 
     token_id = 0
     for s_idx, sentence in enumerate(result):
@@ -134,6 +145,9 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=True)
             if tag_idx is not None:
                 tags_output += "<tag ID=\"pt_{0}\" tokenIDs=\"t_{0}\">{1}</tag>".format(token_id, token[tag_idx])
 
+            if correction_idx is not None:
+                orthography_output += "<correction ID=\"pt_{0}\" tokenIDs=\"t_{0}\">{1}</correction>".format(token_id, token[correction_idx])
+
             token_id += 1
 
         sentence_output += "<sentence ID=\"s_{0}\" tokenIDs=\"{1}\" />".format(s_idx, " ".join(token_ids))
@@ -145,6 +159,8 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, output_sentences=True)
         output += "<lemmas>" + lemmas_output + "</lemmas>"
     if not empty(tags_output):
         output += "<POStags tagset=\"mte-hr-v4r\">" + tags_output + "</POStags>"
+    if not empty(orthography_output):
+        output += "<orthography>" + orthography_output + "</orthography>"
 
     output = """<?xml version="1.0" encoding="UTF-8"?>
     <D-Spin xmlns="http://www.dspin.de/data" version="0.4">

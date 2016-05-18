@@ -396,6 +396,29 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result), mimetype='text/xml')
 
+        @self.route('/<lang>/restore', methods=['GET', 'POST'])
+        @authenticate
+        def restore(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
+            format = get_format(request)
+            if not isset(format):
+                raise InvalidUsage('Please specify a format', status_code=422)
+
+            text = get_text(format, request)
+            restorer = dc['restorer.' + lang]
+            result = restorer.restore(text)
+            if format == 'json':
+                return jsonify(jsonTCF(lang, text, result, correction_idx=1), ensure_ascii=False)
+            elif format == 'tcf':
+                return Response(TCF(lang, text, result, correction_idx=1), mimetype='text/xml')
+
+
 
         @self.route('/<lang>/tag', methods=['GET', 'POST'])
         @authenticate
