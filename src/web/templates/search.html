@@ -19,7 +19,8 @@
                                 <div class="form-group">
                                     <label for="input-text" class="col-md-2 control-label">Text</label>
                                     <div class="col-md-9 col-md-offset-2">
-                                        <textarea class="form-control" rows="10" id="input-text"></textarea>
+                                        <textarea class="form-control" rows="10" id="input-text"
+                                                  style="border: 1px solid #E8E7E7;"></textarea>
                                     </div>
                                 </div>
                                 <div class="separator"><span>or</span></div>
@@ -121,12 +122,12 @@
                                     </label>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>
-                                <div class="col-md-10">
-                                    <input type="text" class="form-control" id="inputRhymesWith">
-                                </div>
-                            </div>
+                            <!--<div class="form-group">-->
+                                <!--<label for="inputRhymesWith" class="col-md-2 control-label">Rhymes with</label>-->
+                                <!--<div class="col-md-10">-->
+                                    <!--<input type="text" class="form-control" id="inputRhymesWith">-->
+                                <!--</div>-->
+                            <!--</div>-->
                             <div class="form-group">
                                 <label for="inputNoOfSyllables" class="col-md-2 control-label">No of syllables</label>
                                 <div class="col-md-10">
@@ -324,9 +325,9 @@ $("#search-button").click(function(e) {
 
                 $("#result-area").text(JSON.stringify(data, null, 4));
                 if (method == "tag") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Start - End character index</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Start - End index</th></tr></thead>");
                     $.each(data.tokens, function(i, item) {
-                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_tag></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_tag></td><td>' + item.startChar + ' - ' + item.endChar + '</td></tr></tbody>';
                     });
                     var k=0;
                     $('#results').append(trHTML);
@@ -336,9 +337,9 @@ $("#search-button").click(function(e) {
                     });
 
                 } else if (method == "lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Lemma</th><th>Start - End character index</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Lemma</th><th>Start - End index</th></tr></thead>");
                     $.each(data.tokens, function(i, item) {
-                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_lemma></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_lemma></td><td>' + item.startChar + ' - ' + item.endChar + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     var k=0
@@ -347,9 +348,9 @@ $("#search-button").click(function(e) {
                         k=k+1;
                     });
                 } else if (method == "tag_lemmatise") {
-                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Lemma</th><th>Start - End character index</th></tr></thead>");
+                    $("#results").append("<thead><tr><th>Token</th><th>Tag</th><th>Lemma</th><th>Start - End index</th></tr></thead>");
                     $.each(data.tokens, function(i, item) {
-                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_tag></td><td id=' + i + '_lemma></td><td>' + item.startChar + '-' + item.endChar + '</td></tr></tbody>';
+                        trHTML += '<tbody><tr><td>' + item.value + '</td><td id=' + i + '_tag></td><td id=' + i + '_lemma></td><td>' + item.startChar + ' - ' + item.endChar + '</td></tr></tbody>';
                     });
                     $('#results').append(trHTML);
                     var k=0;

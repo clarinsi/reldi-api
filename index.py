@@ -28,7 +28,6 @@ def init():
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['UPLOAD_FOLDER'] = os.path.dirname(os.path.realpath(__file__)) + '/uploads/'
 
-    print app.config['UPLOAD_FOLDER']
     CORS(app)
 
     print 'Initializing models'
