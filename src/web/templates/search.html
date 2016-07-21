@@ -153,7 +153,7 @@
                     <li class="active"><a data-toggle="tab" href="#table-results">Table</a></li>
                     <li class=""><a data-toggle="tab" href="#raw-results">Raw</a></li>
                     <li class="">
-                        <a id="download-result" href="{{ url_for('web_router.download') }}" target="_blank" class="btn btn-default"
+                        <a id="download-result" href="{{ url_for('web_router.download', requestId='') }}" target="_blank" class="btn btn-default"
                             style="margin: 0; text-transform: none;">Download</a>
                     </li>
                 </ul>
@@ -195,6 +195,13 @@
 
 {% block scripts %}
 <script>
+
+function generateGuid() {
+     var S4 = function() {
+        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    };
+    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+}
 
 function showSearch(e) {
     $('#lexicon-results-wrapper').hide();
@@ -301,6 +308,9 @@ $("#search-button").click(function(e) {
     var url = baseUrl + lang + '/' + method;
     var data = new FormData();
     data.append('format', inputFormat);
+
+    var requestId = generateGuid();
+    data.append('request-id', requestId);
     if (file) {
         data.append('file', $('#tagger-file-chooser')[0].files[0]);
     } else {
@@ -320,7 +330,9 @@ $("#search-button").click(function(e) {
         processData: false,
         contentType: false,
         success: function(data, status, xml) {
-            $('#download-result').removeAttr('disabled');
+
+            var downloadLink = "{{ url_for('web_router.download', requestId='') }}" + requestId;
+            $('#download-result').removeAttr('disabled').attr('href', downloadLink);
             if (inputFormat == 'json') {
 
                 $("#result-area").text(JSON.stringify(data, null, 4));
