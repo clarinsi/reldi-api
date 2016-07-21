@@ -233,13 +233,11 @@ class WebRouter(Blueprint):
         def query():
             return render_template('search.html')
 
-        @authenticate(['user'])
-        @self.route('/download', methods=['GET'])
-        def download():
-            auth_token_string = request.cookies.get('auth-token')
-            authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
 
-            return send_from_directory(directory=self.config['UPLOAD_FOLDER'], filename=authToken.user_id.__str__())
+        @authenticate(['user'])
+        @self.route('/download/<requestId>', methods=['GET'])
+        def download(requestId):
+            return send_from_directory(directory=self.config['UPLOAD_FOLDER'], filename=requestId)
 
 
         @self.route('/user/<id>/edit', methods=["GET"])

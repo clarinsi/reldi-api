@@ -78,7 +78,7 @@ class Lexicon(object, ):
 
         # Set number of syllables
         if no_of_syllables is not None:
-            expr.where('no_of_syllables', '=', no_of_syllables)
+            expr.where('no_of_syllables', '=', int(no_of_syllables) + 1)
 
         # Set number of syllables
         if rhymes_with is not None:

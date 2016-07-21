@@ -179,7 +179,7 @@ class ApiRouter(Blueprint):
                     raise Unauthorized('Invalid token')
 
                 result = api_method(*args, **kwargs)
-                filePath = os.path.join(self.config['UPLOAD_FOLDER'], authToken.user_id.__str__())
+                filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request))
 
                 raw = result.get_data()
                 try:
@@ -230,6 +230,10 @@ class ApiRouter(Blueprint):
             params = request.form if request.method == 'POST' else request.args
             format = params.get('format')
             return format
+
+        def get_request_id(request):
+            params = request.form if request.method == 'POST' else request.args
+            return params.get('request-id');
 
         def get_text(format, request):
             '''
@@ -356,21 +360,6 @@ class ApiRouter(Blueprint):
                 'count': len(result)
             }, ensure_ascii=False)
 
-        @self.route('/dictionary', methods=['GET'])
-        @authenticate
-        def dictionary():
-            '''
-
-            @return:
-            @rtype: string
-            '''
-            return jsonify({
-                'query': {
-                    'name': 'None'
-
-                }
-            }, ensure_ascii=False)
-
         @self.route('/<lang>/segment', methods=['GET', 'POST'])
         @authenticate
         def segment(lang):
@@ -431,6 +420,7 @@ class ApiRouter(Blueprint):
             @return:
             @rtype: string
             '''
+
             format = get_format(request)
             if not isset(format):
                 raise InvalidUsage('Please specify a format', status_code=422)
