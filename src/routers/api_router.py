@@ -310,7 +310,7 @@ class ApiRouter(Blueprint):
             """
             input_parameters = ['surface', 'lemma', 'msd', 'rhymes_with',
                                 'no_of_syllables', 'rhyming_function_bytecode',
-                                'surface_is_regex', 'lemma_is_regex', 'msd_is_regex']
+                                'surface_is_regex', 'lemma_is_regex', 'msd_is_regex', 'request-id']
 
             surface = request.args.get('surface')
             lemma = request.args.get('lemma')

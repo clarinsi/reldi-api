@@ -303,7 +303,7 @@ $("#search-button").click(function(e) {
     }
 
     $(".display-result-search").empty();
-    var lang = $('#language').val();
+    var lang = $('#search-form .language').val();
     var url = baseUrl + lang + '/' + method;
     var data = new FormData();
     data.append('format', inputFormat);
@@ -441,7 +441,7 @@ $("#lexicon-button").click(function(e) {
     var msd_is_regex = $("#msd_is_regex").is(":checked") ? 1 : 0;
 
     $(".display-result-search").empty();
-    var lang = $('#language').val();
+    var lang = $('#lexicon-form .language').val();
     var method = 'lexicon';
     var inputFormat = 'json';
     var url = baseUrl + lang + '/' + method;
