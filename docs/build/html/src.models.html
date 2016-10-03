@@ -1,0 +1,345 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.models package &#8212; ReLDI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="ReLDI 1.0 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="src-models-package">
+<h1>src.models package<a class="headerlink" href="#src-models-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-src.models.auth_token_model">
+<span id="src-models-auth-token-model-module"></span><h2>src.models.auth_token_model module<a class="headerlink" href="#module-src.models.auth_token_model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.models.auth_token_model.AuthTokenModel">
+<em class="property">class </em><code class="descclassname">src.models.auth_token_model.</code><code class="descname">AuthTokenModel</code><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.model.Model" title="src.models.model.Model"><code class="xref py py-class docutils literal"><span class="pre">src.models.model.Model</span></code></a></p>
+<dl class="attribute">
+<dt id="src.models.auth_token_model.AuthTokenModel.SHORT_LASTING_TOKEN_HOURS_SPAN">
+<code class="descname">SHORT_LASTING_TOKEN_HOURS_SPAN</code><em class="property"> = 1</em><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.SHORT_LASTING_TOKEN_HOURS_SPAN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.auth_token_model.AuthTokenModel.extend">
+<code class="descname">extend</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.extend" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.auth_token_model.AuthTokenModel.fromDatabase">
+<em class="property">classmethod </em><code class="descname">fromDatabase</code><span class="sig-paren">(</span><em>row</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.fromDatabase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.fromDatabase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.models.auth_token_model.AuthTokenModel.generate">
+<em class="property">static </em><code class="descname">generate</code><span class="sig-paren">(</span><em>is_long_lasting</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.generate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.auth_token_model.AuthTokenModel.isLongLasting">
+<code class="descname">isLongLasting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.isLongLasting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.isLongLasting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if the authentication token is long lasting (forever)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.models.auth_token_model.AuthTokenModel.isValid">
+<code class="descname">isValid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.isValid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if the authentication token has not expired</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.auth_token_model.AuthTokenModel.model_props">
+<em class="property">classmethod </em><code class="descname">model_props</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.model_props"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.model_props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.auth_token_model.AuthTokenModel.primary_key">
+<em class="property">classmethod </em><code class="descname">primary_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.primary_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.primary_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.auth_token_model.AuthTokenModel.table_name">
+<em class="property">classmethod </em><code class="descname">table_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.table_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.table_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.auth_token_model.AuthTokenModel.toDbModel">
+<code class="descname">toDbModel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/auth_token_model.html#AuthTokenModel.toDbModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.auth_token_model.AuthTokenModel.toDbModel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.models.model">
+<span id="src-models-model-module"></span><h2>src.models.model module<a class="headerlink" href="#module-src.models.model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.models.model.Model">
+<em class="property">class </em><code class="descclassname">src.models.model.</code><code class="descname">Model</code><a class="reference internal" href="_modules/src/models/model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Serves as a basic ORM layer. It defines methods for inserting, updating and deleting entries.</p>
+<dl class="method">
+<dt id="src.models.model.Model.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.model.Model.fromDatabase">
+<em class="property">classmethod </em><code class="descname">fromDatabase</code><span class="sig-paren">(</span><em>row</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.fromDatabase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.fromDatabase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserializes a database record into an object</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.model.Model.getByAttribute">
+<em class="property">classmethod </em><code class="descname">getByAttribute</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.getByAttribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.getByAttribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all records from the database which match the key - value condition</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.model.Model.getByAttributeSingle">
+<em class="property">classmethod </em><code class="descname">getByAttributeSingle</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.getByAttributeSingle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.getByAttributeSingle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a single record from the database which matches the key - value condition</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.model.Model.getByAttributesSingle">
+<em class="property">classmethod </em><code class="descname">getByAttributesSingle</code><span class="sig-paren">(</span><em>keys</em>, <em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.getByAttributesSingle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.getByAttributesSingle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a single record from the database which matches all key - value conditions</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.model.Model.getByPk">
+<em class="property">classmethod </em><code class="descname">getByPk</code><span class="sig-paren">(</span><em>pk</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.getByPk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.getByPk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a single record from the database by primary key</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.models.model.Model.insert">
+<code class="descname">insert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.insert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.model.Model.save">
+<code class="descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.model.Model.toDbModel">
+<code class="descname">toDbModel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.toDbModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.toDbModel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.model.Model.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#Model.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.Model.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.models.model.date_handler">
+<code class="descclassname">src.models.model.</code><code class="descname">date_handler</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/model.html#date_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.model.date_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-src.models.user_model">
+<span id="src-models-user-model-module"></span><h2>src.models.user_model module<a class="headerlink" href="#module-src.models.user_model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.models.user_model.UserModel">
+<em class="property">class </em><code class="descclassname">src.models.user_model.</code><code class="descname">UserModel</code><a class="reference internal" href="_modules/src/models/user_model.html#UserModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.model.Model" title="src.models.model.Model"><code class="xref py py-class docutils literal"><span class="pre">src.models.model.Model</span></code></a></p>
+<dl class="method">
+<dt id="src.models.user_model.UserModel.activate">
+<code class="descname">activate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.activate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.activate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.block">
+<code class="descname">block</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.block" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.user_model.UserModel.fromDatabase">
+<em class="property">classmethod </em><code class="descname">fromDatabase</code><span class="sig-paren">(</span><em>row</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.fromDatabase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.fromDatabase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.generateToken">
+<code class="descname">generateToken</code><span class="sig-paren">(</span><em>password</em>, <em>is_long_lasting=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.generateToken"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.generateToken" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.user_model.UserModel.getByEmail">
+<em class="property">classmethod </em><code class="descname">getByEmail</code><span class="sig-paren">(</span><em>email</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.getByEmail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.getByEmail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.user_model.UserModel.getById">
+<em class="property">classmethod </em><code class="descname">getById</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.getById" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.user_model.UserModel.getByUsername">
+<em class="property">classmethod </em><code class="descname">getByUsername</code><span class="sig-paren">(</span><em>username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.getByUsername"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.getByUsername" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.isActive">
+<code class="descname">isActive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.isActive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.isActive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.isAdmin">
+<code class="descname">isAdmin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.isAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.isAdmin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.isAuthorized">
+<code class="descname">isAuthorized</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.isAuthorized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.isAuthorized" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.isBlocked">
+<code class="descname">isBlocked</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.isBlocked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.isBlocked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.isPending">
+<code class="descname">isPending</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.isPending"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.isPending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.loadToken">
+<code class="descname">loadToken</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.loadToken"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.loadToken" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.logRequest">
+<code class="descname">logRequest</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.logRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.logRequest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.user_model.UserModel.model_props">
+<em class="property">classmethod </em><code class="descname">model_props</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.model_props"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.model_props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.user_model.UserModel.primary_key">
+<em class="property">classmethod </em><code class="descname">primary_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.primary_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.primary_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.models.user_model.UserModel.setPassword">
+<code class="descname">setPassword</code><span class="sig-paren">(</span><em>password</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.setPassword"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.setPassword" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="src.models.user_model.UserModel.table_name">
+<em class="property">classmethod </em><code class="descname">table_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/models/user_model.html#UserModel.table_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.models.user_model.UserModel.table_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.models">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.models" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">src.models package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.models.auth_token_model">src.models.auth_token_model module</a></li>
+<li><a class="reference internal" href="#module-src.models.model">src.models.model module</a></li>
+<li><a class="reference internal" href="#module-src.models.user_model">src.models.user_model module</a></li>
+<li><a class="reference internal" href="#module-src.models">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/src.models.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Filip Petkovski.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/src.models.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

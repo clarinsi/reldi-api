@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.db package &#8212; ReLDI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="ReLDI 1.0 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="src-db-package">
+<h1>src.db package<a class="headerlink" href="#src-db-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-src.db.lexicon_db">
+<span id="src-db-lexicon-db-module"></span><h2>src.db.lexicon_db module<a class="headerlink" href="#module-src.db.lexicon_db" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.db.lexicon_db.LexiconDB">
+<em class="property">class </em><code class="descclassname">src.db.lexicon_db.</code><code class="descname">LexiconDB</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/lexicon_db.html#LexiconDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.lexicon_db.LexiconDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.db.reldi_db.DB" title="src.db.reldi_db.DB"><code class="xref py py-class docutils literal"><span class="pre">src.db.reldi_db.DB</span></code></a></p>
+<p>Contains connections to all three lexicon databases, hr, sr and sl</p>
+<dl class="staticmethod">
+<dt id="src.db.lexicon_db.LexiconDB.getInstance">
+<em class="property">static </em><code class="descname">getInstance</code><span class="sig-paren">(</span><em>language</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/lexicon_db.html#LexiconDB.getInstance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.lexicon_db.LexiconDB.getInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the singleton database access instance for the given language.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.db.lexicon_db.regexp">
+<code class="descclassname">src.db.lexicon_db.</code><code class="descname">regexp</code><span class="sig-paren">(</span><em>expr</em>, <em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/lexicon_db.html#regexp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.lexicon_db.regexp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-src.db.query_expression">
+<span id="src-db-query-expression-module"></span><h2>src.db.query_expression module<a class="headerlink" href="#module-src.db.query_expression" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.db.query_expression.QueryExpression">
+<em class="property">class </em><code class="descclassname">src.db.query_expression.</code><code class="descname">QueryExpression</code><a class="reference internal" href="_modules/src/db/query_expression.html#QueryExpression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.query_expression.QueryExpression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A class for building an abstract query expression</p>
+<dl class="method">
+<dt id="src.db.query_expression.QueryExpression.fromTable">
+<code class="descname">fromTable</code><span class="sig-paren">(</span><em>table</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/query_expression.html#QueryExpression.fromTable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.query_expression.QueryExpression.fromTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.db.query_expression.QueryExpression.select">
+<code class="descname">select</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/query_expression.html#QueryExpression.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.query_expression.QueryExpression.select" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.db.query_expression.QueryExpression.toSQL">
+<code class="descname">toSQL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/query_expression.html#QueryExpression.toSQL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.query_expression.QueryExpression.toSQL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.db.query_expression.QueryExpression.where">
+<code class="descname">where</code><span class="sig-paren">(</span><em>field</em>, <em>operator</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/query_expression.html#QueryExpression.where"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.query_expression.QueryExpression.where" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.db.reldi_db">
+<span id="src-db-reldi-db-module"></span><h2>src.db.reldi_db module<a class="headerlink" href="#module-src.db.reldi_db" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.db.reldi_db.DB">
+<em class="property">class </em><code class="descclassname">src.db.reldi_db.</code><code class="descname">DB</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/reldi_db.html#DB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.reldi_db.DB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class which is used for accessing the database.
+Contains a database connection and basic operations for executing queries.</p>
+<dl class="method">
+<dt id="src.db.reldi_db.DB.command">
+<code class="descname">command</code><span class="sig-paren">(</span><em>sql</em>, <em>params=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/reldi_db.html#DB.command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.reldi_db.DB.command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute an SQL command (INSERT, UPDATE or DELETE)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.db.reldi_db.DB.query">
+<code class="descname">query</code><span class="sig-paren">(</span><em>sql</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/reldi_db.html#DB.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.reldi_db.DB.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a SELECT SQL query</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.db.reldi_db.DB.script">
+<code class="descname">script</code><span class="sig-paren">(</span><em>sql</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/reldi_db.html#DB.script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.reldi_db.DB.script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute an SQL script</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.db.reldi_db.DB.set_row_factory">
+<em class="property">static </em><code class="descname">set_row_factory</code><span class="sig-paren">(</span><em>connection</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/reldi_db.html#DB.set_row_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.reldi_db.DB.set_row_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.db.reldi_db.dict_factory">
+<code class="descclassname">src.db.reldi_db.</code><code class="descname">dict_factory</code><span class="sig-paren">(</span><em>cursor</em>, <em>row</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/reldi_db.html#dict_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.reldi_db.dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-src.db.users_db">
+<span id="src-db-users-db-module"></span><h2>src.db.users_db module<a class="headerlink" href="#module-src.db.users_db" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.db.users_db.UsersDB">
+<em class="property">class </em><code class="descclassname">src.db.users_db.</code><code class="descname">UsersDB</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/users_db.html#UsersDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.users_db.UsersDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.db.reldi_db.DB" title="src.db.reldi_db.DB"><code class="xref py py-class docutils literal"><span class="pre">src.db.reldi_db.DB</span></code></a></p>
+<p>Serves as a database access layer for the users database. This class is a singleton</p>
+<dl class="method">
+<dt id="src.db.users_db.UsersDB.getInsertId">
+<code class="descname">getInsertId</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/users_db.html#UsersDB.getInsertId"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.users_db.UsersDB.getInsertId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the id of the last inserted record.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="src.db.users_db.UsersDB.getInstance">
+<em class="property">static </em><code class="descname">getInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/users_db.html#UsersDB.getInstance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.users_db.UsersDB.getInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the singleton database access instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.db.users_db.UsersDB.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/users_db.html#UsersDB.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.users_db.UsersDB.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets / refreshes the users database by dropping and recreating all tables</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.db.users_db.dict_factory">
+<code class="descclassname">src.db.users_db.</code><code class="descname">dict_factory</code><span class="sig-paren">(</span><em>cursor</em>, <em>row</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/db/users_db.html#dict_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.db.users_db.dict_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-src.db">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.db" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">src.db package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.db.lexicon_db">src.db.lexicon_db module</a></li>
+<li><a class="reference internal" href="#module-src.db.query_expression">src.db.query_expression module</a></li>
+<li><a class="reference internal" href="#module-src.db.reldi_db">src.db.reldi_db module</a></li>
+<li><a class="reference internal" href="#module-src.db.users_db">src.db.users_db module</a></li>
+<li><a class="reference internal" href="#module-src.db">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/src.db.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Filip Petkovski.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/src.db.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

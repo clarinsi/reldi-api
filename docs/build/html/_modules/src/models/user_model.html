@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.models.user_model &#8212; ReLDI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="ReLDI 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.models.user_model</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">model</span> <span class="k">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">..helpers</span> <span class="k">import</span> <span class="n">hash_password</span>
+<span class="kn">from</span> <span class="nn">..helpers</span> <span class="k">import</span> <span class="n">verify_password</span>
+<span class="kn">from</span> <span class="nn">auth_token_model</span> <span class="k">import</span> <span class="n">AuthTokenModel</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+
+<div class="viewcode-block" id="UserModel"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel">[docs]</a><span class="k">class</span> <span class="nc">UserModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="UserModel.model_props"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.model_props">[docs]</a>    <span class="k">def</span> <span class="nf">model_props</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="s1">&#39;requests_limit&#39;</span><span class="p">,</span> <span class="s1">&#39;note&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;requests_made&#39;</span><span class="p">,</span> <span class="s1">&#39;last_request_datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;role&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;activation_token&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;password_reset_token&#39;</span><span class="p">,</span> <span class="s1">&#39;password_reset_expiration_token&#39;</span>
+        <span class="p">]</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="UserModel.table_name"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.table_name">[docs]</a>    <span class="k">def</span> <span class="nf">table_name</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;users&#39;</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="UserModel.primary_key"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.primary_key">[docs]</a>    <span class="k">def</span> <span class="nf">primary_key</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;id&#39;</span></div>
+
+    <span class="c1"># Object constructor</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">Model</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+
+<div class="viewcode-block" id="UserModel.setPassword"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.setPassword">[docs]</a>    <span class="k">def</span> <span class="nf">setPassword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">hash_password</span><span class="p">(</span><span class="n">password</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UserModel.generateToken"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.generateToken">[docs]</a>    <span class="k">def</span> <span class="nf">generateToken</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">is_long_lasting</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+        <span class="n">isPasswordValid</span> <span class="o">=</span> <span class="n">verify_password</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isPasswordValid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invaid username or password&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isBlocked</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;This user has been blocked&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isPending</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;This user has not been approved yet&#39;</span><span class="p">)</span>
+
+        <span class="n">token</span> <span class="o">=</span> <span class="n">AuthTokenModel</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">is_long_lasting</span><span class="p">)</span>
+        <span class="n">token</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">token</span></div>
+
+<div class="viewcode-block" id="UserModel.loadToken"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.loadToken">[docs]</a>    <span class="k">def</span> <span class="nf">loadToken</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">AuthTokenModel</span><span class="o">.</span><span class="n">getByAttributesSingle</span><span class="p">([</span><span class="s1">&#39;user_id&#39;</span><span class="p">,</span> <span class="s1">&#39;token&#39;</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">token</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="UserModel.isAuthorized"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.isAuthorized">[docs]</a>    <span class="k">def</span> <span class="nf">isAuthorized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">token</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="UserModel.isAdmin"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.isAdmin">[docs]</a>    <span class="k">def</span> <span class="nf">isAdmin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;admin&#39;</span></div>
+
+<div class="viewcode-block" id="UserModel.block"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.block">[docs]</a>    <span class="k">def</span> <span class="nf">block</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;blocked&#39;</span></div>
+
+<div class="viewcode-block" id="UserModel.isBlocked"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.isBlocked">[docs]</a>    <span class="k">def</span> <span class="nf">isBlocked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;blocked&#39;</span></div>
+
+<div class="viewcode-block" id="UserModel.isPending"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.isPending">[docs]</a>    <span class="k">def</span> <span class="nf">isPending</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;pending&#39;</span></div>
+
+<div class="viewcode-block" id="UserModel.isActive"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.isActive">[docs]</a>    <span class="k">def</span> <span class="nf">isActive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;active&#39;</span></div>
+
+<div class="viewcode-block" id="UserModel.activate"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.activate">[docs]</a>    <span class="k">def</span> <span class="nf">activate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;active&#39;</span></div>
+
+<div class="viewcode-block" id="UserModel.logRequest"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.logRequest">[docs]</a>    <span class="k">def</span> <span class="nf">logRequest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requests_made</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">requests_limit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">requests_made</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_request_datetime</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_request_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">this_month</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">month</span>
+            <span class="n">last_month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_request_datetime</span><span class="o">.</span><span class="n">month</span>
+
+            <span class="n">this_year</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
+            <span class="n">last_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_request_datetime</span><span class="o">.</span><span class="n">year</span>
+
+            <span class="k">if</span> <span class="n">this_month</span> <span class="o">&gt;</span> <span class="n">last_month</span> <span class="ow">or</span> <span class="n">this_year</span> <span class="o">&gt;</span> <span class="n">last_year</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">requests_made</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="UserModel.getByUsername"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.getByUsername">[docs]</a>    <span class="k">def</span> <span class="nf">getByUsername</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">UserModel</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="UserModel.getById"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.getById">[docs]</a>    <span class="k">def</span> <span class="nf">getById</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">UserModel</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="UserModel.getByEmail"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.getByEmail">[docs]</a>    <span class="k">def</span> <span class="nf">getByEmail</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span><span class="n">email</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">UserModel</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="n">email</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="UserModel.fromDatabase"><a class="viewcode-back" href="../../../src.models.html#src.models.user_model.UserModel.fromDatabase">[docs]</a>    <span class="k">def</span> <span class="nf">fromDatabase</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">UserModel</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">fromDatabase</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">last_request_datetime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">last_request_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">last_request_datetime</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Filip Petkovski.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

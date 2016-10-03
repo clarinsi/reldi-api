@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.db.users_db &#8212; ReLDI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="ReLDI 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.db.users_db</h1><div class="highlight"><pre>
+<span></span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">srcPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">srcPath</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">reldi_db</span> <span class="k">import</span> <span class="n">DB</span>
+
+<div class="viewcode-block" id="dict_factory"><a class="viewcode-back" href="../../../src.db.html#src.db.users_db.dict_factory">[docs]</a><span class="k">def</span> <span class="nf">dict_factory</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">description</span><span class="p">):</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="UsersDB"><a class="viewcode-back" href="../../../src.db.html#src.db.users_db.UsersDB">[docs]</a><span class="k">class</span> <span class="nc">UsersDB</span><span class="p">(</span><span class="n">DB</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Serves as a database access layer for the users database. This class is a singleton&#39;&#39;&#39;</span>
+    <span class="c1"># Stores the connection</span>
+    <span class="n">_instance</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="UsersDB.getInstance"><a class="viewcode-back" href="../../../src.db.html#src.db.users_db.UsersDB.getInstance">[docs]</a>    <span class="k">def</span> <span class="nf">getInstance</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the singleton database access instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">assetsPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;/../../assets/&#39;</span><span class="p">)</span>
+
+        <span class="n">databaseName</span> <span class="o">=</span> <span class="n">assetsPath</span> <span class="o">+</span> <span class="s1">&#39;/users&#39;</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="n">UsersDB</span><span class="p">(</span><span class="n">DB</span><span class="o">.</span><span class="n">_THE_MAGIC_WORD</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span><span class="o">.</span><span class="n">_connection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="c1"># Initialize connection</span>
+                <span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">databaseName</span><span class="p">,</span><span class="n">isolation_level</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">text_factory</span> <span class="o">=</span> <span class="nb">str</span>
+                <span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">dict_factory</span>
+                <span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+            <span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span><span class="o">.</span><span class="n">__createTables</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">UsersDB</span><span class="o">.</span><span class="n">_instance</span></div>
+
+<div class="viewcode-block" id="UsersDB.getInsertId"><a class="viewcode-back" href="../../../src.db.html#src.db.users_db.UsersDB.getInsertId">[docs]</a>    <span class="k">def</span> <span class="nf">getInsertId</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the id of the last inserted record.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">lastrowid</span></div>
+
+<div class="viewcode-block" id="UsersDB.reset"><a class="viewcode-back" href="../../../src.db.html#src.db.users_db.UsersDB.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resets / refreshes the users database by dropping and recreating all tables</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS users&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS auth_tokens&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__createTables</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">__createTables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates the tables used to storing users</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getInstance</span><span class="p">()</span>
+        <span class="c1"># Create users table</span>
+        <span class="n">statement</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE TABLE IF NOT EXISTS users (</span>
+<span class="s2">                id INTEGER PRIMARY KEY AUTOINCREMENT,</span>
+<span class="s2">                email TEXT UNIQUE NOT NULL,</span>
+<span class="s2">                username TEXT UNIQUE NOT NULL,</span>
+<span class="s2">                password TEXT NOT NULL,</span>
+<span class="s2">                project TEXT,</span>
+<span class="s2">                requests_limit INTEGER NOT NULL,</span>
+<span class="s2">                note TEXT,</span>
+<span class="s2">                requests_made INTEGER NOT NULL DEFAULT 0,</span>
+<span class="s2">                last_request_datetime TEXT,</span>
+<span class="s2">                role TEXT NOT NULL,</span>
+<span class="s2">                status TEXT NOT NULL,</span>
+<span class="s2">                updated TEXT NOT NULL,</span>
+<span class="s2">                created TEXT NOT NULL,</span>
+<span class="s2">                activation_token TEXT,</span>
+<span class="s2">                password_reset_token TEXT,</span>
+<span class="s2">                password_reset_expiration_token TEXT,</span>
+<span class="s2">                CHECK (role IN (&quot;admin&quot;, &quot;user&quot;))</span>
+<span class="s2">                CHECK (status IN (&quot;pending&quot;, &quot;blocked&quot;, &quot;active&quot;, &quot;not-verified&quot;))</span>
+<span class="s2">            );</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">statement</span><span class="p">)</span>
+
+        <span class="c1"># Create tokens table</span>
+        <span class="n">statement</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE TABLE IF NOT EXISTS auth_tokens (</span>
+<span class="s2">                id INTEGER PRIMARY KEY AUTOINCREMENT,</span>
+<span class="s2">                user_id INTEGER NOT NULL,</span>
+<span class="s2">                token TEXT,</span>
+<span class="s2">                expiration_timestamp TEXT,</span>
+<span class="s2">                updated TEXT NOT NULL,</span>
+<span class="s2">                created TEXT NOT NULL,</span>
+<span class="s2">                FOREIGN KEY(user_id) REFERENCES users(id)</span>
+<span class="s2">                UNIQUE(user_id, token)</span>
+<span class="s2">            );</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">statement</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Filip Petkovski.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
