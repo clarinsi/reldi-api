@@ -14,24 +14,20 @@ import os
 import json
 import csv
 
+
 class ServerError(Exception):
+    """
+    Thrown during a 500 server error
+    """
     status_code = 500
 
-    def __init__(self, message, status_code=None, payload=None):
+    def __init__(self, message):
         '''
-
-        @param message:
+        @param message: The exception message to be shown
         @type message: string
-        @param status_code:
-        @type status_code: string
-        @param payload:
-        @type payload: string
         '''
         Exception.__init__(self)
         self.message = message
-        if status_code is not None:
-            self.status_code = status_code
-        self.payload = payload
 
     def to_dict(self):
         '''
@@ -39,58 +35,49 @@ class ServerError(Exception):
         @return:
         @rtype: string
         '''
-        rv = dict(self.payload or ())
+        rv = dict()
         rv['message'] = self.message
         return rv
 
 
 class Unauthorized(Exception):
+    """
+    Thrown during a 401 server error
+    """
     status_code = 401
 
-    def __init__(self, message, status_code=None, payload=None):
+    def __init__(self, message):
         '''
-
-        @param message:
+        @param message: The exception message to be shown
         @type message: string
-        @param status_code:
-        @type status_code: string
-        @param payload:
-        @type payload: string
+
         '''
         Exception.__init__(self)
         self.message = message
-        if status_code is not None:
-            self.status_code = status_code
-        self.payload = payload
 
     def to_dict(self):
         '''
-
         @return:
         @rtype: string
         '''
-        rv = dict(self.payload or ())
+        rv = dict()
         rv['message'] = self.message
         return rv
 
 
 class InvalidUsage(Exception):
-    status_code = 400
+    """
+    Thrown during a 422 server error
+    """
+    status_code = 422
 
-    def __init__(self, message, status_code=None, payload=None):
+    def __init__(self, message):
         '''
         @param message:
         @type message: string
-        @param status_code:
-        @type status_code: string
-        @param payload:
-        @type payload: string
         '''
         Exception.__init__(self)
         self.message = message
-        if status_code is not None:
-            self.status_code = status_code
-        self.payload = payload
 
     def to_dict(self):
         '''
@@ -98,7 +85,7 @@ class InvalidUsage(Exception):
         @return:
         @rtype: string
         '''
-        rv = dict(self.payload or ())
+        rv = dict()
         rv['message'] = self.message
         return rv
 
@@ -109,11 +96,10 @@ class ApiRouter(Blueprint):
         super(ApiRouter, self).register(app, options, first_registration=False)
         self.config = app.config
 
-
     def __init__(self, dc):
-        '''
+        '''Routes HTTP requests to specific calls to the internal core/api classes
 
-        @param dc:
+        @param dc: dependency injection container with initialized core objects
         @type dc: DependencyContainer
         '''
         Blueprint.__init__(self, 'api_router', 'api_router')
@@ -121,6 +107,8 @@ class ApiRouter(Blueprint):
 
         def authenticate(api_method):
             '''
+            The method is executed before each HTTP API call.
+            If a valid cookie or authentication header is not set, an Unauthorized Exception will be thrown.
 
             @param api_method:
             @type api_method: string
@@ -225,7 +213,6 @@ class ApiRouter(Blueprint):
 
             return post_request
 
-
         def get_format(request):
             params = request.form if request.method == 'POST' else request.args
             format = params.get('format')
@@ -233,7 +220,11 @@ class ApiRouter(Blueprint):
 
         def get_request_id(request):
             params = request.form if request.method == 'POST' else request.args
-            return params.get('request-id');
+            request_id = params.get('request-id')
+            if not isset(request_id):
+                raise InvalidUsage('Please specify a request id')
+
+            return request_id
 
         def get_text(format, request):
             '''
@@ -330,11 +321,11 @@ class ApiRouter(Blueprint):
 
             if not isset(surface) and not isset(lemma) and not isset(msd) and not isset(rhymes_with) and not isset(
                     no_of_syllables):
-                raise InvalidUsage('Please specify a surface form, lemma or msd', status_code=422)
+                raise InvalidUsage('Please specify a surface form, lemma or msd')
 
             for arg in request.args:
                 if arg not in input_parameters:
-                    raise InvalidUsage(arg + ' is an invalid input parameter', status_code=422)
+                    raise InvalidUsage(arg + ' is an invalid input parameter')
 
             # if rhyming_function_bytecode is not None:
             #   code = marshal.loads(rhyming_function_bytecode)
@@ -356,6 +347,7 @@ class ApiRouter(Blueprint):
                     'no_of_syllables': no_of_syllables
                 },
                 'success': True,
+                'language': lex.language,
                 'result': result,
                 'count': len(result)
             }, ensure_ascii=False)
@@ -372,7 +364,7 @@ class ApiRouter(Blueprint):
             '''
             format = get_format(request)
             if not isset(format):
-                raise InvalidUsage('Please specify a format', status_code=422)
+                raise InvalidUsage('Please specify a format')
 
             text = get_text(format, request)
             segmenter = dc['segmenter.' + lang]
@@ -397,7 +389,7 @@ class ApiRouter(Blueprint):
             '''
             format = get_format(request)
             if not isset(format):
-                raise InvalidUsage('Please specify a format', status_code=422)
+                raise InvalidUsage('Please specify a format')
 
             text = get_text(format, request)
             restorer = dc['restorer.' + lang]
@@ -406,8 +398,6 @@ class ApiRouter(Blueprint):
                 return jsonify(jsonTCF(lang, text, result, correction_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, correction_idx=1), mimetype='text/xml')
-
-
 
         @self.route('/<lang>/tag', methods=['GET', 'POST'])
         @authenticate
@@ -423,7 +413,7 @@ class ApiRouter(Blueprint):
 
             format = get_format(request)
             if not isset(format):
-                raise InvalidUsage('Please specify a format', status_code=422)
+                raise InvalidUsage('Please specify a format')
 
             text = get_text(format, request)
             tagger = dc['tagger.' + lang]
@@ -448,7 +438,7 @@ class ApiRouter(Blueprint):
             '''
             format = get_format(request)
             if not isset(format):
-                raise InvalidUsage('Please specify a format', status_code=422)
+                raise InvalidUsage('Please specify a format')
 
             text = get_text(format, request)
             lemmatiser = dc['lemmatiser.' + lang]
@@ -472,7 +462,7 @@ class ApiRouter(Blueprint):
             '''
             format = get_format(request)
             if not isset(format):
-                raise InvalidUsage('Please specify a format', status_code=422)
+                raise InvalidUsage('Please specify a format')
 
             text = get_text(format, request)
             lemmatiser = dc['lemmatiser.' + lang]

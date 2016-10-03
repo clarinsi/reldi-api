@@ -8,6 +8,10 @@ def dict_factory(cursor, row):
 
 # Main database class
 class DB(object):
+    """
+    Base class which is used for accessing the database.
+    Contains a database connection and basic operations for executing queries.
+    """
     # Must be passed into the constructor. Ensures the constructor is private
     _THE_MAGIC_WORD = object()
 
@@ -24,7 +28,7 @@ class DB(object):
 
     # Method to execute sql query
     def query(self, sql):
-        '''Execute an SQL query'''
+        '''Execute a SELECT SQL query'''
         if not self._client:
             raise ValueError("Client not initialized") 
 
@@ -34,7 +38,7 @@ class DB(object):
 
     # Method to execute sql command
     def command(self, sql, params = ()):
-        '''Execute an SQL query'''
+        '''Execute an SQL command (INSERT, UPDATE or DELETE)'''
         if not self._client:
             raise ValueError("Client not initialized")
 
@@ -43,7 +47,7 @@ class DB(object):
 
     # Method to execute sql command
     def script(self, sql):
-        '''Execute an SQL query'''
+        '''Execute an SQL script'''
         if not self._client:
             raise ValueError("Client not initialized")
 

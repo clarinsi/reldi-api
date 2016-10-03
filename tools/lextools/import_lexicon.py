@@ -72,7 +72,8 @@ class ImportLexiconCommand(Command):
 
         # Insert row into database
         sql = "INSERT INTO lexicon (surface, lemma, tags, no_of_syllables, last_syllable) VALUES (?, ?, ?, ?, ?);"
-        self.db.command(sql, (surface.encode('utf-8'), lemma.encode('utf-8'), tags.encode('utf-8'), no_syl, last_syllable.encode('utf-8')))
+        row = (surface.encode('utf-8'), lemma.encode('utf-8'), tags.encode('utf-8'), no_syl, last_syllable.encode('utf-8'))
+        self.db.command(sql, row)
 
     def execute(self, i, o):
         """

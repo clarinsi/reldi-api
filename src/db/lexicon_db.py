@@ -12,6 +12,9 @@ def regexp(expr, item):
 
 
 class LexiconDB(DB):
+    """
+    Contains connections to all three lexicon databases, hr, sr and sl
+    """
     _instances = {
         'hr': None,
         'sr': None,
@@ -20,6 +23,9 @@ class LexiconDB(DB):
 
     @staticmethod
     def getInstance(language):
+        """
+        Returns the singleton database access instance for the given language.
+        """
         database = os.path.realpath('assets/') + '/lexdb_' + language
 
         if LexiconDB._instances[language] is None:

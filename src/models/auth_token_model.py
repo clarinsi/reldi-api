@@ -23,12 +23,18 @@ class AuthTokenModel(Model):
     def __init__(self):
         '''Override database'''
 
-        Model.__init__(self);
+        Model.__init__(self)
 
     def isLongLasting(self):
+        """
+        Returns true if the authentication token is long lasting (forever)
+        """
         return self.expiration_timestamp is None
 
     def isValid(self):
+        """
+        Returns true if the authentication token has not expired
+        """
         if self.isLongLasting():
             return True
 

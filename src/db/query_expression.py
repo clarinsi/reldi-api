@@ -2,7 +2,7 @@
 
 # Main lexicon class
 class QueryExpression(object):
-    '''Class QueryExpression'''
+    '''A class for building an abstract query expression'''
 
     def __init__(self):
         self.__select = []

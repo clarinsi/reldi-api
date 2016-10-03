@@ -25,22 +25,8 @@ class Lexicon(object, ):
     def query_entry(self, surface=None, lemma=None, msd=None, rhymes_with=None, no_of_syllables=None,
                     surface_is_regexp=False, msd_is_regex=False, lemma_is_regex=False):
 
-        """Queries the lexicon for entries that match the input parameters
-
-        Parameters
-        ----------
-        msd
-        rhymes_with
-        no_of_syllables
-        lemma
-        surface
-        lemma_is_regex
-        msd_is_regex
-        surface_is_regexp
-
-        Returns
-        -------
-        object
+        """
+        Queries the lexicon for entries that match the input parameters
         """
 
         # Instantiate a query expression

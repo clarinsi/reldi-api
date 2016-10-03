@@ -30,6 +30,9 @@ class Lematiser(object):
         return lemma
 
     def getLemma(self, token, msd):
+        """
+        Returns the lemma for a specific token
+        """
         lexicon = self.lemmatiser['lexicon']
         key = token.lower() + '_' + msd
         if key in lexicon:
@@ -42,6 +45,9 @@ class Lematiser(object):
         return self.guessLemma(token, msd)
 
     def guessLemma(self, token, msd):
+        """
+        Predicts the lemma for a specific token
+        """
         model = self.lemmatiser['model']
         if msd not in model:
             return token
@@ -49,9 +55,15 @@ class Lematiser(object):
             return self.apply_rule(token, model[msd].predict(extract_features_lemma(token))[0], msd)
 
     def lemmatise(self, sentence, vert=False):
+        """
+        Lemmatises a sentence
+        """
         return [[(a, c) for a, b, c in sent] for sent in self.tagLemmatise(sentence, vert)]
 
     def tagLemmatise(self, sentence, vert=False):
+        """
+        Tags and lemmatises a sentence
+        """
         taggedOutput = self.tagger.tag(sentence)
         output = []
         for s in taggedOutput:

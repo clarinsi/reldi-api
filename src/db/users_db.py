@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 import os
 import sqlite3
-import re
 import sys
 
 srcPath = os.path.realpath('../')
 sys.path.append(srcPath)
 from reldi_db import DB
-from query_expression import QueryExpression
 
 def dict_factory(cursor, row):
     d = {}
@@ -17,12 +15,15 @@ def dict_factory(cursor, row):
     return d
 
 class UsersDB(DB):
-    '''Override database'''
+    '''Serves as a database access layer for the users database. This class is a singleton'''
     # Stores the connection
     _instance = None
 
     @staticmethod
     def getInstance():
+        """
+        Returns the singleton database access instance.
+        """
         assetsPath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../assets/')
 
         databaseName = assetsPath + '/users';
@@ -40,14 +41,24 @@ class UsersDB(DB):
         return UsersDB._instance
 
     def getInsertId(self):
+        """
+        Returns the id of the last inserted record.
+        """
         return self._client.lastrowid
 
     def reset(self):
+        """
+        Resets / refreshes the users database by dropping and recreating all tables
+        """
+
         self.command("DROP TABLE IF EXISTS users")
         self.command("DROP TABLE IF EXISTS auth_tokens")
         self.__createTables()
 
     def __createTables(self):
+        """
+        Creates the tables used to storing users
+        """
         db = self.getInstance()
         # Create users table
         statement = """

@@ -3,7 +3,7 @@ import sys
 import os
 
 from cleo import Command, InputArgument, InputOption
-from src.api.lexicon import Lexicon
+from src.core.lexicon import Lexicon
 
 
 class QueryLexiconCommand(Command):

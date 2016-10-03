@@ -11,6 +11,9 @@ def date_handler(obj):
 
 
 class Model(object):
+    """
+    Serves as a basic ORM layer. It defines methods for inserting, updating and deleting entries.
+    """
     def __init__(self):
 
         self.all_props = self.__class__.model_props() + ['created', 'updated']
@@ -85,6 +88,9 @@ class Model(object):
 
     @classmethod
     def getByAttributeSingle(cls, key, value):
+        """
+        Gets a single record from the database which matches the key - value condition
+        """
         db = UsersDB.getInstance()
         expression = QueryExpression()
         expression.fromTable(cls.table_name())
@@ -103,6 +109,9 @@ class Model(object):
 
     @classmethod
     def getByAttribute(cls, key, value):
+        """
+        Gets all records from the database which match the key - value condition
+        """
         db = UsersDB.getInstance()
         expression = QueryExpression()
         expression.fromTable(cls.table_name())
@@ -117,6 +126,9 @@ class Model(object):
 
     @classmethod
     def getByAttributesSingle(cls, keys, values):
+        """
+        Gets a single record from the database which matches all key - value conditions
+        """
         db = UsersDB.getInstance()
         expression = QueryExpression()
         expression.fromTable(cls.table_name())
@@ -138,10 +150,16 @@ class Model(object):
 
     @classmethod
     def getByPk(cls, pk):
+        """
+        Gets a single record from the database by primary key
+        """
         return cls.getByAttributeSingle(cls.primary_key(), pk)
 
     @classmethod
     def fromDatabase(cls, row):
+        """
+        Deserializes a database record into an object
+        """
         all_props = cls.model_props() + ['created', 'updated']
 
         o = cls()

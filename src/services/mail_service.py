@@ -3,14 +3,17 @@ from smtplib import SMTPException
 
 
 class MailService(object):
-
-    MANDRILL_KEY = 'zbtMhO3YBEppH8OzqB528A'
-
-    MAILBOX_USERNAME = 'projectreldi@gmail.com'
-    MAILBOX_PASSWORD = 'linguistics1020'
+    """
+    Used for sending out emails to clients
+    """
+    _MAILBOX_USERNAME = 'projectreldi@gmail.com'
+    _MAILBOX_PASSWORD = 'linguistics1020'
 
     def sendEmailConfirmationEmail(self, username, email, confirm_email_url):
 
+        """
+        Sends out an email containing a link for confirming a registered user's email address.
+        """
         sender = 'projectreldi@gmail.com'
         receivers = [email]
 
@@ -28,7 +31,7 @@ please click the following link to confirm your email address {1}""".format(user
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
+            server.login(MailService._MAILBOX_USERNAME, MailService._MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
@@ -36,6 +39,9 @@ please click the following link to confirm your email address {1}""".format(user
 
     def sendAccessRequestEmail(self, username, note, login_link):
 
+        """
+        Sends out an email to the administrator containing a client's request for accessing the API.
+        """
         sender = 'projectreldi@gmail.com'
         receivers = ['projectreldi@gmail.com']
 
@@ -57,7 +63,7 @@ Click the link to log in and review the user details: {2}
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
+            server.login(MailService._MAILBOX_USERNAME, MailService._MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
@@ -84,7 +90,7 @@ Click the link to go to the login page: {2}""".format(username, email, login_url
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
+            server.login(MailService._MAILBOX_USERNAME, MailService._MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
@@ -93,6 +99,9 @@ Click the link to go to the login page: {2}""".format(username, email, login_url
 
     def sendUserReactivatedEmail(self, username, email, login_url):
 
+        """
+        Sends out an email to the user once their account has been reactivated
+        """
         sender = 'projectreldi@gmail.com'
         receivers = [email]
 
@@ -112,7 +121,7 @@ Click the link to go to the login page: {2}""".format(username, email, login_url
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
+            server.login(MailService._MAILBOX_USERNAME, MailService._MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
@@ -120,6 +129,9 @@ Click the link to go to the login page: {2}""".format(username, email, login_url
 
     def sendUserBlockedEmail(self, username, email):
 
+        """
+        Sends out an email to the user once their account has been blocked.
+        """
         sender = 'projectreldi@gmail.com'
         receivers = [email]
 
@@ -137,7 +149,7 @@ your ReLDI account has been blocked by the administrator.""".format(username, em
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
+            server.login(MailService._MAILBOX_USERNAME, MailService._MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
@@ -145,6 +157,9 @@ your ReLDI account has been blocked by the administrator.""".format(username, em
 
     def sendEmailForgotPasswordEmail(self, username, email, forgot_password_email_url):
 
+        """
+        Sends out an email containing a password reset link
+        """
         sender = 'projectreldi@gmail.com'
         receivers = [email]
 
@@ -162,7 +177,7 @@ please click the following link to confirm your password reset {1}""".format(use
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.ehlo()
             server.starttls()
-            server.login(MailService.MAILBOX_USERNAME, MailService.MAILBOX_PASSWORD)
+            server.login(MailService._MAILBOX_USERNAME, MailService._MAILBOX_PASSWORD)
             server.sendmail(sender, receivers, message)
             server.close()
         except SMTPException:
