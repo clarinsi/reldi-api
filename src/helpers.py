@@ -8,21 +8,33 @@ import pytz
 
 
 def generate_token():
+    """
+    Generates an authentication token
+    """
     return uuid.uuid4().hex
 
 
 def hash_password(password):
+    """
+    Returns the hash for a password
+    """
     salt = uuid.uuid4().hex
     hashed_password = hashlib.sha512(password + salt).hexdigest()
     return salt + ':' + hashed_password
 
 
 def verify_password(password, hash):
+    """
+    Verifies whether a hash matches the password
+    """
     salt, hashed_password = hash.split(':')
     return hashed_password == hashlib.sha512(password + salt).hexdigest()
 
 
 def to_unix_timestamp(dt):
+    """
+    Converts a datetime object into a unit timestamp object
+    """
     if dt is None:
         return None
 
@@ -33,14 +45,23 @@ def to_unix_timestamp(dt):
 
 
 def empty(v):
+    """
+    Checks whether a string is empty
+    """
     return v == ''
 
 
 def isset(v):
+    """
+    Checkts whether a variable is not None and not empty
+    """
     return v is not None and v.strip() != ''
 
 
 def jsonify(data, ensure_ascii=False, status=200, indent=4, sort_keys=True):
+    """
+    Serializes an object into a HTTP json response
+    """
     response = make_response(json.dumps(data, ensure_ascii=ensure_ascii, indent=indent, sort_keys=sort_keys))
     response.headers['Content-Type'] = 'application/json; charset=utf-8'
     response.headers['mimetype'] = 'application/json'
@@ -49,6 +70,9 @@ def jsonify(data, ensure_ascii=False, status=200, indent=4, sort_keys=True):
 
 
 def jsonResponse(query, data):
+    """
+    Transforms an object into a API json response
+    """
     return jsonify({
         'query': query,
         'success': True,
@@ -58,6 +82,9 @@ def jsonResponse(query, data):
 
 
 def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, output_sentences=True):
+    """
+    Transforms an object into a API json response similar to the TCF format
+    """
     output = {}
     output['text'] = text
     output['tokens'] = []
@@ -113,7 +140,7 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
 
     if len(output['lemmas']) == 0:
         del output['lemmas']
-    
+
     if len(output['orthography']) == 0:
         del output['orthography']
 
@@ -121,6 +148,9 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
 
 
 def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, output_sentences=True):
+    """
+    Transforms an object into a TCF response
+    """
     output = ''
     sentence_output = ''
     token_output = ''
