@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.routers.web_router &#8212; ReLDI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="ReLDI 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.routers.web_router</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="c1"># import smtplib</span>
+<span class="kn">from</span> <span class="nn">sqlite3</span> <span class="k">import</span> <span class="n">IntegrityError</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Blueprint</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">flash</span><span class="p">,</span> <span class="n">Response</span><span class="p">,</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">make_response</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">send_from_directory</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span><span class="n">timedelta</span>
+
+<span class="kn">from</span> <span class="nn">..helpers</span> <span class="k">import</span> <span class="n">generate_token</span>
+
+<span class="n">modelsPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;/../models&#39;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modelsPath</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..models.user_model</span> <span class="k">import</span> <span class="n">UserModel</span>
+<span class="kn">from</span> <span class="nn">..models.auth_token_model</span> <span class="k">import</span> <span class="n">AuthTokenModel</span>
+
+
+<div class="viewcode-block" id="WebRouter"><a class="viewcode-back" href="../../../src.routers.html#src.routers.web_router.WebRouter">[docs]</a><span class="k">class</span> <span class="nc">WebRouter</span><span class="p">(</span><span class="n">Blueprint</span><span class="p">):</span>
+<div class="viewcode-block" id="WebRouter.register"><a class="viewcode-back" href="../../../src.routers.html#src.routers.web_router.WebRouter.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">first_registration</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">WebRouter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">first_registration</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span></div>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dc</span><span class="p">):</span>
+        <span class="n">templateFolder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="s1">&#39;src/web/templates&#39;</span><span class="p">)</span>
+        <span class="n">staticFolder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="s1">&#39;src/web/templates/static&#39;</span><span class="p">)</span>
+        <span class="n">Blueprint</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;web_router&#39;</span><span class="p">,</span> <span class="s1">&#39;web_router&#39;</span><span class="p">,</span> <span class="n">template_folder</span><span class="o">=</span><span class="n">templateFolder</span><span class="p">,</span> <span class="n">static_folder</span><span class="o">=</span><span class="n">staticFolder</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="n">roles</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">api_method</span><span class="p">):</span>
+                <span class="nd">@wraps</span><span class="p">(</span><span class="n">api_method</span><span class="p">)</span>
+                <span class="k">def</span> <span class="nf">check_token</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                    <span class="n">auth_token_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span><span class="p">)</span>
+                    <span class="n">authToken</span> <span class="o">=</span> <span class="n">AuthTokenModel</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">auth_token_string</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">authToken</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">authToken</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+                        <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">)))</span>
+
+                    <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByPk</span><span class="p">(</span><span class="n">authToken</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">)))</span>
+                    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">isBlocked</span><span class="p">()</span> <span class="ow">or</span> <span class="n">user</span><span class="o">.</span><span class="n">isPending</span><span class="p">():</span>
+                        <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">)))</span>
+                    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">api_method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                    <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.query&#39;</span><span class="p">)))</span>
+
+                <span class="k">return</span> <span class="n">check_token</span>
+
+            <span class="k">return</span> <span class="n">wrapper</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+            <span class="n">auth_token_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span><span class="p">)</span>
+            <span class="n">authToken</span> <span class="o">=</span> <span class="n">AuthTokenModel</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">auth_token_string</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">authToken</span> <span class="ow">and</span> <span class="n">authToken</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByPk</span><span class="p">(</span><span class="n">authToken</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">isAdmin</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.admin&#39;</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.query&#39;</span><span class="p">)))</span>
+
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;login.html&#39;</span><span class="p">))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">do_login</span><span class="p">():</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
+            <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">)))</span>
+
+            <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Invalid username or password&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByUsername</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Invalid username or password&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">token</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">generateToken</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+                    <span class="n">token</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                    <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span><span class="p">,</span> <span class="n">token</span><span class="o">.</span><span class="n">token</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">flash</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">__str__</span><span class="p">(),</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/logout&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">logout</span><span class="p">():</span>
+            <span class="n">auth_token_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span><span class="p">)</span>
+            <span class="n">authToken</span> <span class="o">=</span> <span class="n">AuthTokenModel</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">auth_token_string</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">authToken</span><span class="p">:</span>
+                <span class="n">authToken</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">)))</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/register&#39;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">register</span><span class="p">():</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="s1">&#39;form&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;register.html&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/register&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">do_register</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="p">()</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">role</span> <span class="o">=</span> <span class="s1">&#39;user&#39;</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;not-verified&#39;</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">requests_made</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">requests_limit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;requests_limit&quot;</span><span class="p">))</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">)</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">)</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">)</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">note</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;note&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confirm_password&quot;</span><span class="p">):</span>
+                    <span class="n">session</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span>
+                    <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Passwords do not match&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.register&#39;</span><span class="p">)))</span>
+
+                <span class="n">user</span><span class="o">.</span><span class="n">setPassword</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">))</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">activation_token</span> <span class="o">=</span> <span class="n">generate_token</span><span class="p">()</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="n">note</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;note&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;mail_service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sendEmailConfirmationEmail</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+                    <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+                    <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.confirm_email&#39;</span><span class="p">,</span> <span class="n">activation_token</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">activation_token</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+            <span class="k">except</span> <span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">session</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span>
+                <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span> <span class="o">==</span> <span class="s1">&#39;UNIQUE constraint failed: users.username&#39;</span><span class="p">:</span>
+                    <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Username &#39;</span> <span class="o">+</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; is already in use&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span> <span class="o">==</span> <span class="s1">&#39;UNIQUE constraint failed: users.email&#39;</span><span class="p">:</span>
+                    <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Email &#39;</span> <span class="o">+</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;email&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; is already in use&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.register&#39;</span><span class="p">)))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">session</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span>
+                <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Invalid value for monthly request limit&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.register&#39;</span><span class="p">)))</span>
+
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;register_success.html&#39;</span><span class="p">,</span> <span class="n">login_url</span><span class="o">=</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/forgot_password&#39;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">forgot_password</span><span class="p">():</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="s1">&#39;form&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;forgot_password.html&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/forgot_password&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">forgot_password_send_email</span><span class="p">():</span>
+                <span class="n">email</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">)</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByEmail</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">user</span><span class="o">.</span><span class="n">password_reset_token</span> <span class="o">=</span> <span class="n">generate_token</span><span class="p">()</span>
+                    <span class="n">user</span><span class="o">.</span><span class="n">password_reset_expiration_token</span><span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                    <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                    <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;mail_service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sendEmailForgotPasswordEmail</span><span class="p">(</span>
+                        <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+                        <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+                        <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.forgot_password_email&#39;</span><span class="p">,</span> <span class="n">password_reset_token</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">password_reset_token</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+                    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;forgot_password_email_sent.html&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;This e-mail does not exist in our database&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.forgot_password&#39;</span><span class="p">)))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/forgot_password_email/&lt;password_reset_token&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">forgot_password_email</span><span class="p">(</span><span class="n">password_reset_token</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;password_reset_token&#39;</span><span class="p">,</span> <span class="n">password_reset_token</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">password_reset_expiration_token</span><span class="p">,</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span> <span class="o">=</span> <span class="mi">15</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;reset_password.html&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">password_reset_token</span><span class="o">=</span><span class="n">password_reset_token</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Your password reset token is expired.&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.forgot_password&#39;</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Your token is not valid anymore. Get new one!&#39;</span> <span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.forgot_password&#39;</span><span class="p">)))</span>
+                    
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">flash</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.forgot_password&#39;</span><span class="p">)))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/reset_password&#39;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">reset_password</span><span class="p">():</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="s1">&#39;form&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;reset_password.html&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/reset_password&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">do_reset_password</span><span class="p">():</span>
+            <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)</span>
+            <span class="n">confirm_password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confirm_password&quot;</span><span class="p">)</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">)</span>
+            <span class="n">password_reset_token</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password_reset_token&quot;</span><span class="p">)</span>
+
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByAttributesSingle</span><span class="p">([</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;password_reset_token&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">user_id</span><span class="p">,</span> <span class="n">password_reset_token</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confirm_password&quot;</span><span class="p">):</span>
+                <span class="n">session</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span>
+                <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Passwords do not match&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.forgot_password_email&#39;</span><span class="p">,</span> <span class="n">password_reset_token</span><span class="o">=</span><span class="n">password_reset_token</span><span class="p">)))</span>
+
+            <span class="n">user</span><span class="o">.</span><span class="n">setPassword</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">))</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;reset_success.html&#39;</span><span class="p">,</span><span class="n">login_url</span><span class="o">=</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/confirm_email/&lt;activation_token&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">confirm_email</span><span class="p">(</span><span class="n">activation_token</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;activation_token&#39;</span><span class="p">,</span> <span class="n">activation_token</span><span class="p">)</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;pending&#39;</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">activation_token</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;mail_service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sendAccessRequestEmail</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">note</span><span class="p">,</span> <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;activate_success.html&#39;</span><span class="p">,</span> <span class="n">login_url</span><span class="o">=</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">flash</span><span class="p">(</span><span class="s1">&#39;Error activating account&#39;</span><span class="p">,</span> <span class="s1">&#39;danger&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">)))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/query&#39;</span><span class="p">)</span>
+        <span class="nd">@authenticate</span><span class="p">([</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">query</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;search.html&#39;</span><span class="p">)</span>
+
+
+        <span class="nd">@authenticate</span><span class="p">([</span><span class="s1">&#39;user&#39;</span><span class="p">])</span>
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/download/&lt;requestId&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">requestId</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">send_from_directory</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;UPLOAD_FOLDER&#39;</span><span class="p">],</span> <span class="n">filename</span><span class="o">=</span><span class="n">requestId</span><span class="p">)</span>
+
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/user/&lt;id&gt;/edit&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span><span class="p">([</span><span class="s1">&#39;admin&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">edit</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getById</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="n">statuses</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="s1">&#39;Active&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;pending&#39;</span><span class="p">:</span> <span class="s1">&#39;Pending&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;blocked&#39;</span><span class="p">:</span> <span class="s1">&#39;Blocked&#39;</span>
+            <span class="p">}</span>
+            <span class="n">roles</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;admin&#39;</span><span class="p">:</span> <span class="s1">&#39;Admin&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;User&#39;</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;edit-user.html&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">statuses</span><span class="o">=</span><span class="n">statuses</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="n">roles</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/user/&lt;id&gt;/edit&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span><span class="p">([</span><span class="s1">&#39;admin&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">do_edit</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getById</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="n">old_status</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">status</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">requests_limit</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;requests_limit&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">old_status</span> <span class="o">!=</span> <span class="s1">&#39;active&#39;</span> <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;active&#39;</span><span class="p">:</span>
+                <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;mail_service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sendUserActivatedEmail</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+            <span class="k">elif</span> <span class="n">old_status</span> <span class="o">!=</span> <span class="s1">&#39;blocked&#39;</span> <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;blocked&#39;</span><span class="p">:</span>
+                <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;mail_service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sendUserBlockedEmail</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.admin&#39;</span><span class="p">)))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/user/&lt;id&gt;/delete_user&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span><span class="p">([</span><span class="s1">&#39;admin&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">delete_user</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getById</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.admin&#39;</span><span class="p">)))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/admin&#39;</span><span class="p">)</span>
+        <span class="nd">@authenticate</span><span class="p">([</span><span class="s1">&#39;admin&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">admin</span><span class="p">():</span>
+            <span class="n">users</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByAttribute</span><span class="p">(</span><span class="s1">&#39;role&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">)</span>
+            <span class="n">active_users</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="n">users</span><span class="p">)</span>
+            <span class="n">pending_users</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;pending&#39;</span><span class="p">,</span> <span class="n">users</span><span class="p">)</span>
+            <span class="n">blocked_users</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;blocked&#39;</span><span class="p">,</span> <span class="n">users</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span>
+                <span class="s1">&#39;admin.html&#39;</span><span class="p">,</span>
+                <span class="n">active_users</span><span class="o">=</span><span class="n">active_users</span><span class="p">,</span>
+                <span class="n">pending_users</span><span class="o">=</span><span class="n">pending_users</span><span class="p">,</span>
+                <span class="n">blocked_users</span><span class="o">=</span><span class="n">blocked_users</span>
+            <span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/user/&lt;id&gt;/block&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span><span class="p">([</span><span class="s1">&#39;admin&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">block_user</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByPk</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">block</span><span class="p">()</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;mail_service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sendUserBlockedEmail</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.admin&#39;</span><span class="p">)))</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/user/&lt;id&gt;/activate&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span><span class="p">([</span><span class="s1">&#39;admin&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">activate_user</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByPk</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="n">oldStatus</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">status</span>
+            <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">oldStatus</span> <span class="o">==</span> <span class="s1">&#39;pending&#39;</span><span class="p">:</span>
+                    <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;mail_service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sendUserActivatedEmail</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;mail_service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sendUserReactivatedEmail</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.login&#39;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">make_response</span><span class="p">(</span><span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.admin&#39;</span><span class="p">)))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Filip Petkovski.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

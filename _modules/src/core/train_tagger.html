@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.core.train_tagger &#8212; ReLDI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="ReLDI 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.core.train_tagger</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+<span class="c1">#-*-coding:utf8-*-</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">cPickle</span> <span class="k">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">pycrfsuite</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getwriter</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+<div class="viewcode-block" id="conll_iter"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.conll_iter">[docs]</a><span class="k">def</span> <span class="nf">conll_iter</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
+  <span class="n">sent</span><span class="o">=</span><span class="p">[]</span>
+  <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+      <span class="k">yield</span> <span class="n">sent</span>
+      <span class="n">sent</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">sent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="packed_shape"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.packed_shape">[docs]</a><span class="k">def</span> <span class="nf">packed_shape</span><span class="p">(</span><span class="n">token</span><span class="p">,</span><span class="n">index</span><span class="p">):</span>
+  <span class="n">packed</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+  <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">token</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+      <span class="n">packed</span><span class="o">+=</span><span class="s1">&#39;u&#39;</span>
+    <span class="k">elif</span> <span class="n">char</span><span class="o">.</span><span class="n">islower</span><span class="p">():</span>
+      <span class="n">packed</span><span class="o">+=</span><span class="s1">&#39;l&#39;</span>
+    <span class="k">elif</span> <span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+      <span class="n">packed</span><span class="o">+=</span><span class="s1">&#39;d&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">packed</span><span class="o">+=</span><span class="s1">&#39;x&#39;</span>
+  <span class="k">if</span> <span class="n">index</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+    <span class="n">packed</span><span class="o">+=</span><span class="s1">&#39;_START&#39;</span>
+  <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">r&#39;(.)\1{2,}&#39;</span><span class="p">,</span><span class="s1">r&#39;\1\1&#39;</span><span class="p">,</span><span class="n">packed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="islcase"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.islcase">[docs]</a><span class="k">def</span> <span class="nf">islcase</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="n">token</span></div>
+
+<div class="viewcode-block" id="isnum"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.isnum">[docs]</a><span class="k">def</span> <span class="nf">isnum</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+  <span class="kn">import</span> <span class="nn">re</span>
+  <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">r&#39;\d&#39;</span><span class="p">,</span><span class="n">token</span><span class="p">)</span><span class="o">!=</span><span class="kc">None</span></div>
+
+<div class="viewcode-block" id="transnum"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.transnum">[docs]</a><span class="k">def</span> <span class="nf">transnum</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+  <span class="kn">import</span> <span class="nn">re</span>
+  <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">r&#39;\d&#39;</span><span class="p">,</span><span class="s1">&#39;D&#39;</span><span class="p">,</span><span class="n">token</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="wpos"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.wpos">[docs]</a><span class="k">def</span> <span class="nf">wpos</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">index</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">index</span><span class="o">&gt;=</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">index</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">transnum</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="wsuf"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.wsuf">[docs]</a><span class="k">def</span> <span class="nf">wsuf</span><span class="p">(</span><span class="n">token</span><span class="p">,</span><span class="n">length</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">token</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)</span><span class="o">&gt;</span><span class="n">length</span><span class="p">:</span>
+    <span class="n">token</span><span class="o">=</span><span class="n">transnum</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="n">length</span><span class="p">:]</span></div>
+
+<div class="viewcode-block" id="getpos"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.getpos">[docs]</a><span class="k">def</span> <span class="nf">getpos</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gram_feat</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">gram_feat</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pos&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getgender"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.getgender">[docs]</a><span class="k">def</span> <span class="nf">getgender</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gram_feat</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">gram_feat</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Gender&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getnumber"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.getnumber">[docs]</a><span class="k">def</span> <span class="nf">getnumber</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gram_feat</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">gram_feat</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Number&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getcase"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.getcase">[docs]</a><span class="k">def</span> <span class="nf">getcase</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gram_feat</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">gram_feat</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Case&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="search_trie"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.search_trie">[docs]</a><span class="k">def</span> <span class="nf">search_trie</span><span class="p">(</span><span class="n">token</span><span class="p">,</span><span class="n">trie</span><span class="p">,</span><span class="n">iscomplete</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+  <span class="n">token</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">token</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)</span><span class="o">+</span><span class="n">i</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">trie</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">iscomplete</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+          <span class="k">return</span> <span class="p">(</span><span class="n">trie</span><span class="p">[</span><span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)</span><span class="o">+</span><span class="n">i</span><span class="p">:]],</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">return</span> <span class="p">(</span><span class="n">trie</span><span class="p">[</span><span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)</span><span class="o">+</span><span class="n">i</span><span class="p">:]],</span><span class="kc">False</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">trie</span><span class="p">[</span><span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)</span><span class="o">+</span><span class="n">i</span><span class="p">:]]</span></div>
+
+<div class="viewcode-block" id="decode"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.decode">[docs]</a><span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>  
+  <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="reverse"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.reverse">[docs]</a><span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+  <span class="n">t</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+  <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">u</span><span class="o">+</span><span class="n">t</span>
+  <span class="k">return</span> <span class="n">t</span></div>
+
+<div class="viewcode-block" id="search_marisa"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.search_marisa">[docs]</a><span class="k">def</span> <span class="nf">search_marisa</span><span class="p">(</span><span class="n">token</span><span class="p">,</span><span class="n">trie</span><span class="p">,</span><span class="n">iscomplete</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+  <span class="n">token</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">u&#39;_&#39;</span><span class="o">+</span><span class="n">token</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">trie</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">decode</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">trie</span><span class="p">[</span><span class="n">token</span><span class="p">]]</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">prefixes</span><span class="o">=</span><span class="n">trie</span><span class="o">.</span><span class="n">prefixes</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">[</span><span class="n">decode</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">trie</span><span class="p">[</span><span class="nb">sorted</span><span class="p">([(</span><span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">),</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">],</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]]]</span></div>
+
+<div class="viewcode-block" id="escape_colon"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.escape_colon">[docs]</a><span class="k">def</span> <span class="nf">escape_colon</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">:&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="extract_features_msd"><a class="viewcode-back" href="../../../src.core.html#src.core.train_tagger.extract_features_msd">[docs]</a><span class="k">def</span> <span class="nf">extract_features_msd</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">trie</span><span class="p">,</span><span class="n">search</span><span class="o">=</span><span class="n">search_marisa</span><span class="p">):</span> <span class="c1">#originally &quot;combined2&quot;, relates to the model named &quot;lexicon&quot;</span>
+  <span class="n">msds_sent</span><span class="o">=</span><span class="p">[]</span>
+  <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">:</span>
+    <span class="n">msds_sent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">search</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span><span class="n">trie</span><span class="p">))</span>
+  <span class="n">features</span><span class="o">=</span><span class="p">[]</span>
+  <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">token</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="n">tfeat</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;w[0]=&#39;</span><span class="o">+</span><span class="n">wpos</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">index</span><span class="p">))</span>
+    <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;packed_shape=&#39;</span><span class="o">+</span><span class="n">packed_shape</span><span class="p">(</span><span class="n">token</span><span class="p">,</span><span class="n">index</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span> <span class="c1">#w[-1] w[1]</span>
+      <span class="k">if</span> <span class="n">wpos</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">index</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;w[&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;]=&#39;</span><span class="o">+</span><span class="n">wpos</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">index</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+      <span class="k">if</span> <span class="n">wpos</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">index</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;w[&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;]=&#39;</span><span class="o">+</span><span class="n">wpos</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">index</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span> <span class="c1">#w[0] suffix</span>
+      <span class="k">if</span> <span class="n">wsuf</span><span class="p">(</span><span class="n">token</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;s[&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;]=&#39;</span><span class="o">+</span><span class="n">wsuf</span><span class="p">(</span><span class="n">token</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">msds_sent</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">msd</span> <span class="ow">in</span> <span class="n">msds_sent</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+        <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;msd=&#39;</span><span class="o">+</span><span class="n">msd</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">wpos</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">index</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">msds</span><span class="o">=</span><span class="n">msds_sent</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">msds</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+          <span class="k">for</span> <span class="n">msd</span> <span class="ow">in</span> <span class="n">msds</span><span class="p">:</span>
+            <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;msd[-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;]=&#39;</span><span class="o">+</span><span class="n">msd</span><span class="p">)</span><span class="c1">#+&#39;:&#39;+str(float(msds[msd])/sum(msds.values())))</span>
+      <span class="k">if</span> <span class="n">wpos</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span><span class="n">index</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">msds</span><span class="o">=</span><span class="n">msds_sent</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">msds</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+          <span class="k">for</span> <span class="n">msd</span> <span class="ow">in</span> <span class="n">msds</span><span class="p">:</span>
+            <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;msd[&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;]=&#39;</span><span class="o">+</span><span class="n">msd</span><span class="p">)</span><span class="c1">#+&#39;:&#39;+str(float(msds[msd])/sum(msds.values())))</span>
+    <span class="k">if</span> <span class="n">index</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+      <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;__BOS__&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+      <span class="n">tfeat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;__EOS__&#39;</span><span class="p">)</span>
+    <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tfeat</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">features</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+  <span class="n">lang</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">trie</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">lang</span><span class="o">+</span><span class="s1">&#39;.marisa&#39;</span><span class="p">))</span>
+  <span class="n">trainer</span><span class="o">=</span><span class="n">pycrfsuite</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;pa&#39;</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+  <span class="n">trainer</span><span class="o">.</span><span class="n">set_params</span><span class="p">({</span><span class="s1">&#39;max_iterations&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">})</span>
+  <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">conll_iter</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;training_data/&#39;</span><span class="o">+</span><span class="n">lang</span><span class="o">+</span><span class="s1">&#39;.conll&#39;</span><span class="p">)):</span>
+    <span class="c1">#print sent</span>
+    <span class="n">tokens</span><span class="o">=</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">]</span>
+    <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">]</span>
+    <span class="c1">#print labels</span>
+    <span class="n">feats</span><span class="o">=</span><span class="n">extract_features_msd</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span><span class="n">trie</span><span class="p">)</span>
+    <span class="n">trainer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feats</span><span class="p">,</span><span class="n">labels</span><span class="p">)</span>
+    <span class="c1">#break</span>
+  <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">lang</span><span class="o">+</span><span class="s1">&#39;.msd.model&#39;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Filip Petkovski.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

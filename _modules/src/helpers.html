@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.helpers &#8212; ReLDI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="ReLDI 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.helpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">make_response</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="k">import</span> <span class="n">etree</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="k">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span> <span class="nn">hashlib</span><span class="o">,</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">import</span> <span class="nn">pytz</span>
+
+
+<div class="viewcode-block" id="generate_token"><a class="viewcode-back" href="../../src.html#src.helpers.generate_token">[docs]</a><span class="k">def</span> <span class="nf">generate_token</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span></div>
+
+
+<div class="viewcode-block" id="hash_password"><a class="viewcode-back" href="../../src.html#src.helpers.hash_password">[docs]</a><span class="k">def</span> <span class="nf">hash_password</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
+    <span class="n">salt</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+    <span class="n">hashed_password</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">(</span><span class="n">password</span> <span class="o">+</span> <span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">salt</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="n">hashed_password</span></div>
+
+
+<div class="viewcode-block" id="verify_password"><a class="viewcode-back" href="../../src.html#src.helpers.verify_password">[docs]</a><span class="k">def</span> <span class="nf">verify_password</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="nb">hash</span><span class="p">):</span>
+    <span class="n">salt</span><span class="p">,</span> <span class="n">hashed_password</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hashed_password</span> <span class="o">==</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">(</span><span class="n">password</span> <span class="o">+</span> <span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="to_unix_timestamp"><a class="viewcode-back" href="../../src.html#src.helpers.to_unix_timestamp">[docs]</a><span class="k">def</span> <span class="nf">to_unix_timestamp</span><span class="p">(</span><span class="n">dt</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">tz</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+    <span class="n">dt_with_tz</span> <span class="o">=</span> <span class="n">tz</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">is_dst</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="p">(</span><span class="n">dt_with_tz</span> <span class="o">-</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">utc</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ts</span></div>
+
+
+<div class="viewcode-block" id="empty"><a class="viewcode-back" href="../../src.html#src.helpers.empty">[docs]</a><span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">v</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span></div>
+
+
+<div class="viewcode-block" id="isset"><a class="viewcode-back" href="../../src.html#src.helpers.isset">[docs]</a><span class="k">def</span> <span class="nf">isset</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span></div>
+
+
+<div class="viewcode-block" id="jsonify"><a class="viewcode-back" href="../../src.html#src.helpers.jsonify">[docs]</a><span class="k">def</span> <span class="nf">jsonify</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="n">ensure_ascii</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="n">sort_keys</span><span class="p">))</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/json; charset=utf-8&#39;</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;mimetype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="n">status</span>
+    <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="jsonResponse"><a class="viewcode-back" href="../../src.html#src.helpers.jsonResponse">[docs]</a><span class="k">def</span> <span class="nf">jsonResponse</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+        <span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+        <span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+        <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="p">},</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="jsonTCF"><a class="viewcode-back" href="../../src.html#src.helpers.jsonTCF">[docs]</a><span class="k">def</span> <span class="nf">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">correction_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_sentences</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;tokens&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;sentences&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;POSTags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;orthography&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">token_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">s_idx</span><span class="p">,</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+        <span class="n">token_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+            <span class="n">output</span><span class="p">[</span><span class="s1">&#39;tokens&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;ID&#39;</span><span class="p">:</span> <span class="s2">&quot;t_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">),</span>
+                <span class="s1">&#39;startChar&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="s1">&#39;endChar&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]),</span>
+                <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">})</span>
+            <span class="n">token_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;t_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">lemma_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">output</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;ID&#39;</span><span class="p">:</span> <span class="s1">&#39;le_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">),</span>
+                    <span class="s1">&#39;tokenIDs&#39;</span><span class="p">:</span> <span class="s1">&#39;t_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">),</span>
+                    <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">[</span><span class="n">lemma_idx</span><span class="p">]</span>
+                <span class="p">})</span>
+
+            <span class="k">if</span> <span class="n">tag_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">output</span><span class="p">[</span><span class="s1">&#39;POSTags&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;ID&#39;</span><span class="p">:</span> <span class="s1">&#39;pt_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">),</span>
+                    <span class="s1">&#39;tokenIDs&#39;</span><span class="p">:</span> <span class="s1">&#39;t_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">),</span>
+                    <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">[</span><span class="n">tag_idx</span><span class="p">]</span>
+                <span class="p">})</span>
+            <span class="k">if</span> <span class="n">correction_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">output</span><span class="p">[</span><span class="s1">&#39;orthography&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;ID&#39;</span><span class="p">:</span> <span class="s1">&#39;pt_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">),</span>
+                    <span class="s1">&#39;tokenIDs&#39;</span><span class="p">:</span> <span class="s1">&#39;t_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">),</span>
+                    <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">token</span><span class="p">[</span><span class="n">correction_idx</span><span class="p">]</span>
+                <span class="p">})</span>
+
+            <span class="n">token_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;sentences&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;ID&#39;</span><span class="p">:</span> <span class="s1">&#39;s_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">s_idx</span><span class="p">),</span>
+            <span class="s1">&#39;tokenIDs&#39;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span>
+        <span class="p">})</span>
+
+        <span class="c1"># sentence_output += &quot;\t&lt;sentence ID=\&quot;ID=s_{0}\&quot; tokenIDs=\&quot;{1}\&quot;&gt;&quot;.format(s_idx, &quot; &quot;.join(token_ids))</span>
+        <span class="c1"># sentence_output += &quot;&quot;.join(map(lambda x: x[0], sentence)) + &quot;&lt;/sentence&gt;\n&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;POSTags&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;POSTags&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;orthography&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;orthography&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="TCF"><a class="viewcode-back" href="../../src.html#src.helpers.TCF">[docs]</a><span class="k">def</span> <span class="nf">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">correction_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_sentences</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">sentence_output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">token_output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">tags_output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">lemmas_output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">orthography_output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="n">token_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">s_idx</span><span class="p">,</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+        <span class="n">token_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+            <span class="n">token_output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;token ID=</span><span class="se">\&quot;</span><span class="s2">t_</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2"> startChar=</span><span class="se">\&quot;</span><span class="si">{1}</span><span class="se">\&quot;</span><span class="s2"> endChar=</span><span class="se">\&quot;</span><span class="si">{2}</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="si">{3}</span><span class="s2">&lt;/token&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">token_id</span><span class="p">,</span>
+                                                                                                           <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                                                                                           <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+                                                                                                           <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">token_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;t_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_id</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">lemma_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">lemmas_output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;lemma ID=</span><span class="se">\&quot;</span><span class="s2">le_</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2"> tokenIDs=</span><span class="se">\&quot;</span><span class="s2">t_</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="si">{1}</span><span class="s2">&lt;/lemma&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">token_id</span><span class="p">,</span>
+                                                                                                  <span class="n">token</span><span class="p">[</span><span class="n">lemma_idx</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">tag_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tags_output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;tag ID=</span><span class="se">\&quot;</span><span class="s2">pt_</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2"> tokenIDs=</span><span class="se">\&quot;</span><span class="s2">t_</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="si">{1}</span><span class="s2">&lt;/tag&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">token_id</span><span class="p">,</span> <span class="n">token</span><span class="p">[</span><span class="n">tag_idx</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">correction_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">orthography_output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;correction ID=</span><span class="se">\&quot;</span><span class="s2">pt_</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2"> tokenIDs=</span><span class="se">\&quot;</span><span class="s2">t_</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="si">{1}</span><span class="s2">&lt;/correction&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">token_id</span><span class="p">,</span> <span class="n">token</span><span class="p">[</span><span class="n">correction_idx</span><span class="p">])</span>
+
+            <span class="n">token_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">sentence_output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;sentence ID=</span><span class="se">\&quot;</span><span class="s2">s_</span><span class="si">{0}</span><span class="se">\&quot;</span><span class="s2"> tokenIDs=</span><span class="se">\&quot;</span><span class="si">{1}</span><span class="se">\&quot;</span><span class="s2"> /&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s_idx</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">token_ids</span><span class="p">))</span>
+
+    <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;tokens&gt;&quot;</span> <span class="o">+</span> <span class="n">token_output</span> <span class="o">+</span> <span class="s2">&quot;&lt;/tokens&gt;&quot;</span>
+    <span class="k">if</span> <span class="n">output_sentences</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;sentences&gt;&quot;</span> <span class="o">+</span> <span class="n">sentence_output</span> <span class="o">+</span> <span class="s2">&quot;&lt;/sentences&gt;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">empty</span><span class="p">(</span><span class="n">lemmas_output</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;lemmas&gt;&quot;</span> <span class="o">+</span> <span class="n">lemmas_output</span> <span class="o">+</span> <span class="s2">&quot;&lt;/lemmas&gt;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">empty</span><span class="p">(</span><span class="n">tags_output</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;POStags tagset=</span><span class="se">\&quot;</span><span class="s2">mte-hr-v4r</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span> <span class="o">+</span> <span class="n">tags_output</span> <span class="o">+</span> <span class="s2">&quot;&lt;/POStags&gt;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">empty</span><span class="p">(</span><span class="n">orthography_output</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;&lt;orthography&gt;&quot;</span> <span class="o">+</span> <span class="n">orthography_output</span> <span class="o">+</span> <span class="s2">&quot;&lt;/orthography&gt;&quot;</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="s2">    &lt;D-Spin xmlns=&quot;http://www.dspin.de/data&quot; version=&quot;0.4&quot;&gt;</span>
+<span class="s2">        &lt;MetaData xmlns=&quot;http://www.dspin.de/data/metadata&quot;/&gt;</span>
+<span class="s2">        &lt;TextCorpus xmlns=&quot;http://www.dspin.de/data/textcorpus&quot; lang=&quot;</span><span class="si">{0}</span><span class="s2">&quot;&gt;</span>
+<span class="s2">            &lt;text&gt;</span><span class="si">{2}</span><span class="s2">&lt;/text&gt;</span>
+<span class="s2">            </span><span class="si">{1}</span><span class="s2"></span>
+<span class="s2">        &lt;/TextCorpus&gt;</span>
+<span class="s2">    &lt;/D-Spin&gt;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">output</span><span class="p">),</span> <span class="n">etree</span><span class="o">.</span><span class="n">XMLParser</span><span class="p">(</span><span class="n">remove_blank_text</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">getroot</span><span class="p">(),</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Filip Petkovski.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

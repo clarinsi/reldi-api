@@ -1,0 +1,585 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.routers.api_router &#8212; ReLDI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="ReLDI 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.routers.api_router</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..helpers</span> <span class="k">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">TCF</span><span class="p">,</span> <span class="n">jsonTCF</span><span class="p">,</span> <span class="n">isset</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="k">import</span> <span class="n">etree</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="k">import</span> <span class="n">StringIO</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Blueprint</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">current_app</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">..models.user_model</span> <span class="k">import</span> <span class="n">UserModel</span>
+<span class="kn">from</span> <span class="nn">..models.auth_token_model</span> <span class="k">import</span> <span class="n">AuthTokenModel</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+
+
+<div class="viewcode-block" id="ServerError"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.ServerError">[docs]</a><span class="k">class</span> <span class="nc">ServerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Thrown during a 500 server error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">status_code</span> <span class="o">=</span> <span class="mi">500</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @param message: The exception message to be shown</span>
+<span class="sd">        @type message: string</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+<div class="viewcode-block" id="ServerError.to_dict"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.ServerError.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">        @return:</span>
+<span class="sd">        @rtype: string</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">rv</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+        <span class="k">return</span> <span class="n">rv</span></div></div>
+
+
+<div class="viewcode-block" id="Unauthorized"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.Unauthorized">[docs]</a><span class="k">class</span> <span class="nc">Unauthorized</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Thrown during a 401 server error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">status_code</span> <span class="o">=</span> <span class="mi">401</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @param message: The exception message to be shown</span>
+<span class="sd">        @type message: string</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+<div class="viewcode-block" id="Unauthorized.to_dict"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.Unauthorized.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @return:</span>
+<span class="sd">        @rtype: string</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">rv</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+        <span class="k">return</span> <span class="n">rv</span></div></div>
+
+
+<div class="viewcode-block" id="InvalidUsage"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.InvalidUsage">[docs]</a><span class="k">class</span> <span class="nc">InvalidUsage</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Thrown during a 422 server error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">status_code</span> <span class="o">=</span> <span class="mi">422</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @param message:</span>
+<span class="sd">        @type message: string</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+<div class="viewcode-block" id="InvalidUsage.to_dict"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.InvalidUsage.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">        @return:</span>
+<span class="sd">        @rtype: string</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">rv</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+        <span class="k">return</span> <span class="n">rv</span></div></div>
+
+
+<div class="viewcode-block" id="ApiRouter"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.ApiRouter">[docs]</a><span class="k">class</span> <span class="nc">ApiRouter</span><span class="p">(</span><span class="n">Blueprint</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ApiRouter.register"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.ApiRouter.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">first_registration</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ApiRouter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">first_registration</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span></div>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dc</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Routes HTTP requests to specific calls to the internal core/api classes</span>
+
+<span class="sd">        @param dc: dependency injection container with initialized core objects</span>
+<span class="sd">        @type dc: DependencyContainer</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">Blueprint</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;api_router&#39;</span><span class="p">,</span> <span class="s1">&#39;api_router&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="n">api_method</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            The method is executed before each HTTP API call.</span>
+<span class="sd">            If a valid cookie or authentication header is not set, an Unauthorized Exception will be thrown.</span>
+
+<span class="sd">            @param api_method:</span>
+<span class="sd">            @type api_method: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+
+            <span class="nd">@wraps</span><span class="p">(</span><span class="n">api_method</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">                @param args:</span>
+<span class="sd">                @type args: string</span>
+<span class="sd">                @param kwargs:</span>
+<span class="sd">                @type kwargs: string</span>
+<span class="sd">                @return:</span>
+<span class="sd">                @rtype: string</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+                <span class="n">auth_token_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">auth_token_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">auth_token_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">auth_token_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s1">&#39;Invalid token&#39;</span><span class="p">)</span>
+
+                <span class="n">authToken</span> <span class="o">=</span> <span class="n">AuthTokenModel</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">auth_token_string</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">authToken</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">authToken</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s1">&#39;Invalid token&#39;</span><span class="p">)</span>
+
+                <span class="c1"># Log request</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByPk</span><span class="p">(</span><span class="n">authToken</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s1">&#39;Invalid token&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="s1">&#39;active&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s1">&#39;User has no access&#39;</span><span class="p">)</span>
+
+                <span class="n">user</span><span class="o">.</span><span class="n">logRequest</span><span class="p">()</span>
+                <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">api_method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">verify</span>
+
+        <span class="k">def</span> <span class="nf">save_file</span><span class="p">(</span><span class="n">api_method</span><span class="p">):</span>
+            <span class="nd">@wraps</span><span class="p">(</span><span class="n">api_method</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">post_request</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="n">auth_token_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;auth-token&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">auth_token_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">auth_token_string</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">auth_token_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s1">&#39;Invalid token&#39;</span><span class="p">)</span>
+
+                <span class="n">authToken</span> <span class="o">=</span> <span class="n">AuthTokenModel</span><span class="o">.</span><span class="n">getByAttributeSingle</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">auth_token_string</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">authToken</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">authToken</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s1">&#39;Invalid token&#39;</span><span class="p">)</span>
+
+                <span class="n">result</span> <span class="o">=</span> <span class="n">api_method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">filePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;UPLOAD_FOLDER&#39;</span><span class="p">],</span> <span class="n">get_request_id</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+
+                <span class="n">raw</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+                    <span class="n">csvResult</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">posTags</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">lemmas</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">tokens</span> <span class="o">=</span> <span class="p">{}</span>
+
+                    <span class="k">if</span> <span class="s1">&#39;POSTags&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;POSTags&#39;</span><span class="p">]:</span>
+                            <span class="n">posTags</span><span class="p">[</span><span class="n">tag</span><span class="p">[</span><span class="s1">&#39;tokenIDs&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">tag</span>
+
+                    <span class="k">if</span> <span class="s1">&#39;lemmas&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">lemma</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">]:</span>
+                            <span class="n">lemmas</span><span class="p">[</span><span class="n">lemma</span><span class="p">[</span><span class="s1">&#39;tokenIDs&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">lemma</span>
+
+                    <span class="k">if</span> <span class="s1">&#39;tokens&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tokens&#39;</span><span class="p">]:</span>
+                            <span class="n">tokens</span><span class="p">[</span><span class="n">token</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">token</span>
+
+                    <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;sentences&#39;</span><span class="p">]:</span>
+                        <span class="k">for</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">[</span><span class="s1">&#39;tokenIDs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+                            <span class="n">csvResult</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                            <span class="n">token</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span>
+                            <span class="n">csvResult</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">posTags</span><span class="p">:</span>
+                                <span class="n">csvResult</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">posTags</span><span class="p">[</span><span class="n">tid</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">lemmas</span><span class="p">:</span>
+                                <span class="n">csvResult</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lemmas</span><span class="p">[</span><span class="n">tid</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+                            <span class="n">csvResult</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="s1">&#39;startChar&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">token</span><span class="p">[</span><span class="s1">&#39;endChar&#39;</span><span class="p">])</span>
+                        <span class="n">csvResult</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">w</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">csvResult</span><span class="p">)</span>
+
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">result</span>
+
+            <span class="k">return</span> <span class="n">post_request</span>
+
+        <span class="k">def</span> <span class="nf">get_format</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span> <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">format</span>
+
+        <span class="k">def</span> <span class="nf">get_request_id</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span> <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span>
+            <span class="n">request_id</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;request-id&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="n">request_id</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Please specify a request id&#39;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">request_id</span>
+
+        <span class="k">def</span> <span class="nf">get_text</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @param format:</span>
+<span class="sd">            @type format: string</span>
+<span class="sd">            @param request:</span>
+<span class="sd">            @type request: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span> <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">files</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;file&#39;</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;tcf&#39;</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;assets/tcfschema/d-spin-local_0_4.rng&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="s1">&#39;file&#39;</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                        <span class="n">text</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">text</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                    <span class="n">relaxng_doc</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                    <span class="n">relaxng</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">RelaxNG</span><span class="p">(</span><span class="n">relaxng_doc</span><span class="p">)</span>
+                    <span class="n">inputXml</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&gt;</span><span class="se">\\</span><span class="s2">s*&lt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&lt;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+                    <span class="n">inputXml</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">s*&lt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">inputXml</span><span class="p">)</span>
+
+                    <span class="n">doc</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">inputXml</span><span class="p">))</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">relaxng</span><span class="o">.</span><span class="n">assertValid</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">doc</span><span class="o">.</span><span class="n">getroot</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Unknown format &#39;</span> <span class="o">+</span> <span class="nb">format</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="k">return</span> <span class="s2">&quot;Main&quot;</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">handle_error</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @param error:</span>
+<span class="sd">            @type error: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">current_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">status_code</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="s1">&#39;status_code&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">500</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;lang&gt;/lexicon&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span>
+        <span class="k">def</span> <span class="nf">lexicon</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            lang</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">input_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;surface&#39;</span><span class="p">,</span> <span class="s1">&#39;lemma&#39;</span><span class="p">,</span> <span class="s1">&#39;msd&#39;</span><span class="p">,</span> <span class="s1">&#39;rhymes_with&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;no_of_syllables&#39;</span><span class="p">,</span> <span class="s1">&#39;rhyming_function_bytecode&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;surface_is_regex&#39;</span><span class="p">,</span> <span class="s1">&#39;lemma_is_regex&#39;</span><span class="p">,</span> <span class="s1">&#39;msd_is_regex&#39;</span><span class="p">,</span> <span class="s1">&#39;request-id&#39;</span><span class="p">]</span>
+
+            <span class="n">surface</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;surface&#39;</span><span class="p">)</span>
+            <span class="n">lemma</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lemma&#39;</span><span class="p">)</span>
+            <span class="n">msd</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;msd&#39;</span><span class="p">)</span>
+            <span class="n">rhymes_with</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rhymes_with&#39;</span><span class="p">)</span>
+            <span class="n">no_of_syllables</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;no_of_syllables&#39;</span><span class="p">)</span>
+            <span class="n">rhyming_function_bytecode</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rhyming_function&#39;</span><span class="p">)</span>
+            <span class="n">surface_is_regex</span> <span class="o">=</span> <span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;surface_is_regex&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+            <span class="n">lemma_is_regex</span> <span class="o">=</span> <span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lemma_is_regex&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+            <span class="n">msd_is_regex</span> <span class="o">=</span> <span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;msd_is_regex&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+
+            <span class="n">surface</span> <span class="o">=</span> <span class="n">surface</span> <span class="k">if</span> <span class="n">isset</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">lemma</span> <span class="o">=</span> <span class="n">lemma</span> <span class="k">if</span> <span class="n">isset</span><span class="p">(</span><span class="n">lemma</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">msd</span> <span class="o">=</span> <span class="n">msd</span> <span class="k">if</span> <span class="n">isset</span><span class="p">(</span><span class="n">msd</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">rhymes_with</span> <span class="o">=</span> <span class="n">rhymes_with</span> <span class="k">if</span> <span class="n">isset</span><span class="p">(</span><span class="n">rhymes_with</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">no_of_syllables</span> <span class="o">=</span> <span class="n">no_of_syllables</span> <span class="k">if</span> <span class="n">isset</span><span class="p">(</span><span class="n">no_of_syllables</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="n">lemma</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="n">msd</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="n">rhymes_with</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span>
+                    <span class="n">no_of_syllables</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Please specify a surface form, lemma or msd&#39;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">input_parameters</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="n">arg</span> <span class="o">+</span> <span class="s1">&#39; is an invalid input parameter&#39;</span><span class="p">)</span>
+
+            <span class="c1"># if rhyming_function_bytecode is not None:</span>
+            <span class="c1">#   code = marshal.loads(rhyming_function_bytecode)</span>
+            <span class="c1">#   func = types.FunctionType(code, globals(), &quot;some_func_name&quot;)</span>
+
+            <span class="c1">#   return jsonify(func(10, 10))</span>
+
+            <span class="n">lex</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;lexicon.&#39;</span> <span class="o">+</span> <span class="n">lang</span><span class="p">]</span>
+            <span class="sd">&quot;&quot;&quot;:type : Lexicon &quot;&quot;&quot;</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">lex</span><span class="o">.</span><span class="n">query_entry</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="n">lemma</span><span class="p">,</span> <span class="n">msd</span><span class="p">,</span> <span class="n">rhymes_with</span><span class="p">,</span> <span class="n">no_of_syllables</span><span class="p">,</span>
+                                     <span class="n">surface_is_regex</span><span class="p">,</span> <span class="n">msd_is_regex</span><span class="p">,</span> <span class="n">lemma_is_regex</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+                <span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;surface&#39;</span><span class="p">:</span> <span class="n">surface</span><span class="p">,</span>
+                    <span class="s1">&#39;lemma&#39;</span><span class="p">:</span> <span class="n">lemma</span><span class="p">,</span>
+                    <span class="s1">&#39;msd&#39;</span><span class="p">:</span> <span class="n">msd</span><span class="p">,</span>
+                    <span class="s1">&#39;rhymes_with&#39;</span><span class="p">:</span> <span class="n">rhymes_with</span><span class="p">,</span>
+                    <span class="s1">&#39;no_of_syllables&#39;</span><span class="p">:</span> <span class="n">no_of_syllables</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;language&#39;</span><span class="p">:</span> <span class="n">lex</span><span class="o">.</span><span class="n">language</span><span class="p">,</span>
+                <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">,</span>
+                <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="p">},</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;lang&gt;/segment&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span>
+        <span class="k">def</span> <span class="nf">segment</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @param lang:</span>
+<span class="sd">            @type lang: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">get_format</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="nb">format</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Please specify a format&#39;</span><span class="p">)</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="n">get_text</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+            <span class="n">segmenter</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;segmenter.&#39;</span> <span class="o">+</span> <span class="n">lang</span><span class="p">]</span>
+
+            <span class="c1"># Format properly</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">y</span><span class="p">,),</span> <span class="n">x</span><span class="p">),</span> <span class="n">segmenter</span><span class="o">.</span><span class="n">segment</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;tcf&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">),</span> <span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;text/xml&#39;</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;lang&gt;/restore&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span>
+        <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @param lang:</span>
+<span class="sd">            @type lang: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">get_format</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="nb">format</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Please specify a format&#39;</span><span class="p">)</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="n">get_text</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+            <span class="n">restorer</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;restorer.&#39;</span> <span class="o">+</span> <span class="n">lang</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">restorer</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">correction_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;tcf&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">correction_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;text/xml&#39;</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;lang&gt;/tag&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span>
+        <span class="nd">@save_file</span>
+        <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @param lang:</span>
+<span class="sd">            @type lang: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">get_format</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="nb">format</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Please specify a format&#39;</span><span class="p">)</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="n">get_text</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+            <span class="n">tagger</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;tagger.&#39;</span> <span class="o">+</span> <span class="n">lang</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;tcf&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;text/xml&#39;</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;lang&gt;/tag_lemmatise&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span>
+        <span class="nd">@save_file</span>
+        <span class="k">def</span> <span class="nf">tag_lematise</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype:</span>
+<span class="sd">            @param lang:</span>
+<span class="sd">            @type lang: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">get_format</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="nb">format</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Please specify a format&#39;</span><span class="p">)</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="n">get_text</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+            <span class="n">lemmatiser</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;lemmatiser.&#39;</span> <span class="o">+</span> <span class="n">lang</span><span class="p">]</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">lemmatiser</span><span class="o">.</span><span class="n">tagLemmatise</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;tcf&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;text/xml&#39;</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;lang&gt;/lemmatise&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span>
+        <span class="nd">@save_file</span>
+        <span class="k">def</span> <span class="nf">lemmatise</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @param lang:</span>
+<span class="sd">            @type lang: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">get_format</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="nb">format</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Please specify a format&#39;</span><span class="p">)</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="n">get_text</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+            <span class="n">lemmatiser</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;lemmatiser.&#39;</span> <span class="o">+</span> <span class="n">lang</span><span class="p">]</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">lemmatiser</span><span class="o">.</span><span class="n">lemmatise</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;tcf&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;text/xml&#39;</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
+            <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s2">&quot;Invalid username or password&quot;</span><span class="p">)</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">UserModel</span><span class="o">.</span><span class="n">getByUsername</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="s2">&quot;Invalid username or password&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">token</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">generateToken</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+                    <span class="n">token</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">token</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">Unauthorized</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">__str__</span><span class="p">())</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Filip Petkovski.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
