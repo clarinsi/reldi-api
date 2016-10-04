@@ -53,21 +53,33 @@
 
 
 <div class="viewcode-block" id="generate_token"><a class="viewcode-back" href="../../src.html#src.helpers.generate_token">[docs]</a><span class="k">def</span> <span class="nf">generate_token</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates an authentication token</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span></div>
 
 
 <div class="viewcode-block" id="hash_password"><a class="viewcode-back" href="../../src.html#src.helpers.hash_password">[docs]</a><span class="k">def</span> <span class="nf">hash_password</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the hash for a password</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">salt</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
     <span class="n">hashed_password</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">(</span><span class="n">password</span> <span class="o">+</span> <span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">salt</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="n">hashed_password</span></div>
 
 
 <div class="viewcode-block" id="verify_password"><a class="viewcode-back" href="../../src.html#src.helpers.verify_password">[docs]</a><span class="k">def</span> <span class="nf">verify_password</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="nb">hash</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verifies whether a hash matches the password</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">salt</span><span class="p">,</span> <span class="n">hashed_password</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">hashed_password</span> <span class="o">==</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">(</span><span class="n">password</span> <span class="o">+</span> <span class="n">salt</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="to_unix_timestamp"><a class="viewcode-back" href="../../src.html#src.helpers.to_unix_timestamp">[docs]</a><span class="k">def</span> <span class="nf">to_unix_timestamp</span><span class="p">(</span><span class="n">dt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a datetime object into a unit timestamp object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -78,14 +90,23 @@
 
 
 <div class="viewcode-block" id="empty"><a class="viewcode-back" href="../../src.html#src.helpers.empty">[docs]</a><span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks whether a string is empty</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">v</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span></div>
 
 
 <div class="viewcode-block" id="isset"><a class="viewcode-back" href="../../src.html#src.helpers.isset">[docs]</a><span class="k">def</span> <span class="nf">isset</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checkts whether a variable is not None and not empty</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span></div>
 
 
 <div class="viewcode-block" id="jsonify"><a class="viewcode-back" href="../../src.html#src.helpers.jsonify">[docs]</a><span class="k">def</span> <span class="nf">jsonify</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serializes an object into a HTTP json response</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="n">ensure_ascii</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="n">sort_keys</span><span class="p">))</span>
     <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/json; charset=utf-8&#39;</span>
     <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;mimetype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;application/json&#39;</span>
@@ -94,6 +115,9 @@
 
 
 <div class="viewcode-block" id="jsonResponse"><a class="viewcode-back" href="../../src.html#src.helpers.jsonResponse">[docs]</a><span class="k">def</span> <span class="nf">jsonResponse</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms an object into a API json response</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
         <span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
         <span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -103,6 +127,9 @@
 
 
 <div class="viewcode-block" id="jsonTCF"><a class="viewcode-back" href="../../src.html#src.helpers.jsonTCF">[docs]</a><span class="k">def</span> <span class="nf">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">correction_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_sentences</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms an object into a API json response similar to the TCF format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">output</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
     <span class="n">output</span><span class="p">[</span><span class="s1">&#39;tokens&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -158,7 +185,7 @@
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">]</span>
-    
+
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;orthography&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;orthography&#39;</span><span class="p">]</span>
 
@@ -166,6 +193,9 @@
 
 
 <div class="viewcode-block" id="TCF"><a class="viewcode-back" href="../../src.html#src.helpers.TCF">[docs]</a><span class="k">def</span> <span class="nf">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">correction_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_sentences</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms an object into a TCF response</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="n">sentence_output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="n">token_output</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
