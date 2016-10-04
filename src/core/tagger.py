@@ -8,7 +8,7 @@ from train_tagger import extract_features_msd
 from tokenizer import spaces_re
 
 class Tagger(object,):
-    '''Class segmenter'''
+    '''Class tagger'''
 
     def __init__(self, lang, segmenter):
         self.lang = lang
@@ -18,6 +18,7 @@ class Tagger(object,):
         self.segmenter = segmenter
 
     def tag(self, sentence, vert=False):
+        """Tags a sentence and returns tagged tokens"""
         output=[]
         if not vert:
             sentence = self.segmenter.segment(sentence)
