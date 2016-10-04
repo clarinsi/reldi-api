@@ -62,6 +62,21 @@
 <dt id="src.core.lematiser.Lematiser.getLemma">
 <code class="descname">getLemma</code><span class="sig-paren">(</span><em>token</em>, <em>msd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/lematiser.html#Lematiser.getLemma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.lematiser.Lematiser.getLemma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the lemma for a specific token</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>token</strong> &#8211; The token to be lemmatized</li>
+<li><strong>mdf</strong> &#8211; The msd/tag of the token</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">returns lemma for token</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -109,14 +124,75 @@
 <div class="section" id="src-core-restorer-module">
 <h2>src.core.restorer module<a class="headerlink" href="#src-core-restorer-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="src-core-segmenter-module">
-<h2>src.core.segmenter module<a class="headerlink" href="#src-core-segmenter-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.core.segmenter">
+<span id="src-core-segmenter-module"></span><h2>src.core.segmenter module<a class="headerlink" href="#module-src.core.segmenter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.core.segmenter.Segmenter">
+<em class="property">class </em><code class="descclassname">src.core.segmenter.</code><code class="descname">Segmenter</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/segmenter.html#Segmenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.segmenter.Segmenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class segmenter</p>
+<dl class="method">
+<dt id="src.core.segmenter.Segmenter.segment">
+<code class="descname">segment</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/segmenter.html#Segmenter.segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.segmenter.Segmenter.segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Segments a sentence into tokens</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="src-core-tagger-module">
-<h2>src.core.tagger module<a class="headerlink" href="#src-core-tagger-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.core.tagger">
+<span id="src-core-tagger-module"></span><h2>src.core.tagger module<a class="headerlink" href="#module-src.core.tagger" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.core.tagger.Tagger">
+<em class="property">class </em><code class="descclassname">src.core.tagger.</code><code class="descname">Tagger</code><span class="sig-paren">(</span><em>lang</em>, <em>segmenter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tagger.html#Tagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tagger.Tagger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class tagger</p>
+<dl class="method">
+<dt id="src.core.tagger.Tagger.tag">
+<code class="descname">tag</code><span class="sig-paren">(</span><em>sentence</em>, <em>vert=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tagger.html#Tagger.tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tagger.Tagger.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tags a sentence and returns tagged tokens</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="src-core-tokenizer-module">
-<h2>src.core.tokenizer module<a class="headerlink" href="#src-core-tokenizer-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-src.core.tokenizer">
+<span id="src-core-tokenizer-module"></span><h2>src.core.tokenizer module<a class="headerlink" href="#module-src.core.tokenizer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="src.core.tokenizer.generate_tokenizer">
+<code class="descclassname">src.core.tokenizer.</code><code class="descname">generate_tokenizer</code><span class="sig-paren">(</span><em>lang</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tokenizer.html#generate_tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tokenizer.generate_tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.core.tokenizer.read_abbrevs">
+<code class="descclassname">src.core.tokenizer.</code><code class="descname">read_abbrevs</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tokenizer.html#read_abbrevs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tokenizer.read_abbrevs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.core.tokenizer.represent_tomaz">
+<code class="descclassname">src.core.tokenizer.</code><code class="descname">represent_tomaz</code><span class="sig-paren">(</span><em>input</em>, <em>par_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tokenizer.html#represent_tomaz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tokenizer.represent_tomaz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.core.tokenizer.sentence_split">
+<code class="descclassname">src.core.tokenizer.</code><code class="descname">sentence_split</code><span class="sig-paren">(</span><em>tokens</em>, <em>lang</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tokenizer.html#sentence_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tokenizer.sentence_split" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.core.tokenizer.sentence_split_nonstd">
+<code class="descclassname">src.core.tokenizer.</code><code class="descname">sentence_split_nonstd</code><span class="sig-paren">(</span><em>tokens</em>, <em>lang</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tokenizer.html#sentence_split_nonstd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tokenizer.sentence_split_nonstd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.core.tokenizer.tokenize">
+<code class="descclassname">src.core.tokenizer.</code><code class="descname">tokenize</code><span class="sig-paren">(</span><em>tokenizer</em>, <em>paragraph</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tokenizer.html#tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tokenizer.tokenize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.core.tokenizer.usage">
+<code class="descclassname">src.core.tokenizer.</code><code class="descname">usage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/core/tokenizer.html#usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.core.tokenizer.usage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-src.core.train_lemmatiser">
 <span id="src-core-train-lemmatiser-module"></span><h2>src.core.train_lemmatiser module<a class="headerlink" href="#module-src.core.train_lemmatiser" title="Permalink to this headline">¶</a></h2>
@@ -237,9 +313,9 @@
 <li><a class="reference internal" href="#module-src.core.lematiser">src.core.lematiser module</a></li>
 <li><a class="reference internal" href="#module-src.core.lexicon">src.core.lexicon module</a></li>
 <li><a class="reference internal" href="#src-core-restorer-module">src.core.restorer module</a></li>
-<li><a class="reference internal" href="#src-core-segmenter-module">src.core.segmenter module</a></li>
-<li><a class="reference internal" href="#src-core-tagger-module">src.core.tagger module</a></li>
-<li><a class="reference internal" href="#src-core-tokenizer-module">src.core.tokenizer module</a></li>
+<li><a class="reference internal" href="#module-src.core.segmenter">src.core.segmenter module</a></li>
+<li><a class="reference internal" href="#module-src.core.tagger">src.core.tagger module</a></li>
+<li><a class="reference internal" href="#module-src.core.tokenizer">src.core.tokenizer module</a></li>
 <li><a class="reference internal" href="#module-src.core.train_lemmatiser">src.core.train_lemmatiser module</a></li>
 <li><a class="reference internal" href="#module-src.core.train_tagger">src.core.train_tagger module</a></li>
 <li><a class="reference internal" href="#module-src.core">Module contents</a></li>
