@@ -9,6 +9,16 @@
     <link href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css" rel="stylesheet">
 	<link href="/web/static/style.css" rel="stylesheet">
 	<title>ReLDI</title>
+
+    <script type="text/babel" src="/web/static/jsx/SearchFormResult.jsx"></script>
+    <script type="text/babel" src="/web/static/jsx/SearchForm.jsx"></script>
+
+    <script src="/web/static/react-15.3.2/build/react.js"></script>
+    <script src="/web/static/react-15.3.2/build/react-with-addons.js"></script>
+    <script src="/web/static/react-15.3.2/build/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.5/react-bootstrap.min.js"></script>
+    <script src="https://unpkg.com/babel-core@5.8.38/browser.min.js"></script>
+
 </head>
 <body>
 	<div class="container">
@@ -27,6 +37,7 @@
 		</div>
 		{% block body %}{% endblock %}
 	</div>
+    {% block react %}{% endblock %}
 <body>
 <!-- Latest compiled and minified JavaScript -->
 <script src="/web/static/jquery/jquery.min.js"></script>
