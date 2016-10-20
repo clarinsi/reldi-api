@@ -10,6 +10,7 @@ from tools.usertools.create_user import CreateUserCommand
 from tools.usertools.delete_user import DeleteUserByUsernameCommand
 from tools.usertools.get_user import GetUserByUsernameCommand
 from tools.usertools.login_user import LoginUserWithCredentials
+from tools.dependency_parser_tools.dep_parse import DependecyParseCommand
 
 application = Application()
 application.add(ImportLexiconCommand())
@@ -19,6 +20,7 @@ application.add(GetUserByUsernameCommand())
 application.add(DeleteUserByUsernameCommand())
 application.add(LoginUserWithCredentials())
 application.add(ResetDB())
+application.add(DependecyParseCommand())
 
 if __name__ == '__main__':
     application.run()

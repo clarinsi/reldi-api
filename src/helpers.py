@@ -81,7 +81,7 @@ def jsonResponse(query, data):
     }, ensure_ascii=False)
 
 
-def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, output_sentences=True):
+def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, depparse_idx = None, output_sentences=True):
     """
     Transforms an object into a API json response similar to the TCF format
     """
@@ -92,12 +92,17 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
     output['lemmas'] = []
     output['POSTags'] = []
     output['orthography'] = []
+    output['depparsing'] = []
 
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
 
+        if depparse_idx is not None:
+            output['depparsing'].append([])
+
         for token in sentence:
+
             output['tokens'].append({
                 'ID': "t_" + str(token_id),
                 'startChar': str(token[0][1]),
@@ -124,6 +129,19 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
                     'tokenIDs': 't_' + str(token_id),
                     'value': token[correction_idx]
                 })
+            if depparse_idx is not None:
+                govId = token[depparse_idx][0]
+                if int(govId) != 0:
+                    output['depparsing'][s_idx].append({
+                        'govIDs': "t_" + str(int(token[depparse_idx][0]) - 1),
+                        'depIDs': "t_" + str(token_id),
+                        'func': token[depparse_idx][1]
+                    })
+                else:
+                    output['depparsing'][s_idx].append({
+                        'depIDs': "t_" + str(token_id),
+                        'func': token[depparse_idx][1]
+                    })
 
             token_id += 1
 
@@ -144,10 +162,13 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
     if len(output['orthography']) == 0:
         del output['orthography']
 
+    if len(output['depparsing']) == 0:
+        del output['depparsing']
+
     return output
 
 
-def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, output_sentences=True):
+def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, depparse_idx=None, output_sentences=True):
     """
     Transforms an object into a TCF response
     """
@@ -157,6 +178,7 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, o
     tags_output = ''
     lemmas_output = ''
     orthography_output = ''
+    depparse_output = ''
 
     token_id = 0
     for s_idx, sentence in enumerate(result):
@@ -178,9 +200,18 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, o
             if correction_idx is not None:
                 orthography_output += "<correction ID=\"pt_{0}\" tokenIDs=\"t_{0}\">{1}</correction>".format(token_id, token[correction_idx])
 
+            if depparse_idx is not None:
+                govId = token[depparse_idx][0]
+                if int(govId) != 0:
+                    depparse_output += "<dependency govIDs=\"t_{0}\" depIDs=\"t_{1}\" func=\"{2}\" />".format(int(token[depparse_idx][0]) - 1, token_id, token[depparse_idx][1])
+                else:
+                    depparse_output += "<dependency depIDs=\"t_{1}\" func=\"{2}\" />".format(token_id, token[depparse_idx][1])
+
             token_id += 1
 
         sentence_output += "<sentence ID=\"s_{0}\" tokenIDs=\"{1}\" />".format(s_idx, " ".join(token_ids))
+        if depparse_idx is not None:
+            depparse_output += "<parse ID=\"d_{0}\">".format(s_idx) + depparse_output + "</parse>"
 
     output += "<tokens>" + token_output + "</tokens>"
     if output_sentences:
@@ -191,6 +222,9 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, o
         output += "<POStags tagset=\"mte-hr-v4r\">" + tags_output + "</POStags>"
     if not empty(orthography_output):
         output += "<orthography>" + orthography_output + "</orthography>"
+    if not empty(orthography_output):
+        output += "<depparsing tagset=\"tiger\" emptytoks=\"false\" multigovs=\"false\">" + depparse_output + "</depparsing>"
+
 
     output = """<?xml version="1.0" encoding="UTF-8"?>
     <D-Spin xmlns="http://www.dspin.de/data" version="0.4">
