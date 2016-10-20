@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import traceback
+import os
 
 from subprocess import Popen, PIPE, STDOUT
 
@@ -12,8 +12,8 @@ class DependencyParser(object):
         self.lemmatiser = lemmatiser
         self._read_initial_output = False
 
-        jarFile = "/Users/fpetkovski/Development/Projects/reldi-api/bin/anna-3.5-custom-build.jar"
-        parserModelFile = "/Users/fpetkovski/Development/Projects/reldi-api/bin/set.hr.conll.MODEL"
+        jarFile = os.path.realpath("bin/anna-3.5-custom-build.jar")
+        parserModelFile = os.path.realpath("assets/set.hr.conll.MODEL")
 
         self.parser = Popen(["java", "-cp", jarFile, "is2.parser.Parser", "-model", parserModelFile], stdout=PIPE,
                             stdin=PIPE, stderr=PIPE)
