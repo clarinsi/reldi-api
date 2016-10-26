@@ -492,9 +492,9 @@ class ApiRouter(Blueprint):
 
             result = dependency_parser.parse(text)
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, lemma_idx=1, tag_idx=2, depparse_idx=3), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), ensure_ascii=False)
             elif format == 'tcf':
-                return Response(TCF(lang, text, result, lemma_idx=1, tag_idx=2, depparse_idx=3), mimetype='text/xml')
+                return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
         @self.route('/login', methods=['POST'])
         def login():

@@ -21,6 +21,8 @@ from src.helpers import jsonify
 
 from flask import make_response, redirect
 
+import traceback
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -43,7 +45,7 @@ def init():
         dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
         dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
         dc['lexicon.' + lang] = lambda: Lexicon(lang)
-        dc['restorer.'+lang] = lambda: DiacriticRestorer(lang, dc['segmenter.' + lang])
+        # dc['restorer.'+lang] = lambda: DiacriticRestorer(lang, dc['segmenter.' + lang])
         dc['dependency_parser.' + lang] = lambda: DependencyParser(lang, dc['lemmatiser.' + lang])
 
     def cleanup():
@@ -70,6 +72,8 @@ def init():
         '''
         app.logger.error(error)
         response = jsonify(error.message)
+        traceback.print_exc(error)
+
         return response, error.status_code if hasattr(error, 'status_code') else 500
 
     @app.route('/', methods=['GET'])
@@ -78,9 +82,6 @@ def init():
 
     return app
 
-
-application = init()
-# application.run()
 
 if __name__ == "__main__":
     text = 'Modeli su učitani! Vrlo uspješno.'
@@ -97,3 +98,5 @@ if __name__ == "__main__":
 
     app = init()
     app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
+else:
+    application = init()

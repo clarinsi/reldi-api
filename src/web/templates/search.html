@@ -14,8 +14,9 @@
 
 {% block react %}
 <script type="text/babel">
+    var downloadUrl = "{{ url_for('web_router.download', requestId='') }}";
     ReactDOM.render(
-        <SearchForm />,
+        <SearchForm downloadUrl={downloadUrl} />,
         document.getElementById('search-panel')
     );
 </script>

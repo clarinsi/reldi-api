@@ -1,9 +1,10 @@
-window.SearchFormResult = React.createClass({
+window.LexiconFormResult = React.createClass({
+
     render: function() {
         return (
             <div className="form-group">
                 <label htmlFor="textArea" className="col-md-12 control-label">Result</label>
-                <ReactBootstrap.Tabs defaultActiveKey={2} id="uncontrolled-tab-example" bsStyle="pills">
+                <ReactBootstrap.Tabs defaultActiveKey={1} id="uncontrolled-tab-example" bsStyle="pills">
                     <ReactBootstrap.Tab eventKey={1} title="Table">
                         <table id="lexicon-results" className="table" cellSpacing="0" width="100%" >
                             <thead>
