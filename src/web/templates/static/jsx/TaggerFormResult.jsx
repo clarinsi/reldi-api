@@ -102,7 +102,8 @@ window.TaggerFormResult = React.createClass({
                     </ReactBootstrap.Tab>
                     <ReactBootstrap.Tab eventKey={3} title="Download">
                         <div className="col-md-12">
-                            <a href={this.props.downloadUrl + this.props.requestId}>Download</a>
+                            <a href={this.props.downloadUrl + this.props.requestId}
+                                disabled={this.props.requestId == ''}>Download</a>
                         </div>
                     </ReactBootstrap.Tab>
                 </ReactBootstrap.Tabs>

@@ -1,5 +1,28 @@
 window.LexiconFormResult = React.createClass({
 
+    componentDidMount: function() {
+        var table = $('#lexicon-results').DataTable({
+            data: [],
+            columns: [{ title: "Surface from" }, { title: "Tags" }, { title: "Lemma" }]
+        });
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+        if (nextProps.result == undefined) {
+            return;
+        }
+
+        if (this.props.result && nextProps.result.hash == this.props.result.hash) {
+            return;
+        }
+
+        var table = $('#lexicon-results').dataTable();
+        table.fnClearTable();
+        if (nextProps.result.data.length > 0) {
+            table.fnAddData(nextProps.result.data);
+        }
+    },
+
     render: function() {
         return (
             <div className="form-group">
@@ -21,13 +44,6 @@ window.LexiconFormResult = React.createClass({
                             <textarea id="result-area" readOnly="true" className="form-control" rows="20"></textarea>
                             <textarea id="lexicon-result-area" readOnly="true" className="form-control" rows="20"></textarea>
                         </div>
-                    </ReactBootstrap.Tab>
-                    <ReactBootstrap.Tab eventKey={3} title="Download">
-                        <a id="download-result" href="{{ url_for('web_router.download', requestId='') }}"
-                                target="_blank" className="btn btn-default"
-                                style={{margin: 0, textTransform: 'none'}}>
-                            Download
-                        </a>
                     </ReactBootstrap.Tab>
                 </ReactBootstrap.Tabs>
             </div>

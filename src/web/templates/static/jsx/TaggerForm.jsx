@@ -19,21 +19,6 @@ window.TaggerForm = React.createClass({
 
     render: function() {
 
-        var options = [
-            {
-               value: "hr",
-               label: "Croatian"
-            },
-            {
-               value: "sr",
-               label: "Serbian"
-            },
-            {
-               value: "sl",
-               label: "Slovenian"
-            },
-        ];
-
         var submitButtonText = this.props.model.isInProcessing ? 'Processing ...' : 'Process';
 
         return (
@@ -66,7 +51,7 @@ window.TaggerForm = React.createClass({
                         </div>
                     </div>
                     <div className="col-md-6">
-                        <LanguagePicker options={options} selected={this.props.model.language}
+                        <LanguagePicker options={this.props.languageOptions} selected={this.props.model.language}
                             onChange={this.props.changeField.bind(null, 'language')}/>
 
                         <div className="form-group">
@@ -130,6 +115,5 @@ window.TaggerForm = React.createClass({
                 </fieldset>
             </form>
         )
-
     }
 });
