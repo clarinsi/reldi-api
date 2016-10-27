@@ -87,65 +87,79 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
     """
     output = {}
     output['text'] = text
-    output['tokens'] = []
-    output['sentences'] = []
-    output['lemmas'] = []
-    output['POSTags'] = []
-    output['orthography'] = []
-    output['depparsing'] = []
+    output['tokens'] = {
+        'token': []
+    }
+    output['sentences'] = {
+        'sentence': []
+    }
+    output['lemmas'] = {
+        'lemma': []
+    }
+    output['POStags'] = {
+        'tag': []
+    }
+    output['orthography'] = {
+        'correction': []
+    }
+    output['depparsing'] = {
+        'parse': []
+    }
 
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
 
         if depparse_idx is not None:
-            output['depparsing'].append([])
+            output['depparsing']['parse'].append({
+                'dependency': []
+            })
 
-        for token in sentence:
+        for t_idx, token in enumerate(sentence):
 
-            output['tokens'].append({
+            output['tokens']['token'].append({
                 'ID': "t_" + str(token_id),
                 'startChar': str(token[0][1]),
                 'endChar': str(token[0][2]),
-                'value': token[0][0]
+                'text': token[0][0]
             })
             token_ids.append("t_" + str(token_id))
             if lemma_idx is not None:
-                output['lemmas'].append({
+                output['lemmas']['lemma'].append({
                     'ID': 'le_' + str(token_id),
                     'tokenIDs': 't_' + str(token_id),
-                    'value': token[lemma_idx]
+                    'text': token[lemma_idx]
                 })
 
             if tag_idx is not None:
-                output['POSTags'].append({
+                output['POStags']['tag'].append({
                     'ID': 'pt_' + str(token_id),
                     'tokenIDs': 't_' + str(token_id),
-                    'value': token[tag_idx]
+                    'text': token[tag_idx]
                 })
             if correction_idx is not None:
-                output['orthography'].append({
+                output['orthography']['correction'].append({
                     'ID': 'pt_' + str(token_id),
                     'tokenIDs': 't_' + str(token_id),
-                    'value': token[correction_idx]
+                    'text': token[correction_idx]
                 })
             if depparse_idx is not None:
                 govId = token[depparse_idx][0]
                 if int(govId) != 0:
-                    output['depparsing'][s_idx].append({
+                    output['depparsing']['parse'][s_idx]['dependency'].append({
                         'govIDs': "t_" + str(int(token[depparse_idx][0]) - 1),
                         'depIDs': "t_" + str(token_id),
                         'func': token[depparse_idx][1]
                     })
                 else:
-                    output['depparsing'][s_idx].append({
+                    output['depparsing']['parse'][s_idx]['dependency'].append({
                         'depIDs': "t_" + str(token_id),
                         'func': token[depparse_idx][1]
                     })
 
             token_id += 1
 
-        output['sentences'].append({
+        output['sentences']['sentence'].append({
             'ID': 's_' + str(s_idx),
             'tokenIDs': " ".join(token_ids)
         })
@@ -153,16 +167,16 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
         # sentence_output += "\t<sentence ID=\"ID=s_{0}\" tokenIDs=\"{1}\">".format(s_idx, " ".join(token_ids))
         # sentence_output += "".join(map(lambda x: x[0], sentence)) + "</sentence>\n"
 
-    if len(output['POSTags']) == 0:
-        del output['POSTags']
+    if len(output['POStags']['tag']) == 0:
+        del output['POStags']
 
-    if len(output['lemmas']) == 0:
+    if len(output['lemmas']['lemma']) == 0:
         del output['lemmas']
 
-    if len(output['orthography']) == 0:
+    if len(output['orthography']['correction']) == 0:
         del output['orthography']
 
-    if len(output['depparsing']) == 0:
+    if len(output['depparsing']['parse']) == 0:
         del output['depparsing']
 
     return output
@@ -183,6 +197,7 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
+        parses = []
         for token in sentence:
             token_output += "<token ID=\"t_{0}\" startChar=\"{1}\" endChar=\"{2}\">{3}</token>".format(token_id,
                                                                                                            token[0][1],
@@ -203,15 +218,15 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
             if depparse_idx is not None:
                 govId = token[depparse_idx][0]
                 if int(govId) != 0:
-                    depparse_output += "<dependency govIDs=\"t_{0}\" depIDs=\"t_{1}\" func=\"{2}\" />".format(int(token[depparse_idx][0]) - 1, token_id, token[depparse_idx][1])
+                    parses.append("<dependency govIDs=\"t_{0}\" depIDs=\"t_{1}\" func=\"{2}\" />".format(int(token[depparse_idx][0]) - 1, token_id, token[depparse_idx][1]))
                 else:
-                    depparse_output += "<dependency depIDs=\"t_{1}\" func=\"{2}\" />".format(token_id, token[depparse_idx][1])
+                    parses.append("<dependency depIDs=\"t_{0}\" func=\"{1}\" />".format(token_id, token[depparse_idx][1]))
 
             token_id += 1
 
         sentence_output += "<sentence ID=\"s_{0}\" tokenIDs=\"{1}\" />".format(s_idx, " ".join(token_ids))
         if depparse_idx is not None:
-            depparse_output += "<parse ID=\"d_{0}\">".format(s_idx) + depparse_output + "</parse>"
+            depparse_output += "<parse ID=\"d_{0}\">".format(s_idx) + "".join(parses) + "</parse>"
 
     output += "<tokens>" + token_output + "</tokens>"
     if output_sentences:
@@ -222,7 +237,7 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
         output += "<POStags tagset=\"mte-hr-v4r\">" + tags_output + "</POStags>"
     if not empty(orthography_output):
         output += "<orthography>" + orthography_output + "</orthography>"
-    if not empty(orthography_output):
+    if not empty(depparse_output):
         output += "<depparsing tagset=\"tiger\" emptytoks=\"false\" multigovs=\"false\">" + depparse_output + "</depparsing>"
 
 

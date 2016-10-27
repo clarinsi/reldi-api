@@ -12,7 +12,7 @@ from src.core.segmenter import Segmenter
 from src.core.tagger import Tagger
 from src.core.lematiser import Lematiser
 from src.core.dependency_parser import DependencyParser
-# from src.api.restorer import DiacriticRestorer
+from src.api.restorer import DiacriticRestorer
 
 from src.routers.api_router import ApiRouter
 from src.routers.web_router import WebRouter
@@ -20,6 +20,8 @@ from src.services.mail_service import MailService
 from src.helpers import jsonify
 
 from flask import make_response, redirect
+
+import traceback
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -70,6 +72,8 @@ def init():
         '''
         app.logger.error(error)
         response = jsonify(error.message)
+        traceback.print_exc(error)
+
         return response, error.status_code if hasattr(error, 'status_code') else 500
 
     @app.route('/', methods=['GET'])
@@ -78,9 +82,6 @@ def init():
 
     return app
 
-
-application = init()
-# application.run()
 
 if __name__ == "__main__":
     text = 'Modeli su učitani! Vrlo uspješno.'
@@ -97,3 +98,5 @@ if __name__ == "__main__":
 
     app = init()
     app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
+else:
+    application = init()

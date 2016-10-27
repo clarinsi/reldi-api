@@ -3,151 +3,278 @@ window.SearchForm = React.createClass({
     getInitialState: function() {
         return {
             taggerForm: {
-
+                inputText: "",
+                format: "json",
+                method: "tag",
+                language: "hr",
+                isFileSelected: false,
+                result: {},
+                requestId: "",
+                lastQueryFormat: "json"
             },
             lexiconForm: {
-
+                payload: {
+                    surface: "",
+                    surface_is_regex: false,
+                    lemma: "",
+                    lemma_is_regex: false,
+                    msd: "",
+                    msd_is_regex: false,
+                    no_of_syllables: "",
+                    language: "hr",
+                }
             }
         }
     },
 
+    calculateDatasetHash: function(dataset) {
+        var hash = 0;
+        dataset.forEach(function(row) {
+            var concat = '';
+            row.forEach(function(item) {
+                concat = concat + item;
+            });
+            hash = hex_md5(hash + '-' + concat);
+        });
+        return hash;
+    },
+
+    taggerRequest: function() {
+
+        var file = $('#tagger-file-chooser').val();
+        var text = this.state.taggerForm.inputText;
+        var inputFormat = this.state.taggerForm.format;
+        var method = this.state.taggerForm.method;
+        var language = this.state.taggerForm.language;
+
+        if ((!file && !text) || !inputFormat || !method) {
+            return;
+        }
+
+        var url = baseUrl + language + '/' + method;
+        var data = new FormData();
+        data.append('format', inputFormat);
+
+        var requestId = generateGuid();
+
+        data.append('request-id', requestId);
+        if (file) {
+            data.append('file', $('#tagger-file-chooser')[0].files[0]);
+        } else {
+            data.append('text', text)
+        }
+
+        var newState = React.addons.update(this.state, {
+            taggerForm: {
+                isInProcessing: { $set: true },
+                requestId: { $set: requestId }
+            }
+        });
+        this.setState(newState);
+
+        var sendDate = (new Date()).getTime();
+        var trHTML = '';
+        $('#results').empty();
+
+        var self = this;
+        jQuery.ajax({
+            type: "POST",
+            dataType: inputFormat == 'json' ? 'json' : 'xml',
+            url: url,
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function(data, status, xml) {
+                var newState = React.addons.update(self.state, {
+                    taggerForm: {
+                        result: { $set: { data: data, raw: xml }},
+                        lastQueryFormat: { $set: inputFormat }
+                    }
+                });
+                self.setState(newState);
+            }, error: function(response) {
+
+            },
+            complete: function(data) {
+                var newState = React.addons.update(self.state, {
+                    taggerForm: {
+                        isInProcessing: { $set: false }
+                    }
+                });
+                self.setState(newState);
+            }
+        });
+    },
+
+    lexiconRequest: function() {
+        var payload= JSON.parse(JSON.stringify(this.state.lexiconForm.payload));
+        var language = payload.language;
+        delete payload.language;
+
+        if (payload.lemma == "" && payload.surface == "" && payload.msd == "") {
+            return;
+        }
+
+        payload.surface_is_regex = payload.surface_is_regex  ? '1' : '0';
+        payload.lemma_is_regex = payload.lemma_is_regex ? '1' : '0';
+        payload.msd_is_regex = payload.msd_is_regex ? '1' : '0';
+
+        var method = 'lexicon';
+        var url = baseUrl + language + '/' + method;
+        var sendDate = (new Date()).getTime();
+
+        var newState = React.addons.update(this.state, {
+            lexiconForm: {
+                isInProcessing: { $set: true }
+            }
+        });
+        this.setState(newState);
+
+        var self = this;
+        jQuery.ajax({
+            type: "GET",
+            dataType: 'json',
+            url: url,
+            data: payload
+        }).success(function(data) {
+
+            var hash = self.calculateDatasetHash(data.result);
+            var dataset = {
+                data: data.result,
+                hash: hash
+            }
+            var newState = React.addons.update(self.state, {
+                lexiconForm: {
+                    result: { $set: dataset }
+                }
+            });
+            self.setState(newState);
+        }).fail(function(response) {
+            $("#result-area").text(JSON.parse(response.responseText));
+        }).always(function() {
+            var receiveDate = (new Date()).getTime();
+            var responseTimeMs = receiveDate - sendDate;
+            var newState = React.addons.update(self.state, {
+                lexiconForm: {
+                    isInProcessing: { $set: false },
+                    responseTime: { $set: responseTimeMs }
+                }
+            });
+            self.setState(newState);
+        });
+    },
+
+    clearTaggerForm: function() {
+        this.setState({
+            taggerForm: this.getInitialState().taggerForm
+        });
+    },
+
+    clearLexiconForm: function() {
+        this.setState({
+            lexiconForm: this.getInitialState().lexiconForm
+        });
+    },
+
+    changeTaggerFormField: function(field, event) {
+        var taggerForm = this.state.taggerForm;
+        taggerForm[field] = event.target.value;
+        this.setState({
+            taggetForm: taggerForm
+        });
+    },
+
+    changeLexiconFormField: function(field, isCheckbox, event) {
+
+        var lexiconForm = this.state.lexiconForm;
+        if (isCheckbox) {
+            lexiconForm.payload[field] = event.target.checked;
+        } else {
+            lexiconForm.payload[field] = event.target.value;
+        }
+        this.setState({
+            lexiconForm: lexiconForm
+        });
+    },
+
+    onFileSelect: function() {
+        var taggerForm = this.state.taggerForm;
+        taggerForm.isFileSelected = true;
+        this.setState({
+            taggetForm: taggerForm
+        });
+    },
+
+    onFileDeselect: function() {
+        var taggerForm = this.state.taggerForm;
+        taggerForm.isFileSelected = false;
+        this.setState({
+            taggerForm: taggerForm
+        });
+    },
+
     render: function() {
+
+        var languageOptions = [
+            {
+               value: "hr",
+               label: "Croatian"
+            },
+            {
+               value: "sr",
+               label: "Serbian"
+            },
+            {
+               value: "sl",
+               label: "Slovenian"
+            },
+        ];
+
+        var data = {};
+        if(this.state.taggerForm.lastQueryFormat == "json") {
+            data.json = this.state.taggerForm.result.data;
+            data.raw  = JSON.stringify(this.state.taggerForm.result.data, null, 4);
+        } else {
+            data.json = JSON.parse(xml2json(this.state.taggerForm.result.data, ''))["D-Spin"]["TextCorpus"];
+            data.raw  = this.state.taggerForm.result.raw.responseText;
+        }
+
         return (
-            <ReactBootstrap.Tabs defaultActiveKey={2} id="uncontrolled-tab-example" bsStyle="pills">
+            <ReactBootstrap.Tabs defaultActiveKey={1} id="uncontrolled-tab-example" bsStyle="pills">
                 <ReactBootstrap.Tab eventKey={1} title="Tagger">
-                    <div className="col-md-5">
-                        <form id="search-form" className="form-horizontal tab-pane fade in">
-                            <fieldset>
-                                <div className="bordered">
-                                    <div className="form-group">
-                                        <label htmlFor="input-text" className="col-md-2 control-label">Text</label>
-                                        <div className="col-md-9 col-md-offset-2">
-                                            <textarea className="form-control" rows="10" id="input-text" style={{border: '1px solid #E8E7E7'}}></textarea>
-                                        </div>
-                                    </div>
-                                    <div className="separator"><span>or</span></div>
-                                    <div className="form-group">
-                                        <label htmlFor="input-text" className="col-md-2 control-label no-top-padding">File</label>
-                                        <div className="col-md-7">
-                                            <input id="tagger-file-chooser" type="file" name="input-file" />
-                                        </div>
-                                        <button id="remove-file" className="btn btn-primary btn-xs no-top-margin">remove</button>
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="col-md-2 control-label">Format</label>
-                                    <div className="col-md-10">
-                                        <label className="radio-inline">
-                                            <input type="radio" name="input-format" id="input-format-1" value="json" />
-                                            Text
-                                        </label>
-                                        <label className="radio-inline">
-                                            <input type="radio" name="input-format" id="input-format-2" value="tcf" />
-                                            TCF
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="col-md-2 control-label">Function</label>
-                                    <div className="col-md-10">
-                                        <label className="radio-inline">
-                                            <input type="radio" name="method" id="method1" value="tag" />
-                                            Tag
-                                        </label>
-                                        <label className="radio-inline">
-                                            <input type="radio" name="method" id="method2" value="lemmatise" />
-                                            Lemmatise
-                                        </label>
-                                        <label className="radio-inline">
-                                            <input type="radio" name="method" id="method3" value="tag_lemmatise" />
-                                            Tag  +  Lemmatise
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <div className="col-md-10 col-md-offset-2">
-                                        <button id="search-button" type="submit" className="btn btn-primary">Process</button>
-                                        <button id="tagger-clear-button" type="submit" className="btn btn-primary clear-tag">Clear</button>
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </form>
+                    <div className="col-md-12">
+                        <TaggerForm
+                            model={this.state.taggerForm}
+                            languageOptions={languageOptions}
+                            changeField={this.changeTaggerFormField}
+                            onFileSelect={this.onFileSelect}
+                            onFileDeselect={this.onFileDeselect}
+                            clearForm={this.clearTaggerForm}
+                            onSubmit={this.taggerRequest}
+                        />
                     </div>
-                    <div className="col-md-7">
-                        <SearchFormResult />
+                    <div className="col-md-12">
+                        <TaggerFormResult
+                            result={data}
+                            requestId={this.state.taggerForm.requestId}
+                            downloadUrl={this.props.downloadUrl}
+                            format={this.state.taggerForm.lastQueryFormat}
+                        />
                     </div>
                 </ReactBootstrap.Tab>
                 <ReactBootstrap.Tab eventKey={2} title="Lexicon">
                     <div className="col-md-5">
-                        <form id="lexicon-form" className="form-horizontal tab-pane fade in">
-                            <fieldset>
-                                <div className="form-group">
-                                    <div className="col-md-12" style={{backgroundColor: '#F7F7F7'}}>
-                                        <ul className="list-group" style={{paddingLeft: '20px'}}>
-                                            <h4>Parameter description</h4>
-                                            <li><strong>Regular input: </strong>
-                                                In addition to completely matching a string, you can use the special character %
-                                                as a wildcard to match an arbitrary string, including an empty string
-                                            </li>
-                                            <strong>Examples:</strong>
-                                            <ul>
-                                                <li>pet% matches pet, petodnevni, peteročlan, petostran etc.</li>
-                                                <li>%pet matches pet, napet, trepet, opet etc.</li>
-                                                <li>%pet% matches any string containing the substring pet.</li>
-                                            </ul>
-                                            <li><strong>Regex input: </strong> all regular expression characters are allowed</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="inputSurface" className="col-md-2 control-label">Surface</label>
-                                    <div className="col-md-10">
-                                        <input type="text" className="form-control" id="inputSurface" />
-                                        <label style={{fontWeight: 'normal', color: 'gray'}}>
-                                            <input type="checkbox" id="surface_is_regex" value="0" />
-                                            <span> regex input </span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="inputLemma" className="col-md-2 control-label">Lemma</label>
-                                    <div className="col-md-10">
-                                        <input type="text" className="form-control" id="inputLemma" />
-                                        <label style={{fontWeight: 'normal', color: 'gray'}}>
-                                            <input type="checkbox" id="lemma_is_regex" value="0" />
-                                            <span> regex input </span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="inputMsd" className="col-md-2 control-label">Msd</label>
-                                    <div className="col-md-10">
-                                        <input type="text" className="form-control" id="inputMsd" />
-                                        <label style={{fontWeight: 'normal', color: 'gray'}}>
-                                            <input type="checkbox" value="0" id="msd_is_regex" />
-                                            <span> regex input </span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="inputNoOfSyllables" className="col-md-2 control-label">No of syllables</label>
-                                    <div className="col-md-10">
-                                        <input type="text" className="form-control" id="inputNoOfSyllables" />
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <div className="col-md-10 col-md-offset-2">
-                                        <button id="lexicon-button" type="submit" className="btn btn-primary search-lexicon">Filter</button>
-                                        <button id="lexicon-clear-button" type="submit" className="btn btn-primary clear-lexicon">Clear</button>
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </form>
+                        <LexiconForm
+                            model={this.state.lexiconForm.payload}
+                            isInProcessing={this.state.lexiconForm.isInProcessing}
+                            languageOptions={languageOptions}
+                            changeField={this.changeLexiconFormField}
+                            clearForm={this.clearLexiconForm}
+                            onSubmit={this.lexiconRequest}
+                         />
                     </div>
                     <div className="col-md-7">
-                        <SearchFormResult />
+                        <LexiconFormResult result={this.state.lexiconForm.result} />
                     </div>
                 </ReactBootstrap.Tab>
             </ReactBootstrap.Tabs>
