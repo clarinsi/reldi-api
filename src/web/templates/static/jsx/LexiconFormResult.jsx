@@ -24,8 +24,17 @@ window.LexiconFormResult = React.createClass({
     },
 
     render: function() {
+
+        if (this.props.error != null) {
+            return <div className="error-message">{this.props.error}</div>;
+        }
+
+        var style = {
+            display: this.props.result == undefined ? 'none' : 'block'
+        }
+
         return (
-            <div className="form-group">
+            <div className="form-group" style={style}>
                 <label htmlFor="textArea" className="col-md-12 control-label">Result</label>
                 <ReactBootstrap.Tabs defaultActiveKey={1} id="uncontrolled-tab-example" bsStyle="pills">
                     <ReactBootstrap.Tab eventKey={1} title="Table">
@@ -41,8 +50,10 @@ window.LexiconFormResult = React.createClass({
                     </ReactBootstrap.Tab>
                     <ReactBootstrap.Tab eventKey={2} title="Raw">
                         <div className="col-md-12">
-                            <textarea id="result-area" readOnly="true" className="form-control" rows="20"></textarea>
-                            <textarea id="lexicon-result-area" readOnly="true" className="form-control" rows="20"></textarea>
+                            <textarea readOnly="true" className="form-control"
+                                        rows="20" value={this.props.result ? JSON.stringify(this.props.result.data) : ''}>
+
+                            </textarea>
                         </div>
                     </ReactBootstrap.Tab>
                 </ReactBootstrap.Tabs>
