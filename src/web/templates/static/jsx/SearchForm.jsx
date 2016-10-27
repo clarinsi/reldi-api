@@ -88,12 +88,18 @@ window.SearchForm = React.createClass({
                 var newState = React.addons.update(self.state, {
                     taggerForm: {
                         result: { $set: { data: data, raw: xml }},
-                        lastQueryFormat: { $set: inputFormat }
+                        lastQueryFormat: { $set: inputFormat },
+                        error: { $set: null }
                     }
                 });
                 self.setState(newState);
             }, error: function(response) {
-
+                var newState = React.addons.update(self.state, {
+                    taggerForm: {
+                        error: { $set: response.responseText }
+                    }
+                });
+                self.setState(newState);
             },
             complete: function(data) {
                 var newState = React.addons.update(self.state, {
@@ -115,9 +121,9 @@ window.SearchForm = React.createClass({
             return;
         }
 
-        payload.surface_is_regex = payload.surface_is_regex  ? '1' : '0';
-        payload.lemma_is_regex = payload.lemma_is_regex ? '1' : '0';
-        payload.msd_is_regex = payload.msd_is_regex ? '1' : '0';
+        payload.surface_is_regex = payload.surface_is_regex ? '1' : '0';
+        payload.lemma_is_regex   = payload.lemma_is_regex   ? '1' : '0';
+        payload.msd_is_regex     = payload.msd_is_regex     ? '1' : '0';
 
         var method = 'lexicon';
         var url = baseUrl + language + '/' + method;
@@ -145,12 +151,18 @@ window.SearchForm = React.createClass({
             }
             var newState = React.addons.update(self.state, {
                 lexiconForm: {
-                    result: { $set: dataset }
+                    result: { $set: dataset },
+                    error:  { $set: null }
                 }
             });
             self.setState(newState);
         }).fail(function(response) {
-            $("#result-area").text(JSON.parse(response.responseText));
+            var newState = React.addons.update(self.state, {
+                lexiconForm: {
+                    error: { $set: response.responseText }
+                }
+            });
+            self.setState(newState);
         }).always(function() {
             var receiveDate = (new Date()).getTime();
             var responseTimeMs = receiveDate - sendDate;
@@ -256,6 +268,7 @@ window.SearchForm = React.createClass({
                     <div className="col-md-12">
                         <TaggerFormResult
                             result={data}
+                            error={this.state.taggerForm.error}
                             requestId={this.state.taggerForm.requestId}
                             downloadUrl={this.props.downloadUrl}
                             format={this.state.taggerForm.lastQueryFormat}
@@ -266,6 +279,7 @@ window.SearchForm = React.createClass({
                     <div className="col-md-5">
                         <LexiconForm
                             model={this.state.lexiconForm.payload}
+                            error={this.state.lexiconForm.error}
                             isInProcessing={this.state.lexiconForm.isInProcessing}
                             languageOptions={languageOptions}
                             changeField={this.changeLexiconFormField}
@@ -274,7 +288,7 @@ window.SearchForm = React.createClass({
                          />
                     </div>
                     <div className="col-md-7">
-                        <LexiconFormResult result={this.state.lexiconForm.result} />
+                        <LexiconFormResult result={this.state.lexiconForm.result} error={this.state.lexiconForm.error} />
                     </div>
                 </ReactBootstrap.Tab>
             </ReactBootstrap.Tabs>

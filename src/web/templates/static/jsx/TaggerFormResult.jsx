@@ -2,6 +2,10 @@ window.TaggerFormResult = React.createClass({
 
     render: function() {
 
+        if (this.props.error != null) {
+            return <div className="error-message">{this.props.error}</div>;
+        }
+
         var result = this.props.result;
         if (!result.json) {
             return false;
