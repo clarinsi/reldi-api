@@ -12,7 +12,7 @@ from src.core.segmenter import Segmenter
 from src.core.tagger import Tagger
 from src.core.lematiser import Lematiser
 from src.core.dependency_parser import DependencyParser
-from src.api.restorer import DiacriticRestorer
+from src.core.restorer     import DiacriticRestorer
 
 from src.routers.api_router import ApiRouter
 from src.routers.web_router import WebRouter

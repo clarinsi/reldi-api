@@ -496,6 +496,31 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
+
+        @self.route('/unauthorized/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
+        def tag_lemmatise_depparse(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
+            format = get_format(request)
+            if not isset(format):
+                raise InvalidUsage('Please specify a format')
+
+            text = get_text(format, request)
+            dependency_parser = dc['dependency_parser.' + lang]
+
+            result = dependency_parser.parse(text)
+            if format == 'json':
+                return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), ensure_ascii=False)
+            elif format == 'tcf':
+                return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
+
+
+
         @self.route('/login', methods=['POST'])
         def login():
             '''
