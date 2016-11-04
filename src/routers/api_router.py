@@ -498,7 +498,7 @@ class ApiRouter(Blueprint):
 
 
         @self.route('/unauthorized/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
-        def tag_lemmatise_depparse(lang):
+        def unauthorized_tag_lemmatise_depparse(lang):
             '''
 
             @param lang:
