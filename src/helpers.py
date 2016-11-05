@@ -160,6 +160,8 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
 
             token_id += 1
 
+        previous_token_sum += len(sentence)
+
         output['sentences']['sentence'].append({
             'ID': 's_' + str(s_idx),
             'tokenIDs': " ".join(token_ids)
