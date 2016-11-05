@@ -105,7 +105,8 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
     output['depparsing'] = {
         'parse': []
     }
-
+    
+    previous_token_sum = 0
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
