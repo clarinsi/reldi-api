@@ -194,6 +194,7 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
     orthography_output = ''
     depparse_output = ''
 
+    previous_token_sum = 0
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
@@ -216,13 +217,14 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
                 orthography_output += "<correction ID=\"pt_{0}\" tokenIDs=\"t_{0}\">{1}</correction>".format(token_id, token[correction_idx])
 
             if depparse_idx is not None:
-                govId = token[depparse_idx][0]
-                if int(govId) != 0:
-                    parses.append("<dependency govIDs=\"t_{0}\" depIDs=\"t_{1}\" func=\"{2}\" />".format(int(token[depparse_idx][0]) - 1, token_id, token[depparse_idx][1]))
+                govId = int(token[depparse_idx][0]) - 1 + previous_token_sum
+                if int(govId) != previous_token_sum - 1:
+                    parses.append("<dependency govIDs=\"t_{0}\" depIDs=\"t_{1}\" func=\"{2}\" />".format(govId, token_id, token[depparse_idx][1]))
                 else:
                     parses.append("<dependency depIDs=\"t_{0}\" func=\"{1}\" />".format(token_id, token[depparse_idx][1]))
 
             token_id += 1
+        previous_token_sum += len(sentence)
 
         sentence_output += "<sentence ID=\"s_{0}\" tokenIDs=\"{1}\" />".format(s_idx, " ".join(token_ids))
         if depparse_idx is not None:
@@ -234,11 +236,11 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
     if not empty(lemmas_output):
         output += "<lemmas>" + lemmas_output + "</lemmas>"
     if not empty(tags_output):
-        output += "<POStags tagset=\"mte-hr-v4r\">" + tags_output + "</POStags>"
+        output += "<POStags tagset=\"mte-hr-v5\">" + tags_output + "</POStags>"
     if not empty(orthography_output):
         output += "<orthography>" + orthography_output + "</orthography>"
     if not empty(depparse_output):
-        output += "<depparsing tagset=\"tiger\" emptytoks=\"false\" multigovs=\"false\">" + depparse_output + "</depparsing>"
+        output += "<depparsing tagset=\"UD-v1.3\" emptytoks=\"false\" multigovs=\"false\">" + depparse_output + "</depparsing>"
 
 
     output = """<?xml version="1.0" encoding="UTF-8"?>
