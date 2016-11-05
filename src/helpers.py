@@ -144,10 +144,10 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
                     'text': token[correction_idx]
                 })
             if depparse_idx is not None:
-                govId = token[depparse_idx][0]
-                if int(govId) != 0:
+                govId = int(token[depparse_idx][0]) - 1 + previous_token_sum
+                if int(govId) != previous_token_sum - 1:
                     output['depparsing']['parse'][s_idx]['dependency'].append({
-                        'govIDs': "t_" + str(int(token[depparse_idx][0]) - 1),
+                        'govIDs': "t_" + str(govId),
                         'depIDs': "t_" + str(token_id),
                         'func': token[depparse_idx][1]
                     })
