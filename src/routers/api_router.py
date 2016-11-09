@@ -89,6 +89,30 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
+class BadRequest(Exception):
+    """
+    Thrown during a 422 server error
+    """
+    status_code = 400
+
+    def __init__(self, message):
+        '''
+        @param message:
+        @type message: string
+        '''
+        Exception.__init__(self)
+        self.message = message
+
+    def to_dict(self):
+        '''
+
+        @return:
+        @rtype: string
+        '''
+        rv = dict()
+        rv['message'] = self.message
+        return rv
+
 
 class ApiRouter(Blueprint):
     def register(self, app, options, first_registration=False):
@@ -224,6 +248,21 @@ class ApiRouter(Blueprint):
                 raise InvalidUsage('Please specify a request id')
 
             return request_id
+
+        def weblicht_get_text(request):
+            with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
+                text = request.data
+                relaxng_doc = etree.parse(f)
+                relaxng = etree.RelaxNG(relaxng_doc)
+                inputXml = re.sub(">\\s*<", "><", text)
+                inputXml = re.sub("^\\s*<", "<", inputXml)
+
+                doc = etree.parse(StringIO(inputXml))
+                try:
+                    relaxng.assertValid(doc)
+                    return doc.getroot()[1][0].text
+                except Exception as e:
+                    raise InvalidUsage(e.message)
 
         def get_text(format, request):
             '''
@@ -519,6 +558,16 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
+        @self.route('/weblicht/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
+        def weblicht_tag_lemmatise_depparse(lang):
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+            dependency_parser = dc['dependency_parser.' + lang]
+            result = dependency_parser.parse(text)
+            return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
 
         @self.route('/login', methods=['POST'])
