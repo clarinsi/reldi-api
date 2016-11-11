@@ -255,5 +255,5 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
         </TextCorpus>
     </D-Spin>""".format(lang, output, text)
 
-    x = etree.parse(StringIO(output), etree.XMLParser(remove_blank_text=True))
-    return etree.tostring(x.getroot(), pretty_print=True)
+    x = etree.parse(StringIO(output.encode('utf-8')), etree.XMLParser(remove_blank_text=True, encoding="utf-8"))
+    return etree.tostring(x.getroot(), pretty_print=True, encoding='UTF-8').decode('utf-8')
