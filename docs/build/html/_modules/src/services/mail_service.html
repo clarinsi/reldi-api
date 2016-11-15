@@ -43,16 +43,21 @@
           <div class="body" role="main">
             
   <h1>Source code for src.services.mail_service</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">smtplib</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">smtplib</span>
 <span class="kn">from</span> <span class="nn">smtplib</span> <span class="k">import</span> <span class="n">SMTPException</span>
-
+<span class="kn">import</span> <span class="nn">ConfigParser</span>
 
 <div class="viewcode-block" id="MailService"><a class="viewcode-back" href="../../../src.services.html#src.services.mail_service.MailService">[docs]</a><span class="k">class</span> <span class="nc">MailService</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used for sending out emails to clients</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_MAILBOX_USERNAME</span> <span class="o">=</span> <span class="s1">&#39;projectreldi@gmail.com&#39;</span>
-    <span class="n">_MAILBOX_PASSWORD</span> <span class="o">=</span> <span class="s1">&#39;linguistics1020&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.reldi/credentials&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_username</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mail&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_password</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mail&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MailService.sendEmailConfirmationEmail"><a class="viewcode-back" href="../../../src.services.html#src.services.mail_service.MailService.sendEmailConfirmationEmail">[docs]</a>    <span class="k">def</span> <span class="nf">sendEmailConfirmationEmail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">confirm_email_url</span><span class="p">):</span>
 
@@ -76,7 +81,7 @@
             <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="s1">&#39;smtp.gmail.com&#39;</span><span class="p">,</span> <span class="mi">587</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">ehlo</span><span class="p">()</span>
             <span class="n">server</span><span class="o">.</span><span class="n">starttls</span><span class="p">()</span>
-            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_USERNAME</span><span class="p">,</span> <span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_PASSWORD</span><span class="p">)</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mailbox_username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_password</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receivers</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">SMTPException</span><span class="p">:</span>
@@ -108,7 +113,7 @@
             <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="s1">&#39;smtp.gmail.com&#39;</span><span class="p">,</span> <span class="mi">587</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">ehlo</span><span class="p">()</span>
             <span class="n">server</span><span class="o">.</span><span class="n">starttls</span><span class="p">()</span>
-            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_USERNAME</span><span class="p">,</span> <span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_PASSWORD</span><span class="p">)</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mailbox_username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_password</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receivers</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">SMTPException</span><span class="p">:</span>
@@ -135,7 +140,7 @@
             <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="s1">&#39;smtp.gmail.com&#39;</span><span class="p">,</span> <span class="mi">587</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">ehlo</span><span class="p">()</span>
             <span class="n">server</span><span class="o">.</span><span class="n">starttls</span><span class="p">()</span>
-            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_USERNAME</span><span class="p">,</span> <span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_PASSWORD</span><span class="p">)</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mailbox_username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_password</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receivers</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">SMTPException</span><span class="p">:</span>
@@ -166,7 +171,7 @@
             <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="s1">&#39;smtp.gmail.com&#39;</span><span class="p">,</span> <span class="mi">587</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">ehlo</span><span class="p">()</span>
             <span class="n">server</span><span class="o">.</span><span class="n">starttls</span><span class="p">()</span>
-            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_USERNAME</span><span class="p">,</span> <span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_PASSWORD</span><span class="p">)</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mailbox_username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_password</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receivers</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">SMTPException</span><span class="p">:</span>
@@ -194,7 +199,7 @@
             <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="s1">&#39;smtp.gmail.com&#39;</span><span class="p">,</span> <span class="mi">587</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">ehlo</span><span class="p">()</span>
             <span class="n">server</span><span class="o">.</span><span class="n">starttls</span><span class="p">()</span>
-            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_USERNAME</span><span class="p">,</span> <span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_PASSWORD</span><span class="p">)</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mailbox_username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_password</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receivers</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">SMTPException</span><span class="p">:</span>
@@ -222,7 +227,7 @@
             <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="s1">&#39;smtp.gmail.com&#39;</span><span class="p">,</span> <span class="mi">587</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">ehlo</span><span class="p">()</span>
             <span class="n">server</span><span class="o">.</span><span class="n">starttls</span><span class="p">()</span>
-            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_USERNAME</span><span class="p">,</span> <span class="n">MailService</span><span class="o">.</span><span class="n">_MAILBOX_PASSWORD</span><span class="p">)</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mailbox_username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mailbox_password</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">receivers</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">SMTPException</span><span class="p">:</span>

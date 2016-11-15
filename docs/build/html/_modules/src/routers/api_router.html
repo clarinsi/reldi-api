@@ -136,7 +136,6 @@
 
 
 <div class="viewcode-block" id="ApiRouter"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.ApiRouter">[docs]</a><span class="k">class</span> <span class="nc">ApiRouter</span><span class="p">(</span><span class="n">Blueprint</span><span class="p">):</span>
-
 <div class="viewcode-block" id="ApiRouter.register"><a class="viewcode-back" href="../../../src.routers.html#src.routers.api_router.ApiRouter.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">first_registration</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ApiRouter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">first_registration</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span></div>
@@ -517,6 +516,30 @@
                 <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;tcf&#39;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;text/xml&#39;</span><span class="p">)</span>
+
+        <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;lang&gt;/tag_lemmatise_depparse&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+        <span class="nd">@authenticate</span>
+        <span class="nd">@save_file</span>
+        <span class="k">def</span> <span class="nf">tag_lemmatise_depparse</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">            @param lang:</span>
+<span class="sd">            @type lang: string</span>
+<span class="sd">            @return:</span>
+<span class="sd">            @rtype: string</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">get_format</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isset</span><span class="p">(</span><span class="nb">format</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidUsage</span><span class="p">(</span><span class="s1">&#39;Please specify a format&#39;</span><span class="p">)</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="n">get_text</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+            <span class="n">dependency_parser</span> <span class="o">=</span> <span class="n">dc</span><span class="p">[</span><span class="s1">&#39;dependency_parser.&#39;</span> <span class="o">+</span> <span class="n">lang</span><span class="p">]</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">dependency_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">jsonTCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">depparse_idx</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;tcf&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">TCF</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">lemma_idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tag_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">depparse_idx</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span> <span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;text/xml&#39;</span><span class="p">)</span>
 
         <span class="nd">@self</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
         <span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
