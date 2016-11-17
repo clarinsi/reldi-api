@@ -4,6 +4,7 @@
 from cleo import Application
 
 from tools.dbtools.reset_db import ResetDB
+from tools.diacritic_restore_tools.diacritic_restore import DiacriticRestoreCommand
 from tools.lextools.import_lexicon import ImportLexiconCommand
 from tools.lextools.query_lexicon import QueryLexiconCommand
 from tools.usertools.create_user import CreateUserCommand
@@ -21,6 +22,7 @@ application.add(DeleteUserByUsernameCommand())
 application.add(LoginUserWithCredentials())
 application.add(ResetDB())
 application.add(DependecyParseCommand())
+application.add(DiacriticRestoreCommand())
 
 if __name__ == '__main__':
     application.run()
