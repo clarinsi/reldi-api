@@ -4,7 +4,7 @@ from src.core.restorer import DiacriticRestorer
 from src.core.segmenter import Segmenter
 
 class DiacriticRestoreCommand(Command):
-    name = 'depparse:parse'
+    name = 'diacritic_restorer:restore'
 
     description = 'Dependency parse the input text'
 
