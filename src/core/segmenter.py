@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
+import re
 # sys.path.append('./lib')
 from tokenizer import generate_tokenizer, tokenize, sentence_split, sentence_split_nonstd, spaces_re
 
@@ -17,4 +16,13 @@ class Segmenter(object, ):
         Segments a sentence into tokens
         """
 
-        return sentence_split(tokenize(self.tokenizer, u'' + sentence), self.lang)
+        lines = filter(lambda x: x != '', sentence.splitlines())
+        result = []
+        for line in lines:
+            tokens = sentence_split(tokenize(self.tokenizer, u'' + line), self.lang)
+            result.extend(tokens)
+
+        return result
+
+
+
