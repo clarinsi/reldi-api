@@ -64,7 +64,7 @@ window.TaggerFormResult = React.createClass({
                 if (govIds == undefined) {
                     govIds = '-'
                 } else {
-                    govIds = govIds.split("t_")[1];
+                    govIds = (govIds.split("t_")[1] + 1);
                 }
 
                 var func = result.json.depparsing.parse[sentenceIdx].dependency[idx - previousSentenceSum].func;
