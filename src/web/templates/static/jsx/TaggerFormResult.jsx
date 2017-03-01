@@ -29,7 +29,7 @@ window.TaggerFormResult = React.createClass({
         }
 
         // Generate table
-        var tableHeaders = [<th key="surface">Surface</th>];
+        var tableHeaders = [<th key="idx"></th>, <th key="surface">Surface</th>];
         if ('POStags' in result.json) {
             tableHeaders.push(<th key="tags">Tags</th>);
         }
@@ -49,6 +49,7 @@ window.TaggerFormResult = React.createClass({
 
         var bodyRows = result.json.tokens.token.map(function(row, idx) {
             var tds = [];
+            tds.push(<td key="idx"><strong>{idx - previousSentenceSum + 1}.</strong></td>);
             tds.push(<td key="surf">{row.text}</td>);
 
             if ('POStags' in result.json) {
@@ -64,7 +65,7 @@ window.TaggerFormResult = React.createClass({
                 if (govIds == undefined) {
                     govIds = '-'
                 } else {
-                    govIds = (govIds.split("t_")[1] + 1);
+                    govIds = (parseInt(govIds.split("t_")[1]) + 1) - previousSentenceSum;
                 }
 
                 var func = result.json.depparsing.parse[sentenceIdx].dependency[idx - previousSentenceSum].func;
@@ -80,7 +81,13 @@ window.TaggerFormResult = React.createClass({
                 sentenceIdx++;
             }
 
-            return (<tr key={idx}>{tds}</tr>);
+            var style = {};
+            if (idx - previousSentenceSum == 0) {
+                style.borderTop = '50px solid white';
+            }
+            
+
+            return (<tr style={style} key={idx}>{tds}</tr>);
         });
 
         return (
