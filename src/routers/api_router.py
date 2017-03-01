@@ -9,10 +9,7 @@ from flask import current_app
 from functools import wraps
 from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
-import re
-import os
-import json
-import csv
+import re, os, json, csv, traceback
 
 
 class ServerError(Exception):
@@ -199,29 +196,54 @@ class ApiRouter(Blueprint):
                     posTags = {}
                     lemmas = {}
                     tokens = {}
+                    parse = {}
 
-                    if 'POSTags' in data:
-                        for tag in data['POSTags']:
+                    if 'POStags' in data:
+                        for tag in data['POStags']['tag']:
                             posTags[tag['tokenIDs']] = tag
 
                     if 'lemmas' in data:
-                        for lemma in data['lemmas']:
+                        for lemma in data['lemmas']['lemma']:
                             lemmas[lemma['tokenIDs']] = lemma
 
                     if 'tokens' in data:
-                        for token in data['tokens']:
+                        for token in data['tokens']['token']:
                             tokens[token['ID']] = token
 
-                    for sentence in data['sentences']:
-                        for tid in sentence['tokenIDs'].split(' '):
+                    if 'depparsing' in data:
+                        previousTokenSum = 0
+                        for sentence in data['depparsing']['parse']:
+                            for token in sentence['dependency']:
+                                if 'govIDs' in token:
+                                    parse[token['depIDs']] = {
+                                        'govIDs': int(token['govIDs'].split('_')[1]) - previousTokenSum + 1,
+                                        'func': token['func']
+                                    }
+                                else:
+                                    parse[token['depIDs']] = {
+                                        'govIDs': 'root',
+                                        'func': '-'
+                                    }
+                            previousTokenSum += len(sentence['dependency'])
+
+                    for sentence in data['sentences']['sentence']:
+                        for idx, tid in enumerate(sentence['tokenIDs'].split(' ')):
                             csvResult.append([])
                             token = tokens[tid]
-                            csvResult[-1].append(token['value'])
+                            csvResult[-1].append(idx + 1)
+                            csvResult[-1].append(token['text'])
+
                             if tid in posTags:
-                                csvResult[-1].append(posTags[tid]['value'])
+                                csvResult[-1].append(posTags[tid]['text'])
                             if tid in lemmas:
-                                csvResult[-1].append(lemmas[tid]['value'])
-                            csvResult[-1].append(token['startChar'] + ' - ' + token['endChar'])
+                                csvResult[-1].append(lemmas[tid]['text'])
+                            if tid in parse:
+                                csvResult[-1].append(parse[tid]['govIDs'])
+                                csvResult[-1].append(parse[tid]['func'])
+
+                            csvResult[-1].append(token['startChar'])
+                            csvResult[-1].append(token['endChar'])
+
                         csvResult.append([])
 
                     with open(filePath, 'w') as f:
