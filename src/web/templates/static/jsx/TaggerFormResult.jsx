@@ -63,7 +63,7 @@ window.TaggerFormResult = React.createClass({
             if ('depparsing' in result.json) {
                 var govIds = result.json.depparsing.parse[sentenceIdx].dependency[idx - previousSentenceSum].govIDs;
                 if (govIds == undefined) {
-                    govIds = '-'
+                    govIds = '0'
                 } else {
                     govIds = (parseInt(govIds.split("t_")[1]) + 1) - previousSentenceSum;
                 }
@@ -85,7 +85,7 @@ window.TaggerFormResult = React.createClass({
             if (idx - previousSentenceSum == 0) {
                 style.borderTop = '50px solid white';
             }
-            
+
 
             return (<tr style={style} key={idx}>{tds}</tr>);
         });

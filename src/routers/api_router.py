@@ -221,8 +221,8 @@ class ApiRouter(Blueprint):
                                     }
                                 else:
                                     parse[token['depIDs']] = {
-                                        'govIDs': 'root',
-                                        'func': '-'
+                                        'govIDs': '0',
+                                        'func': 'root'
                                     }
                             previousTokenSum += len(sentence['dependency'])
 
