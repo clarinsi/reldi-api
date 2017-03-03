@@ -24,21 +24,24 @@ class DependencyParser(object):
     def parse(self, text):
 
         sentences = self.lemmatiser.tagLemmatise(text)
-
-        result = []
-        parsedSentences = []
+        payloadString = ""
         # Feed data
         for sentence in sentences:
-            parsedSentence = []
-            inputString = ""
             for tokenIdx, token in enumerate(sentence):
-                inputString += "{0}	{1}	{2}	_	{3}	_	{4}	_	_	_	_	_	_\n" \
+                payloadString += "{0}	{1}	{2}	_	{3}	_	{4}	_	_	_	_	_	_\n" \
                     .format(tokenIdx + 1, token[0][0], token[2], token[1][0], token[1])
-            inputString += "\n"
-            text = self._makeRequest(inputString)
+            payloadString += "\n"
 
-            # split all the sentences by New Line and removed the empty spaces or empty lines
-            content = map(lambda x: x.split("\t"), text.split('\n'))
+        print "Make request"
+        parsedText = self._makeRequest(payloadString)
+        print "Done"
+        parsedTextSentences = parsedText.split("\n\n")
+
+        parsedSentences = []
+        # split all the sentences by New Line and removed the empty spaces or empty lines
+        for sidx, sentence in enumerate(sentences):
+            parsedSentence = []
+            content = map(lambda x: x.split("\t"), parsedTextSentences[sidx].split('\n'))
             for tokenIdx, token in enumerate(sentence):
                 parsedSentence.append((token[0], token[1], token[2], (content[tokenIdx][9], content[tokenIdx][11])))
 
