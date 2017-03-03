@@ -39,31 +39,10 @@ class DependencyParser(object):
 
             # split all the sentences by New Line and removed the empty spaces or empty lines
             content = map(lambda x: x.split("\t"), text.split('\n'))
-            print content
             for tokenIdx, token in enumerate(sentence):
                 parsedSentence.append((token[0], token[1], token[2], (content[tokenIdx][9], content[tokenIdx][11])))
 
             parsedSentences.append(parsedSentence)
-
-            # for token in sentence:
-                # for line in content:
-                #     parts = line.split('\t')
-                #     parsedSentence.append((token[0], token[1], token[2], (parts[9], parts[11])))
-
-            # result.append(parsedSentence)
-
-        #     self.parser.stdin.write(inputString)
-        #
-        #     # Read data
-        #     for token in sentence:
-        #         parsedToken = self.parser.stdout.readline().rstrip()                          #reads first line of the result
-        #         parts = parsedToken.split('\t')                                               #splits line by TABS
-        #         parsedSentence.append((token[0], token[1], token[2], (parts[9], parts[11])))  #appends elements to a parsed sentences
-        #
-        #     result.append(parsedSentence)
-        #
-        #     # Read blank
-        #     self.parser.stdout.readline().rstrip()
 
 
         return parsedSentences
