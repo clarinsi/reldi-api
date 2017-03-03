@@ -17,7 +17,7 @@ class DependencyParser(object):
 
     def _makeRequest(self, text):
         result = requests.post("http://localhost:9090/parse",
-                      data={'lang': self.lang.lower(), 'text': text})
+                      data={'lang': self.lang.lower(), 'text': urllib.quote(text)})
 
         return result.text
 
