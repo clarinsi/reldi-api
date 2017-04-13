@@ -483,6 +483,18 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
 
+
+        @self.route('/weblicht/<lang>/tag_lemmatise', methods=['GET', 'POST'])
+        def weblicht_tag_lemmatise(lang):
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+            lemmatiser = dc['lemmatiser.' + lang]
+            result = lemmatiser.tagLemmatise(text)
+            return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
+
         @self.route('/<lang>/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate
         @save_file
