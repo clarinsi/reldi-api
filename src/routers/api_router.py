@@ -86,6 +86,7 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
+
 class BadRequest(Exception):
     """
     Thrown during a 422 server error
@@ -168,6 +169,21 @@ class ApiRouter(Blueprint):
 
                 user.logRequest()
                 user.save()
+                return api_method(*args, **kwargs)
+
+            return verify
+
+        def authenticate_weblicht(api_method):
+            @wraps(api_method)
+            def verify(*args, **kwargs):
+                validIp = \
+                    request.remote_addr == '130.183.206.38' or \
+                    request.remote_addr.startswith('134.2.128.') or \
+                    request.remote_addr.startswith('134.2.129.')
+
+                if not validIp:
+                    raise Unauthorized('You are not allowed to make requests from this IP address')
+
                 return api_method(*args, **kwargs)
 
             return verify
@@ -346,6 +362,7 @@ class ApiRouter(Blueprint):
             response = jsonify(error.message)
             return response, error.status_code if hasattr(error, 'status_code') else 500
 
+
         @self.route('/<lang>/lexicon', methods=['GET', 'POST'])
         @authenticate
         def lexicon(lang):
@@ -412,6 +429,7 @@ class ApiRouter(Blueprint):
                 'count': len(result)
             }, ensure_ascii=False)
 
+
         @self.route('/<lang>/segment', methods=['GET', 'POST'])
         @authenticate
         def segment(lang):
@@ -437,6 +455,7 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result), mimetype='text/xml')
 
+
         @self.route('/<lang>/restore', methods=['GET', 'POST'])
         @authenticate
         def restore(lang):
@@ -458,6 +477,7 @@ class ApiRouter(Blueprint):
                 return jsonify(jsonTCF(lang, text, result, correction_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, correction_idx=1), mimetype='text/xml')
+
 
         @self.route('/<lang>/tag', methods=['GET', 'POST'])
         @authenticate
@@ -484,16 +504,57 @@ class ApiRouter(Blueprint):
                 return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
 
 
-        @self.route('/weblicht/<lang>/tag_lemmatise', methods=['GET', 'POST'])
-        def weblicht_tag_lemmatise(lang):
+        @self.route('/weblicht/<lang>/tag', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_tag(lang):
+
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+            tagger = dc['tagger.' + lang]
+            result = tagger.tag(text)
+
+            return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
+
+        @self.route('/<lang>/lemmatise', methods=['GET', 'POST'])
+        @authenticate
+        @save_file
+        def lemmatise(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
+            format = get_format(request)
+            if not isset(format):
+                raise InvalidUsage('Please specify a format')
+
+            text = get_text(format, request)
+            lemmatiser = dc['lemmatiser.' + lang]
+            result = lemmatiser.lemmatise(text)
+            if format == 'json':
+                return jsonify(jsonTCF(lang, text, result, lemma_idx=1), ensure_ascii=False)
+            elif format == 'tcf':
+                return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
+
+
+        @self.route('/weblicht/<lang>/lemmatise', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_lemmatise(lang):
+
             if request.headers['Content-Type'] != 'text/tcf+xml':
                 raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
 
             request.get_data()
             text = weblicht_get_text(request)
             lemmatiser = dc['lemmatiser.' + lang]
-            result = lemmatiser.tagLemmatise(text)
-            return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
+            result = lemmatiser.lemmatise(text)
+
+            return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
 
         @self.route('/<lang>/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate
@@ -514,36 +575,26 @@ class ApiRouter(Blueprint):
 
             text = get_text(format, request)
             lemmatiser = dc['lemmatiser.' + lang]
-
             result = lemmatiser.tagLemmatise(text)
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
 
-        @self.route('/<lang>/lemmatise', methods=['GET', 'POST'])
-        @authenticate
-        @save_file
-        def lemmatise(lang):
-            '''
 
-            @param lang:
-            @type lang: string
-            @return:
-            @rtype: string
-            '''
-            format = get_format(request)
-            if not isset(format):
-                raise InvalidUsage('Please specify a format')
+        @self.route('/weblicht/<lang>/tag_lemmatise', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_tag_lemmatise(lang):
 
-            text = get_text(format, request)
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
             lemmatiser = dc['lemmatiser.' + lang]
+            result = lemmatiser.tagLemmatise(text)
 
-            result = lemmatiser.lemmatise(text)
-            if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, lemma_idx=1), ensure_ascii=False)
-            elif format == 'tcf':
-                return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
+            return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
 
         @self.route('/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
         @authenticate
@@ -562,38 +613,17 @@ class ApiRouter(Blueprint):
 
             text = get_text(format, request)
             dependency_parser = dc['dependency_parser.' + lang]
-
             result = dependency_parser.parse(text)
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
-
-        @self.route('/unauthorized/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
-        def unauthorized_tag_lemmatise_depparse(lang):
-            '''
-
-            @param lang:
-            @type lang: string
-            @return:
-            @rtype: string
-            '''
-            format = get_format(request)
-            if not isset(format):
-                raise InvalidUsage('Please specify a format')
-
-            text = get_text(format, request)
-            dependency_parser = dc['dependency_parser.' + lang]
-
-            result = dependency_parser.parse(text)
-            if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), ensure_ascii=False)
-            elif format == 'tcf':
-                return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
         @self.route('/weblicht/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
+        @authenticate_weblicht
         def weblicht_tag_lemmatise_depparse(lang):
+
             if request.headers['Content-Type'] != 'text/tcf+xml':
                 raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
 
@@ -601,8 +631,8 @@ class ApiRouter(Blueprint):
             text = weblicht_get_text(request)
             dependency_parser = dc['dependency_parser.' + lang]
             result = dependency_parser.parse(text)
-            return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
+            return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
         @self.route('/login', methods=['POST'])
         def login():
