@@ -177,6 +177,7 @@ class ApiRouter(Blueprint):
             @wraps(api_method)
             def verify(*args, **kwargs):
                 validIp = \
+                    request.remote_addr == '193.2.4.206' or \
                     request.remote_addr == '130.183.206.38' or \
                     request.remote_addr.startswith('134.2.128.') or \
                     request.remote_addr.startswith('134.2.129.')
