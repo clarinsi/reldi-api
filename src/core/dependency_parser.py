@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-import os
 
 import requests
 import urllib
-from subprocess import Popen, PIPE, STDOUT
-import sys, traceback
 
 class DependencyParser(object):
     '''Class segmenter'''

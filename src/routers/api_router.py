@@ -10,7 +10,7 @@ from functools import wraps
 from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
 import re, os, json, csv, traceback
-
+from HTMLParser import HTMLParser
 
 class ServerError(Exception):
     """
@@ -299,7 +299,8 @@ class ApiRouter(Blueprint):
                 doc = etree.parse(StringIO(inputXml))
                 try:
                     relaxng.assertValid(doc)
-                    return doc.getroot()[1][0].text
+                    h = HTMLParser()
+                    return h.unescape(doc.getroot()[1][0].text)
                 except Exception as e:
                     raise InvalidUsage(e.message)
 
