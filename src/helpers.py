@@ -5,7 +5,7 @@ from StringIO import StringIO
 import hashlib, uuid
 from datetime import datetime, timedelta
 import pytz
-
+import cgi
 
 def generate_token():
     """
@@ -206,12 +206,12 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
             token_output += "<token ID=\"t_{0}\" startChar=\"{1}\" endChar=\"{2}\">{3}</token>".format(token_id,
                                                                                                            token[0][1],
                                                                                                            token[0][2],
-                                                                                                           token[0][0])
+                                                                                                           cgi.escape(token[0][0]))
             token_ids.append("t_" + str(token_id))
 
             if lemma_idx is not None:
                 lemmas_output += "<lemma ID=\"le_{0}\" tokenIDs=\"t_{0}\">{1}</lemma>".format(token_id,
-                                                                                                  token[lemma_idx])
+                                                                                              cgi.escape(token[lemma_idx]))
 
             if tag_idx is not None:
                 tags_output += "<tag ID=\"pt_{0}\" tokenIDs=\"t_{0}\">{1}</tag>".format(token_id, token[tag_idx])
@@ -253,7 +253,7 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, d
             <text>{2}</text>
             {1}
         </TextCorpus>
-    </D-Spin>""".format(lang, output, text)
+    </D-Spin>""".format(lang, output, cgi.escape(text))
 
     x = etree.parse(StringIO(output.encode('utf-8')), etree.XMLParser(remove_blank_text=True, encoding="utf-8"))
     return etree.tostring(x.getroot(), pretty_print=True, encoding='UTF-8').decode('utf-8')
