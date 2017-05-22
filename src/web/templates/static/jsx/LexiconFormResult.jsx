@@ -3,7 +3,7 @@ window.LexiconFormResult = React.createClass({
     componentDidMount: function() {
         var table = $('#lexicon-results').DataTable({
             data: [],
-            columns: [{ title: "Surface from" }, { title: "Tags" }, { title: "Lemma" }]
+            columns: [{ title: "Surface form" }, { title: "Tag" }, { title: "Lemma" }]
         });
     },
 
