@@ -449,6 +449,7 @@ class ApiRouter(Blueprint):
             text = get_text(format, request)
             segmenter = dc['segmenter.' + lang]
 
+
             # Format properly
             result = map(lambda x: map(lambda y: (y,), x), segmenter.segment(text))
 
