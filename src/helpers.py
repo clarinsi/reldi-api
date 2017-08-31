@@ -81,7 +81,7 @@ def jsonResponse(query, data):
     }, ensure_ascii=False)
 
 
-def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, output_sentences=True):
+def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, correction_idx=None, output_sentences=True):
     """
     Transforms an object into a API json response similar to the TCF format
     """
@@ -90,6 +90,7 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
     output['tokens'] = []
     output['sentences'] = []
     output['lemmas'] = []
+    output['namedEntities'] = []
     output['POSTags'] = []
     output['orthography'] = []
 
@@ -118,6 +119,12 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
                     'tokenIDs': 't_' + str(token_id),
                     'value': token[tag_idx]
                 })
+            if ner_tag_idx is not None:
+                output['namedEntities'].append({
+                    'ID': 'nt_' + str(token_id),
+                    'tokenIDs': 't_' + str(token_id),
+                    'value': token[ner_tag_idx]
+                })
             if correction_idx is not None:
                 output['orthography'].append({
                     'ID': 'pt_' + str(token_id),
@@ -135,6 +142,9 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
         # sentence_output += "\t<sentence ID=\"ID=s_{0}\" tokenIDs=\"{1}\">".format(s_idx, " ".join(token_ids))
         # sentence_output += "".join(map(lambda x: x[0], sentence)) + "</sentence>\n"
 
+    if len(output['namedEntities']) == 0:
+        del output['namedEntities']
+
     if len(output['POSTags']) == 0:
         del output['POSTags']
 
@@ -147,7 +157,7 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=Non
     return output
 
 
-def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, output_sentences=True):
+def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, correction_idx=None, output_sentences=True):
     """
     Transforms an object into a TCF response
     """
@@ -155,12 +165,14 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, o
     sentence_output = ''
     token_output = ''
     tags_output = ''
+    namedEntities_output = ''
     lemmas_output = ''
     orthography_output = ''
 
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
+        named_entity_token_ids=[]
         for token in sentence:
             token_output += "<token ID=\"t_{0}\" startChar=\"{1}\" endChar=\"{2}\">{3}</token>".format(token_id,
                                                                                                            token[0][1],
@@ -170,6 +182,13 @@ def TCF(lang, text, result, lemma_idx=None, tag_idx=None, correction_idx=None, o
 
             if lemma_idx is not None:
                 lemmas_output += "<lemma ID=\"le_{0}\" tokenIDs=\"t_{0}\">{1}</lemma>".format(token_id,
+                                                                                                  token[lemma_idx])
+            if ner_tag_idx is not None:
+                ner_tag=token[ner_tag_idx]
+
+
+                if ner_tag:
+                    lemmas_output += "<lemma ID=\"le_{0}\" tokenIDs=\"t_{0}\">{1}</lemma>".format(token_id,
                                                                                                   token[lemma_idx])
 
             if tag_idx is not None:

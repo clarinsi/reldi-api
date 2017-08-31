@@ -10,4 +10,6 @@ assets/sl.*
 **/.DS_Store
 assets/lexdb_hr
 assets/lexdb_sr
+assets/lexdb_sl
 .idea
+uploads/

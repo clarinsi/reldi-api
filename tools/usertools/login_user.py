@@ -41,8 +41,9 @@ class LoginUserWithCredentials(Command):
         user.save()
         token = user.generateToken(password)
         token.save()
-        for token in user.getValidAuthTokens():
-            print token
+        print token
+        #for token in user.getValidAuthTokens():
+            #print token
 
 
 

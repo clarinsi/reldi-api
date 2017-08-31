@@ -4,6 +4,7 @@ import os
 from flask import Flask
 from flask.ext.cors import CORS
 
+from src.core.ner_tagger import NerTagger
 from src.di import DependencyContainer
 
 from src.core.lexicon import Lexicon
@@ -18,6 +19,7 @@ from src.services.mail_service import MailService
 from src.helpers import jsonify
 
 from flask import make_response, redirect
+import traceback
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -35,6 +37,8 @@ def init():
     for lang in ['hr', 'sl', 'sr']:
         dc['segmenter.' + lang] = lambda: Segmenter(lang)
         dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
+        if lang=='sl':
+            dc['ner_tagger.' + lang] = lambda: NerTagger(lang, dc['tagger.' + lang])
         dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
         dc['lexicon.' + lang] = lambda: Lexicon(lang)
         # dc['restorer.'+lang] = lambda: DiacriticRestorer(lang, dc['segmenter.' + lang])
@@ -57,6 +61,7 @@ def init():
         @rtype: string
         '''
         app.logger.error(error)
+        traceback.print_exc()
         response = jsonify(error.message)
         return response, error.status_code if hasattr(error, 'status_code') else 500
 
@@ -67,7 +72,7 @@ def init():
     return app
 
 
-application = init()
+# application = init()
 #application.run()
 
 if __name__ == "__main__":
@@ -85,4 +90,4 @@ if __name__ == "__main__":
     # print segmenter.segment(text)
 
     app = init()
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8084) # debug=True)

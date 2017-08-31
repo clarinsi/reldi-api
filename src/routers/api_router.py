@@ -473,6 +473,35 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
 
+        @self.route('/<lang>/tag_ner', methods=['GET', 'POST'])
+        @authenticate
+        @save_file
+        def tag_ner(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
+
+            format = get_format(request)
+            if not isset(format):
+                raise InvalidUsage('Please specify a format')
+
+            text = get_text(format, request)
+            # tagger = dc['tagger.' + lang]
+            tagger = dc['ner_tagger.' + lang]
+            print "2"
+            result = tagger.tag(text)
+            print "3"
+            if format == 'json':
+                return jsonify(jsonTCF(lang, text, result, tag_idx=1,ner_tag_idx=2), ensure_ascii=False)
+            elif format == 'tcf':
+                return Response(TCF(lang, text, result, tag_idx=1,ner_tag_idx=2), mimetype='text/xml')
+
+
+
         @self.route('/login', methods=['POST'])
         def login():
             '''
