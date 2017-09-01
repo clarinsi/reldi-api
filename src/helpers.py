@@ -98,6 +98,9 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
     for s_idx, sentence in enumerate(result):
         token_ids = []
 
+        ner=None
+        ner_seq_token_ids=[]
+
         for token in sentence:
             output['tokens'].append({
                 'ID': "t_" + str(token_id),
@@ -120,11 +123,22 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
                     'value': token[tag_idx]
                 })
             if ner_tag_idx is not None:
-                output['namedEntities'].append({
-                    'ID': 'nt_' + str(token_id),
-                    'tokenIDs': 't_' + str(token_id),
-                    'value': token[ner_tag_idx]
-                })
+                token_ner=token[ner_tag_idx]
+                if ner and (token_ner.startswith("O") or token_ner.startswith("B")):
+                    output['namedEntities'].append({
+                        'ID': 'nt_' + str(len(output['namedEntities'])),
+                        'tokenIDs': " ".join(ner_seq_token_ids),
+                        'value': ner
+                    })
+                    ner = None
+                    ner_seq_token_ids=[]
+
+                if not token_ner.startswith("O"):
+                    ner_seq_token_ids.append('t_' + str(token_id))
+
+                if token_ner.startswith("B"):
+                    ner=token_ner[2:]
+
             if correction_idx is not None:
                 output['orthography'].append({
                     'ID': 'pt_' + str(token_id),
@@ -165,14 +179,17 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
     sentence_output = ''
     token_output = ''
     tags_output = ''
-    namedEntities_output = ''
+    named_entities_output = ''
     lemmas_output = ''
     orthography_output = ''
 
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
-        named_entity_token_ids=[]
+
+        ner = None
+        ner_seq_token_ids = []
+
         for token in sentence:
             token_output += "<token ID=\"t_{0}\" startChar=\"{1}\" endChar=\"{2}\">{3}</token>".format(token_id,
                                                                                                            token[0][1],
@@ -184,12 +201,20 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
                 lemmas_output += "<lemma ID=\"le_{0}\" tokenIDs=\"t_{0}\">{1}</lemma>".format(token_id,
                                                                                                   token[lemma_idx])
             if ner_tag_idx is not None:
-                ner_tag=token[ner_tag_idx]
+                token_ner=token[ner_tag_idx]
+                if ner and (token_ner.startswith("O") or token_ner.startswith("B")):
+                    named_entities_output += "<entity ID=\"{0}\" tokenIDs=\"{1}\" class=\"{2}\" />"\
+                        .format('nt_' + str(len(output['namedEntities'])),
+                                " ".join(ner_seq_token_ids),
+                                ner)
+                    ner = None
+                    ner_seq_token_ids=[]
 
+                if not token_ner.startswith("O"):
+                    ner_seq_token_ids.append('t_' + str(token_id))
 
-                if ner_tag:
-                    lemmas_output += "<lemma ID=\"le_{0}\" tokenIDs=\"t_{0}\">{1}</lemma>".format(token_id,
-                                                                                                  token[lemma_idx])
+                if token_ner.startswith("B"):
+                    ner=token_ner[2:]
 
             if tag_idx is not None:
                 tags_output += "<tag ID=\"pt_{0}\" tokenIDs=\"t_{0}\">{1}</tag>".format(token_id, token[tag_idx])
@@ -206,6 +231,8 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
         output += "<sentences>" + sentence_output + "</sentences>"
     if not empty(lemmas_output):
         output += "<lemmas>" + lemmas_output + "</lemmas>"
+    if not empty(named_entities_output):
+        output += "<namedEntities type = \"MUC1990\">" + named_entities_output + "</namedEntities>"
     if not empty(tags_output):
         output += "<POStags tagset=\"mte-hr-v4r\">" + tags_output + "</POStags>"
     if not empty(orthography_output):

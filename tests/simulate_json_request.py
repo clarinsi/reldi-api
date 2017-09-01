@@ -7,5 +7,5 @@ print requests.post('http://0.0.0.0:8084/api/v1/sl/tag_ner',
                     data={'format':'json',
                           'text': "France Prešeren nam je dejal: žive naj vsi narodi, ki hrepene dočakat dan. Da koder sonce hodi prepir iz sveta bo pregnan.",
                           'request-id':  generate_token()},
-                    headers={"Authorization": "9bf6d5452e1746d9b8eb6c5fbc9e52ed"}).content
+                    headers={"Authorization": "06b95ca79ef24f9cb6c17864da1862d8"}).content
 
