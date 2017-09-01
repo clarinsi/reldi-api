@@ -12,7 +12,7 @@ from src.core.segmenter import Segmenter
 from src.core.tagger import Tagger
 from src.core.lematiser import Lematiser
 from src.core.dependency_parser import DependencyParser
-# from src.core.restorer     import DiacriticRestorer
+from src.core.restorer     import DiacriticRestorer
 
 from src.routers.api_router import ApiRouter
 from src.routers.web_router import WebRouter
@@ -45,7 +45,7 @@ def init():
         dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
         dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
         dc['lexicon.' + lang] = lambda: Lexicon(lang)
-        # dc['restorer.'+lang] = lambda: DiacriticRestorer(lang, dc['segmenter.' + lang])
+        dc['restorer.'+lang] = lambda: DiacriticRestorer(lang, dc['segmenter.' + lang])
         dc['dependency_parser.' + lang] = lambda: DependencyParser(lang, dc['lemmatiser.' + lang])
 
     dc['mail_service'] = lambda: MailService()
