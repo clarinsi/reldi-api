@@ -203,10 +203,8 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
             if ner_tag_idx is not None:
                 token_ner=token[ner_tag_idx]
                 if ner and (token_ner.startswith("O") or token_ner.startswith("B")):
-                    named_entities_output += "<entity ID=\"{0}\" tokenIDs=\"{1}\" class=\"{2}\" />"\
-                        .format('nt_' + str(len(output['namedEntities'])),
-                                " ".join(ner_seq_token_ids),
-                                ner)
+                    named_entities_output += "<entity class=\"{0}\" tokenIDs=\"{1}\" />"\
+                        .format(ner, " ".join(ner_seq_token_ids))
                     ner = None
                     ner_seq_token_ids=[]
 
@@ -232,7 +230,7 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
     if not empty(lemmas_output):
         output += "<lemmas>" + lemmas_output + "</lemmas>"
     if not empty(named_entities_output):
-        output += "<namedEntities type = \"MUC1990\">" + named_entities_output + "</namedEntities>"
+        output += "<namedEntities type = \"CoNLL2002\">" + named_entities_output + "</namedEntities>"
     if not empty(tags_output):
         output += "<POStags tagset=\"mte-hr-v4r\">" + tags_output + "</POStags>"
     if not empty(orthography_output):
