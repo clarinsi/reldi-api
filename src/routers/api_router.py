@@ -288,6 +288,13 @@ class ApiRouter(Blueprint):
 
             return request_id
 
+        def weblicht_get_lang(request):
+            lang = request.args.get('lang')
+            if not isset(lang):
+                raise InvalidUsage('Please specify a lang parameter')
+
+            return lang
+
         def weblicht_get_text(request):
             with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
                 text = request.data
@@ -507,9 +514,10 @@ class ApiRouter(Blueprint):
                 return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
 
 
-        @self.route('/weblicht/<lang>/tag', methods=['GET', 'POST'])
+        @self.route('/weblicht/tag', methods=['GET', 'POST'])
         @authenticate_weblicht
-        def weblicht_tag(lang):
+        def weblicht_tag():
+            lang = weblicht_get_lang(request)
 
             if request.headers['Content-Type'] != 'text/tcf+xml':
                 raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
@@ -545,9 +553,10 @@ class ApiRouter(Blueprint):
                 return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
 
 
-        @self.route('/weblicht/<lang>/lemmatise', methods=['GET', 'POST'])
+        @self.route('/weblicht/lemmatise', methods=['GET', 'POST'])
         @authenticate_weblicht
-        def weblicht_lemmatise(lang):
+        def weblicht_lemmatise():
+            lang = weblicht_get_lang(request)
 
             if request.headers['Content-Type'] != 'text/tcf+xml':
                 raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
@@ -585,9 +594,10 @@ class ApiRouter(Blueprint):
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
 
 
-        @self.route('/weblicht/<lang>/tag_lemmatise', methods=['GET', 'POST'])
+        @self.route('/weblicht/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate_weblicht
-        def weblicht_tag_lemmatise(lang):
+        def weblicht_tag_lemmatise():
+            lang = weblicht_get_lang(request)
 
             if request.headers['Content-Type'] != 'text/tcf+xml':
                 raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
@@ -623,9 +633,10 @@ class ApiRouter(Blueprint):
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
 
-        @self.route('/weblicht/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
+        @self.route('/weblicht/tag_lemmatise_depparse', methods=['GET', 'POST'])
         @authenticate_weblicht
-        def weblicht_tag_lemmatise_depparse(lang):
+        def weblicht_tag_lemmatise_depparse():
+            lang = weblicht_get_lang(request)
 
             if request.headers['Content-Type'] != 'text/tcf+xml':
                 raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
