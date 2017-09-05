@@ -9,11 +9,8 @@ from flask import current_app
 from functools import wraps
 from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
-import re
-import os
-import json
-import csv
-
+import re, os, json, csv, traceback
+from HTMLParser import HTMLParser
 
 class ServerError(Exception):
     """
@@ -90,8 +87,32 @@ class InvalidUsage(Exception):
         return rv
 
 
-class ApiRouter(Blueprint):
+class BadRequest(Exception):
+    """
+    Thrown during a 422 server error
+    """
+    status_code = 400
 
+    def __init__(self, message):
+        '''
+        @param message:
+        @type message: string
+        '''
+        Exception.__init__(self)
+        self.message = message
+
+    def to_dict(self):
+        '''
+
+        @return:
+        @rtype: string
+        '''
+        rv = dict()
+        rv['message'] = self.message
+        return rv
+
+
+class ApiRouter(Blueprint):
     def register(self, app, options, first_registration=False):
         super(ApiRouter, self).register(app, options, first_registration=False)
         self.config = app.config
@@ -152,6 +173,22 @@ class ApiRouter(Blueprint):
 
             return verify
 
+        def authenticate_weblicht(api_method):
+            @wraps(api_method)
+            def verify(*args, **kwargs):
+                validIp = \
+                    request.remote_addr == '193.2.4.206' or \
+                    request.remote_addr == '130.183.206.38' or \
+                    request.remote_addr.startswith('134.2.128.') or \
+                    request.remote_addr.startswith('134.2.129.')
+
+                if not validIp:
+                    raise Unauthorized('You are not allowed to make requests from this IP address')
+
+                return api_method(*args, **kwargs)
+
+            return verify
+
         def save_file(api_method):
             @wraps(api_method)
             def post_request(*args, **kwargs):
@@ -176,29 +213,54 @@ class ApiRouter(Blueprint):
                     posTags = {}
                     lemmas = {}
                     tokens = {}
+                    parse = {}
 
-                    if 'POSTags' in data:
-                        for tag in data['POSTags']:
+                    if 'POStags' in data:
+                        for tag in data['POStags']['tag']:
                             posTags[tag['tokenIDs']] = tag
 
                     if 'lemmas' in data:
-                        for lemma in data['lemmas']:
+                        for lemma in data['lemmas']['lemma']:
                             lemmas[lemma['tokenIDs']] = lemma
 
                     if 'tokens' in data:
-                        for token in data['tokens']:
+                        for token in data['tokens']['token']:
                             tokens[token['ID']] = token
 
-                    for sentence in data['sentences']:
-                        for tid in sentence['tokenIDs'].split(' '):
+                    if 'depparsing' in data:
+                        previousTokenSum = 0
+                        for sentence in data['depparsing']['parse']:
+                            for token in sentence['dependency']:
+                                if 'govIDs' in token:
+                                    parse[token['depIDs']] = {
+                                        'govIDs': int(token['govIDs'].split('_')[1]) - previousTokenSum + 1,
+                                        'func': token['func']
+                                    }
+                                else:
+                                    parse[token['depIDs']] = {
+                                        'govIDs': '0',
+                                        'func': 'root'
+                                    }
+                            previousTokenSum += len(sentence['dependency'])
+
+                    for sentence in data['sentences']['sentence']:
+                        for idx, tid in enumerate(sentence['tokenIDs'].split(' ')):
                             csvResult.append([])
                             token = tokens[tid]
-                            csvResult[-1].append(token['value'])
+                            csvResult[-1].append(idx + 1)
+                            csvResult[-1].append(token['text'])
+
                             if tid in posTags:
-                                csvResult[-1].append(posTags[tid]['value'])
+                                csvResult[-1].append(posTags[tid]['text'])
                             if tid in lemmas:
-                                csvResult[-1].append(lemmas[tid]['value'])
-                            csvResult[-1].append(token['startChar'] + ' - ' + token['endChar'])
+                                csvResult[-1].append(lemmas[tid]['text'])
+                            if tid in parse:
+                                csvResult[-1].append(parse[tid]['govIDs'])
+                                csvResult[-1].append(parse[tid]['func'])
+
+                            csvResult[-1].append(token['startChar'])
+                            csvResult[-1].append(token['endChar'])
+
                         csvResult.append([])
 
                     with open(filePath, 'w') as f:
@@ -225,6 +287,22 @@ class ApiRouter(Blueprint):
                 raise InvalidUsage('Please specify a request id')
 
             return request_id
+
+        def weblicht_get_text(request):
+            with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
+                text = request.data
+                relaxng_doc = etree.parse(f)
+                relaxng = etree.RelaxNG(relaxng_doc)
+                inputXml = re.sub(">\\s*<", "><", text)
+                inputXml = re.sub("^\\s*<", "<", inputXml)
+
+                doc = etree.parse(StringIO(inputXml))
+                try:
+                    relaxng.assertValid(doc)
+                    h = HTMLParser()
+                    return h.unescape(doc.getroot()[1][0].text)
+                except Exception as e:
+                    raise InvalidUsage(e.message)
 
         def get_text(format, request):
             '''
@@ -285,6 +363,7 @@ class ApiRouter(Blueprint):
             current_app.logger.error(error)
             response = jsonify(error.message)
             return response, error.status_code if hasattr(error, 'status_code') else 500
+
 
         @self.route('/<lang>/lexicon', methods=['GET', 'POST'])
         @authenticate
@@ -352,6 +431,7 @@ class ApiRouter(Blueprint):
                 'count': len(result)
             }, ensure_ascii=False)
 
+
         @self.route('/<lang>/segment', methods=['GET', 'POST'])
         @authenticate
         def segment(lang):
@@ -369,6 +449,7 @@ class ApiRouter(Blueprint):
             text = get_text(format, request)
             segmenter = dc['segmenter.' + lang]
 
+
             # Format properly
             result = map(lambda x: map(lambda y: (y,), x), segmenter.segment(text))
 
@@ -376,6 +457,7 @@ class ApiRouter(Blueprint):
                 return jsonify(jsonTCF(lang, text, result), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result), mimetype='text/xml')
+
 
         @self.route('/<lang>/restore', methods=['GET', 'POST'])
         @authenticate
@@ -398,6 +480,7 @@ class ApiRouter(Blueprint):
                 return jsonify(jsonTCF(lang, text, result, correction_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, correction_idx=1), mimetype='text/xml')
+
 
         @self.route('/<lang>/tag', methods=['GET', 'POST'])
         @authenticate
@@ -423,6 +506,59 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
 
+
+        @self.route('/weblicht/<lang>/tag', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_tag(lang):
+
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+            tagger = dc['tagger.' + lang]
+            result = tagger.tag(text)
+
+            return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
+
+        @self.route('/<lang>/lemmatise', methods=['GET', 'POST'])
+        @authenticate
+        @save_file
+        def lemmatise(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
+            format = get_format(request)
+            if not isset(format):
+                raise InvalidUsage('Please specify a format')
+
+            text = get_text(format, request)
+            lemmatiser = dc['lemmatiser.' + lang]
+            result = lemmatiser.lemmatise(text)
+            if format == 'json':
+                return jsonify(jsonTCF(lang, text, result, lemma_idx=1), ensure_ascii=False)
+            elif format == 'tcf':
+                return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
+
+
+        @self.route('/weblicht/<lang>/lemmatise', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_lemmatise(lang):
+
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+            lemmatiser = dc['lemmatiser.' + lang]
+            result = lemmatiser.lemmatise(text)
+
+            return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
+
         @self.route('/<lang>/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate
         @save_file
@@ -442,17 +578,31 @@ class ApiRouter(Blueprint):
 
             text = get_text(format, request)
             lemmatiser = dc['lemmatiser.' + lang]
-
             result = lemmatiser.tagLemmatise(text)
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
 
-        @self.route('/<lang>/lemmatise', methods=['GET', 'POST'])
+
+        @self.route('/weblicht/<lang>/tag_lemmatise', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_tag_lemmatise(lang):
+
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+            lemmatiser = dc['lemmatiser.' + lang]
+            result = lemmatiser.tagLemmatise(text)
+
+            return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
+
+        @self.route('/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
         @authenticate
         @save_file
-        def lemmatise(lang):
+        def tag_lemmatise_depparse(lang):
             '''
 
             @param lang:
@@ -465,13 +615,27 @@ class ApiRouter(Blueprint):
                 raise InvalidUsage('Please specify a format')
 
             text = get_text(format, request)
-            lemmatiser = dc['lemmatiser.' + lang]
-
-            result = lemmatiser.lemmatise(text)
+            dependency_parser = dc['dependency_parser.' + lang]
+            result = dependency_parser.parse(text)
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, lemma_idx=1), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), ensure_ascii=False)
             elif format == 'tcf':
-                return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
+                return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
+
+
+        @self.route('/weblicht/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_tag_lemmatise_depparse(lang):
+
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+            dependency_parser = dc['dependency_parser.' + lang]
+            result = dependency_parser.parse(text)
+
+            return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
         @self.route('/<lang>/tag_ner', methods=['GET', 'POST'])
         @authenticate

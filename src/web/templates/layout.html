@@ -9,6 +9,24 @@
     <link href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css" rel="stylesheet">
 	<link href="/web/static/style.css" rel="stylesheet">
 	<title>ReLDI</title>
+
+    <script src="/web/static/xml2json.js"></script>
+    <script src="/web/static/md5-min.js"></script>
+
+    <script type="text/babel" src="/web/static/jsx/LanguagePicker.jsx?v=3"></script>
+    <script type="text/babel" src="/web/static/jsx/TaggerFormResult.jsx?v=3"></script>
+    <script type="text/babel" src="/web/static/jsx/TaggerForm.jsx?v=3"></script>
+    <script type="text/babel" src="/web/static/jsx/LexiconFormResult.jsx?v=3"></script>
+    <script type="text/babel" src="/web/static/jsx/LexiconForm.jsx?v=3"></script>
+    <script type="text/babel" src="/web/static/jsx/SearchForm.jsx?v=3"></script>
+
+    <script src="/web/static/react-15.3.2/build/react.js"></script>
+    <script src="/web/static/react-15.3.2/build/react-with-addons.js"></script>
+    <script src="/web/static/react-15.3.2/build/react-dom.js"></script>
+    <script src="/web/static/react-15.3.2/build/react-bootstrap.js"></script>
+    <script src="https://unpkg.com/babel-core@5.8.38/browser.min.js"></script>
+
+
 </head>
 <body>
 	<div class="container">
@@ -27,6 +45,7 @@
 		</div>
 		{% block body %}{% endblock %}
 	</div>
+    {% block react %}{% endblock %}
 <body>
 <!-- Latest compiled and minified JavaScript -->
 <script src="/web/static/jquery/jquery.min.js"></script>

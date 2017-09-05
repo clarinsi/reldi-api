@@ -17,9 +17,9 @@ def read_abbrevs(file):
   return abbrevs
 
 abbrevs={
-  'hr':read_abbrevs(os.path.realpath('assets/hr.abbrev')),
-  'sr':read_abbrevs(os.path.realpath('assets/hr.abbrev')),
-  'sl':read_abbrevs(os.path.realpath('assets/sl.abbrev'))
+  'hr': read_abbrevs(os.path.realpath('assets/hr.abbrev')),
+  'sr': read_abbrevs(os.path.realpath('assets/hr.abbrev')),
+  'sl': read_abbrevs(os.path.realpath('assets/sl.abbrev'))
 }
 
 num=r'(?:(?<!\d)[+-])?\d+(?:[.,:/]\d+)*(?:[.](?!\.)|-[^\W\d_]+)?'

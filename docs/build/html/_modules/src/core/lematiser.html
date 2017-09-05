@@ -77,6 +77,10 @@
 <div class="viewcode-block" id="Lematiser.getLemma"><a class="viewcode-back" href="../../../src.core.html#src.core.lematiser.Lematiser.getLemma">[docs]</a>    <span class="k">def</span> <span class="nf">getLemma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">msd</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the lemma for a specific token</span>
+
+<span class="sd">        :param token: The token to be lemmatized</span>
+<span class="sd">        :param mdf: The msd/tag of the token</span>
+<span class="sd">        :return: returns lemma for token</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lexicon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lemmatiser</span><span class="p">[</span><span class="s1">&#39;lexicon&#39;</span><span class="p">]</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">msd</span>

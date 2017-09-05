@@ -32,6 +32,10 @@ class Lematiser(object):
     def getLemma(self, token, msd):
         """
         Returns the lemma for a specific token
+
+        :param token: The token to be lemmatized
+        :param mdf: The msd/tag of the token
+        :return: returns lemma for token
         """
         lexicon = self.lemmatiser['lexicon']
         key = token.lower() + '_' + msd

@@ -110,53 +110,63 @@
 <span id="src-helpers-module"></span><h2>src.helpers module<a class="headerlink" href="#module-src.helpers" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="src.helpers.TCF">
-<code class="descclassname">src.helpers.</code><code class="descname">TCF</code><span class="sig-paren">(</span><em>lang</em>, <em>text</em>, <em>result</em>, <em>lemma_idx=None</em>, <em>tag_idx=None</em>, <em>correction_idx=None</em>, <em>output_sentences=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#TCF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.TCF" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">src.helpers.</code><code class="descname">TCF</code><span class="sig-paren">(</span><em>lang</em>, <em>text</em>, <em>result</em>, <em>lemma_idx=None</em>, <em>tag_idx=None</em>, <em>correction_idx=None</em>, <em>depparse_idx=None</em>, <em>output_sentences=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#TCF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.TCF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms an object into a TCF response</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.empty">
 <code class="descclassname">src.helpers.</code><code class="descname">empty</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.empty" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Checks whether a string is empty</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.generate_token">
 <code class="descclassname">src.helpers.</code><code class="descname">generate_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#generate_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.generate_token" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generates an authentication token</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.hash_password">
 <code class="descclassname">src.helpers.</code><code class="descname">hash_password</code><span class="sig-paren">(</span><em>password</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#hash_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.hash_password" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the hash for a password</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.isset">
 <code class="descclassname">src.helpers.</code><code class="descname">isset</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#isset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.isset" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Checkts whether a variable is not None and not empty</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.jsonResponse">
 <code class="descclassname">src.helpers.</code><code class="descname">jsonResponse</code><span class="sig-paren">(</span><em>query</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#jsonResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.jsonResponse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Transforms an object into a API json response</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.jsonTCF">
-<code class="descclassname">src.helpers.</code><code class="descname">jsonTCF</code><span class="sig-paren">(</span><em>lang</em>, <em>text</em>, <em>result</em>, <em>lemma_idx=None</em>, <em>tag_idx=None</em>, <em>correction_idx=None</em>, <em>output_sentences=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#jsonTCF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.jsonTCF" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">src.helpers.</code><code class="descname">jsonTCF</code><span class="sig-paren">(</span><em>lang</em>, <em>text</em>, <em>result</em>, <em>lemma_idx=None</em>, <em>tag_idx=None</em>, <em>correction_idx=None</em>, <em>depparse_idx=None</em>, <em>output_sentences=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#jsonTCF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.jsonTCF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms an object into a API json response similar to the TCF format</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.jsonify">
 <code class="descclassname">src.helpers.</code><code class="descname">jsonify</code><span class="sig-paren">(</span><em>data</em>, <em>ensure_ascii=False</em>, <em>status=200</em>, <em>indent=4</em>, <em>sort_keys=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#jsonify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.jsonify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Serializes an object into a HTTP json response</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.to_unix_timestamp">
 <code class="descclassname">src.helpers.</code><code class="descname">to_unix_timestamp</code><span class="sig-paren">(</span><em>dt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#to_unix_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.to_unix_timestamp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Converts a datetime object into a unit timestamp object</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="src.helpers.verify_password">
 <code class="descclassname">src.helpers.</code><code class="descname">verify_password</code><span class="sig-paren">(</span><em>password</em>, <em>hash</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/helpers.html#verify_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.helpers.verify_password" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Verifies whether a hash matches the password</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-src">
