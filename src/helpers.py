@@ -96,8 +96,9 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
     output['lemmas'] = {
         'lemma': []
     }
-    output['namedEntities'] = []
-
+    output['namedEntities'] = {
+        'entity': []
+    }
     output['POStags'] = {
         'tag': []
     }
@@ -145,7 +146,7 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
             if ner_tag_idx is not None:
                 token_ner=token[ner_tag_idx]
                 if ner and (token_ner.startswith("O") or token_ner.startswith("B")):
-                    output['namedEntities'].append({
+                    output['namedEntities']['entity'].append({
                         'ID': 'nt_' + str(len(output['namedEntities'])),
                         'tokenIDs': " ".join(ner_seq_token_ids),
                         'value': ner
@@ -191,7 +192,7 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
         # sentence_output += "\t<sentence ID=\"ID=s_{0}\" tokenIDs=\"{1}\">".format(s_idx, " ".join(token_ids))
         # sentence_output += "".join(map(lambda x: x[0], sentence)) + "</sentence>\n"
 
-    if len(output['namedEntities']) == 0:
+    if len(output['namedEntities']['entity']) == 0:
         del output['namedEntities']
 
     if len(output['POStags']['tag']) == 0:
