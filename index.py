@@ -2,6 +2,8 @@
 import sys
 import os
 import atexit
+from ConfigParser import NoSectionError
+
 from flask import Flask, url_for
 from flask.ext.cors import CORS
 
@@ -27,6 +29,8 @@ import traceback
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
+
+from src.helpers import config
 
 
 def init():
@@ -56,11 +60,16 @@ def init():
 
     print 'Models initialized'
 
+    try:
+        url_prefix= config.get("url", "prefix")
+    except NoSectionError:
+        url_prefix=''
+
     api_router = ApiRouter(dc)
-    app.register_blueprint(api_router, url_prefix='/api/v1')
+    app.register_blueprint(api_router, url_prefix = url_prefix+'/api/v1')
 
     web_router = WebRouter(dc)
-    app.register_blueprint(web_router, url_prefix='/web')
+    app.register_blueprint(web_router, url_prefix = url_prefix+'/web')
 
     @app.errorhandler(Exception)
     def handle_error(error):
@@ -79,7 +88,7 @@ def init():
 
     @app.route('/', methods=['GET'])
     def main():
-        return make_response(redirect(url_for('web_router.login')))
+        return make_response(redirect(url_prefix+'/web'))
 
     return app
 

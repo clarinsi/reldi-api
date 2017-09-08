@@ -1,7 +1,7 @@
-import os
 import smtplib
 from smtplib import SMTPException
-import ConfigParser
+from ..helpers import config
+
 
 class MailService(object):
     """
@@ -9,8 +9,6 @@ class MailService(object):
     """
 
     def __init__(self):
-        config = ConfigParser.ConfigParser()
-        config.read(os.path.realpath('config'))
         self.mailbox_username = config.get("mail", "username")
         self.mailbox_password = config.get("mail", "password")
 

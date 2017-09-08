@@ -667,9 +667,9 @@ class ApiRouter(Blueprint):
             text = get_text(format, request)
             # tagger = dc['tagger.' + lang]
             tagger = dc['ner_tagger.' + lang]
-            print "2"
+
             result = tagger.tag(text)
-            print "3"
+
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, tag_idx=1,ner_tag_idx=2), ensure_ascii=False)
             elif format == 'tcf':
