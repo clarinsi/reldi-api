@@ -13,3 +13,5 @@ assets/lexdb_sr
 assets/lexdb_sl
 .idea
 uploads/
+*.sh
+config

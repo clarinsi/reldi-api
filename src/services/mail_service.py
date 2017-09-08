@@ -10,7 +10,7 @@ class MailService(object):
 
     def __init__(self):
         config = ConfigParser.ConfigParser()
-        config.read(os.path.expanduser("~/.reldi/credentials"))
+        config.read(os.path.realpath('config'))
         self.mailbox_username = config.get("mail", "username")
         self.mailbox_password = config.get("mail", "password")
 
