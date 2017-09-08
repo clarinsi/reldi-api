@@ -79,7 +79,7 @@ def init():
 
     @app.route('/', methods=['GET'])
     def main():
-        return make_response(redirect('/web'))
+        return make_response(redirect('web'))
 
     return app
 
