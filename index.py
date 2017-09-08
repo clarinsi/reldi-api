@@ -2,7 +2,7 @@
 import sys
 import os
 import atexit
-from flask import Flask
+from flask import Flask, url_for
 from flask.ext.cors import CORS
 
 from src.core.ner_tagger import NerTagger
@@ -79,7 +79,7 @@ def init():
 
     @app.route('/', methods=['GET'])
     def main():
-        return make_response(redirect('web'))
+        return make_response(redirect(url_for('web')))
 
     return app
 
