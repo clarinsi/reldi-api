@@ -79,7 +79,7 @@ def init():
 
     @app.route('/', methods=['GET'])
     def main():
-        return make_response(redirect(url_for('web')))
+        return make_response(redirect(url_for('web_router.login')))
 
     return app
 

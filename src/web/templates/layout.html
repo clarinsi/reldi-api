@@ -1,29 +1,29 @@
 <html lang="en">
 <head>
-    <link href="/web/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/web/static/bootstrap/css/bootstrap-formhelpers.min.css" rel="stylesheet">
-    <link href="/web/static/bootstrap/css/bootstrap-tagsinput.css" rel="stylesheet">
-    <link href="/web/static/bootstrap/css/material.min.css" rel="stylesheet">
-    <link href="/web/static/bootstrap/css/roboto.min.css" rel="stylesheet">
-    <link href="/web/static/bootstrap/css/ripples.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css" rel="stylesheet">
-	<link href="/web/static/style.css" rel="stylesheet">
+    <link href="{{ url_for('web_router.static',filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('web_router.static',filename='bootstrap/css/bootstrap-formhelpers.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('web_router.static',filename='bootstrap/css/bootstrap-tagsinput.css') }}" rel="stylesheet">
+    <link href="{{ url_for('web_router.static',filename='bootstrap/css/material.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('web_router.static',filename='bootstrap/css/roboto.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('web_router.static',filename='bootstrap/css/ripples.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css') }}" rel="stylesheet">
+	<link href="{{ url_for('web_router.static',filename='style.css') }}" rel="stylesheet">
 	<title>ReLDI</title>
 
-    <script src="/web/static/xml2json.js"></script>
-    <script src="/web/static/md5-min.js"></script>
+    <script src="{{ url_for('web_router.static',filename='xml2json.js') }}"></script>
+    <script src="{{ url_for('web_router.static',filename='md5-min.js') }}"></script>
 
-    <script type="text/babel" src="/web/static/jsx/LanguagePicker.jsx?v=3"></script>
-    <script type="text/babel" src="/web/static/jsx/TaggerFormResult.jsx?v=3"></script>
-    <script type="text/babel" src="/web/static/jsx/TaggerForm.jsx?v=3"></script>
-    <script type="text/babel" src="/web/static/jsx/LexiconFormResult.jsx?v=3"></script>
-    <script type="text/babel" src="/web/static/jsx/LexiconForm.jsx?v=3"></script>
-    <script type="text/babel" src="/web/static/jsx/SearchForm.jsx?v=3"></script>
+    <script type="text/babel" src="{{ url_for('web_router.static',filename='jsx/LanguagePicker.jsx?v=3') }}"></script>
+    <script type="text/babel" src="{{ url_for('web_router.static',filename='jsx/TaggerFormResult.jsx?v=3') }}"></script>
+    <script type="text/babel" src="{{ url_for('web_router.static',filename='jsx/TaggerForm.jsx?v=3') }}"></script>
+    <script type="text/babel" src="{{ url_for('web_router.static',filename='jsx/LexiconFormResult.jsx?v=3') }}"></script>
+    <script type="text/babel" src="{{ url_for('web_router.static',filename='jsx/LexiconForm.jsx?v=3') }}"></script>
+    <script type="text/babel" src="{{ url_for('web_router.static',filename='jsx/SearchForm.jsx?v=3') }}"></script>
 
-    <script src="/web/static/react-15.3.2/build/react.js"></script>
-    <script src="/web/static/react-15.3.2/build/react-with-addons.js"></script>
-    <script src="/web/static/react-15.3.2/build/react-dom.js"></script>
-    <script src="/web/static/react-15.3.2/build/react-bootstrap.js"></script>
+    <script src="{{ url_for('web_router.static',filename='react-15.3.2/build/react.js') }}"></script>
+    <script src="{{ url_for('web_router.static',filename='react-15.3.2/build/react-with-addons.js') }}"></script>
+    <script src="{{ url_for('web_router.static',filename='react-15.3.2/build/react-dom.js') }}"></script>
+    <script src="{{ url_for('web_router.static',filename='react-15.3.2/build/react-bootstrap.js') }}"></script>
     <script src="https://unpkg.com/babel-core@5.8.38/browser.min.js"></script>
 
 
@@ -48,8 +48,8 @@
     {% block react %}{% endblock %}
 <body>
 <!-- Latest compiled and minified JavaScript -->
-<script src="/web/static/jquery/jquery.min.js"></script>
-<script src="/web/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="{{ url_for('web_router.static',filename='jquery/jquery.min.js') }}"></script>
+<script src="{{ url_for('web_router.static',filename='bootstrap/js/bootstrap.min.js') }}"></script>
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>-->
 <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>-->
 <script src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
