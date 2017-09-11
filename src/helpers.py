@@ -290,7 +290,7 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
     if not empty(named_entities_output):
         output += "<namedEntities type = \"CoNLL2002\">" + named_entities_output + "</namedEntities>"
     if not empty(tags_output):
-        output += "<POStags tagset=\"mte-hr-v5\">" + tags_output + "</POStags>"
+        output += "<POStags tagset=\"mte-v5-"+lang+"\">" + tags_output + "</POStags>"
     if not empty(orthography_output):
         output += "<orthography>" + orthography_output + "</orthography>"
     if not empty(depparse_output):
