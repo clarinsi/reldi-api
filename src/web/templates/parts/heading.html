@@ -3,7 +3,7 @@
         <strong>{{ title }}</strong>
     </div>
     <div class="pull-right">
-        <form method="POST" action="/web/logout" style="overflow: auto; margin: 0;">
+        <form method="POST" action="{{url_for('.logout')}}" style="overflow: auto; margin: 0;">
             <button class="pull-right btn btn-sm" style="margin: 0; padding: 0;">Logout</button>
         </form>
     </div>
