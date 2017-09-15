@@ -23,7 +23,7 @@ from src.services.mail_service import MailService
 from src.helpers import jsonify
 
 from flask import make_response, redirect
-import traceback
+from werkzeug.contrib.fixers import ProxyFix
 
 import traceback
 
@@ -43,6 +43,7 @@ def init():
     app.config['UPLOAD_FOLDER'] = os.path.dirname(os.path.realpath(__file__)) + '/uploads/'
 
     CORS(app)
+    app.wsgi_app = ProxyFix(app.wsgi_app)
 
     print 'Initializing models'
     dc = DependencyContainer(lazy=False)
