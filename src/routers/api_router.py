@@ -688,7 +688,21 @@ class ApiRouter(Blueprint):
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, tag_idx=1,ner_tag_idx=2), mimetype='text/xml')
 
+        @self.route('/weblicht/tag_ner', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_tag_ner():
+            lang = weblicht_get_lang(request)
 
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+
+            tagger = dc['ner_tagger.' + lang]
+            result = tagger.tag(text)
+
+            return Response(TCF(lang, text, result, tag_idx=1,ner_tag_idx=2), mimetype='text/xml')
 
         @self.route('/login', methods=['POST'])
         def login():
