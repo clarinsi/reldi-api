@@ -289,11 +289,24 @@ class ApiRouter(Blueprint):
             return request_id
 
         def weblicht_get_lang(request):
-            lang = request.args.get('lang')
-            if not isset(lang):
-                raise InvalidUsage('Please specify a lang parameter')
+            with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
+                text = request.data
+                relaxng_doc = etree.parse(f)
+                relaxng = etree.RelaxNG(relaxng_doc)
+                inputXml = re.sub(">\\s*<", "><", text)
+                inputXml = re.sub("^\\s*<", "<", inputXml)
 
-            return lang
+                doc = etree.parse(StringIO(inputXml))
+                try:
+                    relaxng.assertValid(doc)
+                    h = HTMLParser()
+                    attributes=doc.getroot()[1].attrib
+                    if 'lang' in attributes:
+                        return h.unescape(attributes['lang'])
+                    else:
+                        raise InvalidUsage('Please specify a lang parameter')
+                except Exception as e:
+                    raise InvalidUsage(e.message)
 
         def weblicht_get_text(request):
             with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
@@ -699,3 +712,5 @@ class ApiRouter(Blueprint):
                     return jsonify(token.token, ensure_ascii=False)
                 except ValueError as e:
                     raise Unauthorized(e.__str__())
+
+

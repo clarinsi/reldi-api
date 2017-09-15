@@ -17,7 +17,7 @@ from src.core.lematiser import Lematiser
 from src.core.dependency_parser import DependencyParser
 from src.core.restorer     import DiacriticRestorer
 
-from src.routers.api_router import ApiRouter
+from src.routers.api_router import ApiRouter, weblicht_get_lang2
 from src.routers.web_router import WebRouter
 from src.services.mail_service import MailService
 from src.helpers import jsonify
@@ -31,7 +31,6 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 from src.helpers import config
-
 
 def init():
 
@@ -106,8 +105,9 @@ if __name__ == "__main__":
     # print lemmatiser.lemmatise(text)
     # print tagger.tag(text)
     # print segmenter.segment(text)
+    weblicht_get_lang2()
 
-    app = init()
-    app.run(host='0.0.0.0', port=8084) # debug=True, use_reloader=False)
+    #app = init()
+    #app.run(host='0.0.0.0', port=8084) # debug=True, use_reloader=False)
 else:
     application = init()
