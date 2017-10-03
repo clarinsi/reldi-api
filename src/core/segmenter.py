@@ -16,10 +16,10 @@ class Segmenter(object, ):
         Segments a sentence into tokens
         """
 
-        lines = filter(lambda x: x.strip() != '', sentence.splitlines())
+        lines = filter(lambda x: x.strip() != '', sentence.replace('\xef\xbb\xbf', '').splitlines())
         result = []
         for line in lines:
-            tokens = sentence_split(tokenize(self.tokenizer, unicode(line).replace(u'\ufeff', '')), self.lang)
+            tokens = sentence_split(tokenize(self.tokenizer, unicode(line)), self.lang)
             result.extend(tokens)
 
         return result
