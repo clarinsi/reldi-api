@@ -247,7 +247,7 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
 
             if lemma_idx is not None:
                 lemmas_output += "<lemma ID=\"le_{0}\" tokenIDs=\"t_{0}\">{1}</lemma>".format(token_id,
-                                                                                                  token[lemma_idx])
+                                                                                              cgi.escape(token[lemma_idx]))
             if ner_tag_idx is not None:
                 token_ner=token[ner_tag_idx]
                 if ner and (token_ner.startswith("O") or token_ner.startswith("B")):
