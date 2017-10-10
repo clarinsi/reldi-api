@@ -239,7 +239,7 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
 
         parses = []
         for token in sentence:
-            token_output += "<token ID=\"t_{0}\" startChar=\"{1}\" endChar=\"{2}\">{3}</token>".format(token_id,
+            token_output += "<token ID=\"t_{0}\" start=\"{1}\" end=\"{2}\">{3}</token>".format(token_id,
                                                                                                            token[0][1],
                                                                                                            token[0][2],
                                                                                                            cgi.escape(token[0][0]))
