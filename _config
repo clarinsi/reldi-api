@@ -1,6 +1,0 @@
-[mail]
-username = user@domain.com
-password = passwd
-
-[url]
-prefix = /prefix

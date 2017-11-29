@@ -7,6 +7,7 @@ from ConfigParser import NoSectionError
 from flask import Flask, url_for
 from flask.ext.cors import CORS
 
+from src.core.cmstiser import Csmtiser
 from src.core.ner_tagger import NerTagger
 from src.di import DependencyContainer
 
@@ -51,6 +52,7 @@ def init():
         dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
         if lang=='sl':
             dc['ner_tagger.' + lang] = lambda: NerTagger(lang, dc['tagger.' + lang])
+            dc['csmtiser.'+lang] = lambda: Csmtiser(lang, dc['segmenter.' + lang])
         dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
         dc['lexicon.' + lang] = lambda: Lexicon(lang)
         dc['restorer.'+lang] = lambda: DiacriticRestorer(lang, dc['segmenter.' + lang])
@@ -61,8 +63,8 @@ def init():
     print 'Models initialized'
 
     try:
-        url_prefix= config.get("url", "prefix")
-    except NoSectionError:
+        url_prefix= config["url"]["prefix"]
+    except KeyError:
         url_prefix=''
 
     api_router = ApiRouter(dc)
@@ -95,17 +97,6 @@ def init():
 
 if __name__ == "__main__":
     text = 'Modeli su učitani! Vrlo uspješno.'
-
-    # lemmatiser = dc['lemmatiser.hr']
-    # tagger = dc['tagger.hr']
-    # segmenter = dc['segmenter.hr']
-    # lexicon = dc['lexicon.hr']
-
-    # print lemmatiser.tagLemmatise(text)
-    # print lemmatiser.lemmatise(text)
-    # print tagger.tag(text)
-    # print segmenter.segment(text)
-
     app = init()
     app.run(host='0.0.0.0', port=8084) # debug=True, use_reloader=False)
 else:

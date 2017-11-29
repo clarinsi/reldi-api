@@ -14,4 +14,4 @@ assets/lexdb_sl
 .idea
 uploads/
 *.sh
-config
+config.yml

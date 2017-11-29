@@ -310,12 +310,12 @@ class ApiRouter(Blueprint):
 
         def weblicht_get_text(request):
             with open('assets/tcfschema/d-spin-local_0_4.rng', 'r') as f:
-                text = request.data
                 relaxng_doc = etree.parse(f)
                 relaxng = etree.RelaxNG(relaxng_doc)
+
+                text = request.data
                 inputXml = re.sub(">\\s*<", "><", text)
                 inputXml = re.sub("^\\s*<", "<", inputXml)
-
                 doc = etree.parse(StringIO(inputXml))
                 try:
                     relaxng.assertValid(doc)
@@ -728,3 +728,58 @@ class ApiRouter(Blueprint):
                     raise Unauthorized(e.__str__())
 
 
+        @self.route('/<lang>/normalise_with_csmtiser', methods=['GET', 'POST'])
+        @authenticate
+        @save_file
+        def normalise_with_csmtiser(lang):
+            '''
+
+            @param lang:
+            @type lang: string
+            @return:
+            @rtype: string
+            '''
+
+            format = get_format(request)
+            if not isset(format):
+                raise InvalidUsage('Please specify a format')
+
+            text = get_text(format, request)
+            # tagger = dc['tagger.' + lang]
+            csmtiser = dc['csmtiser.' + lang]
+
+            result = csmtiser.tag(text)
+
+            if format == 'json':
+                return jsonify(jsonTCF(lang, text, result), ensure_ascii=False)
+            elif format == 'tcf':
+                return Response(TCF(lang, text, result), mimetype='text/xml')
+
+        @self.route('/weblicht/normalise_with_csmtiser', methods=['GET', 'POST'])
+        @authenticate_weblicht
+        def weblicht_normalise_with_csmtiser():
+            lang = weblicht_get_lang(request)
+
+            if request.headers['Content-Type'] != 'text/tcf+xml':
+                raise BadRequest('Invalid content type: ' + request.headers['Content-Type'])
+
+            request.get_data()
+            text = weblicht_get_text(request)
+
+            csmtiser = dc['csmtiser.' + lang]
+            result = csmtiser.tag(text)
+
+            return Response(TCF(lang, text, result), mimetype='text/xml')
+
+            # tree = etree.fromstring(request.data)
+            #
+            # tokens = [i.text for i in tree[1][1]]
+            # csmtiser = dc['csmtiser.' + lang]
+            # token_to_normalized_token = csmtiser.normalise_tokens(tokens)
+            #
+            # for i in tree[1][1]:
+            #     i.text = token_to_normalized_token[i.text]
+            #
+            # final_text = etree.tostring(tree, pretty_print=True, encoding='UTF-8').decode('utf-8')
+            #
+            # return Response(final_text, mimetype='text/xml')

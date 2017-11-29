@@ -1,4 +1,6 @@
 import json
+
+import yaml
 from flask import make_response
 from lxml import etree
 from StringIO import StringIO
@@ -9,8 +11,11 @@ import cgi
 import ConfigParser
 import os
 
-config = ConfigParser.ConfigParser()
-config.read(os.path.realpath('config'))
+with open(os.path.realpath('config.yml'), 'r') as ymlfile:
+    config=yaml.load(ymlfile)
+
+# config = ConfigParser.ConfigParser()
+# config.read()
 
 
 def generate_token():
