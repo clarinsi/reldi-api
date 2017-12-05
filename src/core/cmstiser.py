@@ -21,7 +21,7 @@ class Csmtiser(object):
         """Tags a sentence and returns tagged tokens"""
         output=[]
         if not vert:
-            sentence = self.segmenter.segment(sentence)
+            sentence = self.segmenter.segment(sentence, non_standard_sentence_split=True)
 
         tokens = [e[0] for sent in sentence for e in sent]
         token_to_normalized_token = self.csmtiser.normalise_tokens(tokens)
