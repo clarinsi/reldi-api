@@ -579,7 +579,7 @@ class ApiRouter(Blueprint):
             lemmatiser = dc['lemmatiser.' + lang]
             result = lemmatiser.lemmatise(text)
 
-            return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
+            return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/tcf+xml')
 
         @self.route('/<lang>/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate
