@@ -50,10 +50,10 @@ def init():
     for lang in languages:
         dc['segmenter.' + lang] = lambda: Segmenter(lang)
         dc['tagger.' + lang] = lambda: Tagger(lang, dc['segmenter.' + lang])
-        if lang=='sl':
-            dc['ner_tagger.' + lang] = lambda: NerTagger(lang, dc['tagger.' + lang])
-            dc['csmtiser.'+lang] = lambda: Csmtiser(lang, dc['segmenter.' + lang])
         dc['lemmatiser.' + lang] = lambda: Lematiser(lang, dc['segmenter.' + lang], dc['tagger.' + lang])
+        dc['ner_tagger.' + lang] = lambda: NerTagger(lang, dc['lemmatiser.' + lang])
+        if lang=='sl':
+            dc['csmtiser.'+lang] = lambda: Csmtiser(lang, dc['segmenter.' + lang])
         dc['lexicon.' + lang] = lambda: Lexicon(lang)
         dc['restorer.'+lang] = lambda: DiacriticRestorer(lang, dc['segmenter.' + lang])
         dc['dependency_parser.' + lang] = lambda: DependencyParser(lang, dc['lemmatiser.' + lang])

@@ -661,10 +661,10 @@ class ApiRouter(Blueprint):
 
             return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
-        @self.route('/<lang>/tag_ner', methods=['GET', 'POST'])
+        @self.route('/<lang>/tag_lemmatise_ner', methods=['GET', 'POST'])
         @authenticate
         @save_file
-        def tag_ner(lang):
+        def tag_lemmatise_ner(lang):
             '''
 
             @param lang:
@@ -684,13 +684,13 @@ class ApiRouter(Blueprint):
             result = tagger.tag(text)
 
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, tag_idx=1,ner_tag_idx=2), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, text, result, tag_idx=1,lemma_idx=2,ner_tag_idx=3), ensure_ascii=False)
             elif format == 'tcf':
-                return Response(TCF(lang, text, result, tag_idx=1,ner_tag_idx=2), mimetype='text/xml')
+                return Response(TCF(lang, text, result, tag_idx=1,lemma_idx=2,ner_tag_idx=3), mimetype='text/xml')
 
-        @self.route('/weblicht/tag_ner', methods=['GET', 'POST'])
+        @self.route('/weblicht/tag_lemmatise_ner', methods=['GET', 'POST'])
         @authenticate_weblicht
-        def weblicht_tag_ner():
+        def weblicht_tag_lemmatise_ner():
             lang = weblicht_get_lang(request)
 
             if request.headers['Content-Type'] != 'text/tcf+xml':

@@ -21,8 +21,8 @@ import pycrfsuite
 class NerTagger(object):
     '''Class segmenter'''
 
-    def __init__(self, lang, tagger):
-        self.tagger = tagger
+    def __init__(self, lang, lemmatizer):
+        self.lemmatizer = lemmatizer
         self.lang = lang
         self.ner_tagger = pycrfsuite.Tagger()
         # self.ner_tagger.open(os.path.join(reldir, lang + '.ner.model'))
@@ -36,7 +36,7 @@ class NerTagger(object):
         return self.ner_tagger.tag(extract_features(tokens, tags, self._brown))
 
     def tag(self, text):
-        tagged_sents = self.tagger.tag(text)
+        tagged_sents = self.lemmatizer.tagLemmatise(text)
 
         ner_tagged_sents=[]
         for sent in tagged_sents:
@@ -44,7 +44,7 @@ class NerTagger(object):
             tags = [e[1] for e in sent]
 
             ners = self.tag_sent(tokens,tags)
-            ner_tagged_sents.append([(a[0], a[1], b) for a,b in izip(sent,ners)]) # append ners to the result tuples
+            ner_tagged_sents.append([(a[0], a[1],a[2], b) for a,b in izip(sent,ners)]) # append ners to the result tuples
 
         return ner_tagged_sents
 
