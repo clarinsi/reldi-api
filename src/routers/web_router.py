@@ -85,6 +85,17 @@ class WebRouter(Blueprint):
 
             return response
 
+        @self.route('/anonymous_login', methods=['GET'])
+        def anonymous_login():
+            user = UserModel.getByUsername('user')
+            token = user.generateAnonymousToken()
+            token.save()
+
+            response = make_response(redirect(url_for('.login')))
+            response.set_cookie('auth-token', token.token)
+
+            return response
+
         @self.route('/logout', methods=["POST"])
         def logout():
             auth_token_string = request.cookies.get('auth-token')

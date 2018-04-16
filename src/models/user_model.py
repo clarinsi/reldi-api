@@ -31,6 +31,12 @@ class UserModel(Model):
     def setPassword(self, password):
         self.password = hash_password(password)
 
+    def generateAnonymousToken(self, is_long_lasting = False):
+
+        token = AuthTokenModel.generate(is_long_lasting)
+        token.user_id = self.id
+        return token
+
     def generateToken(self, password, is_long_lasting = False):
 
         isPasswordValid = verify_password(password, self.password)

@@ -96,7 +96,15 @@ window.TaggerForm = React.createClass({
                             </div>
                             <div className="col-md-10 col-md-offset-2">
                                 <label className="radio-inline">
-                                    <input type="radio" name="method" id="method3" value="tag_lemmatise_depparse"
+                                    <input type="radio" name="method" id="method4" value="tag_lemmatise_ner"
+                                            checked={this.props.model.method == 'tag_lemmatise_ner'}
+                                            onChange={this.props.changeField.bind(null, 'method')} />
+                                    Tag + Lemmatise + NER
+                                </label>
+                            </div>
+                            <div className="col-md-10 col-md-offset-2">
+                                <label className="radio-inline">
+                                    <input type="radio" name="method" id="method5" value="tag_lemmatise_depparse"
                                             checked={this.props.model.method == 'tag_lemmatise_depparse'}
                                             onChange={this.props.changeField.bind(null, 'method')} />
                                     Tag  +  Lemmatise  +  Dep Parse

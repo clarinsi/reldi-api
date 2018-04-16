@@ -11,21 +11,11 @@ window.TaggerFormResult = React.createClass({
             return false;
         }
 
-        // Normalize data
-        if (!Array.isArray(result.json.tokens.token)) {
-            result.json.tokens.token = [result.json.tokens.token];
-        }
-        if ('POStags' in result.json && !Array.isArray(result.json.POStags.tag)) {
-            result.json.POStags.tag = [result.json.POStags.tag];
-        }
-        if ('lemmas' in result.json && !Array.isArray(result.json.lemmas.lemma)) {
-            result.json.lemmas.lemma = [result.json.lemmas.lemma];
-        }
-        if ('depparsing' in result.json && !Array.isArray(result.json.depparsing.parse)) {
-            result.json.depparsing.parse = [result.json.depparsing.parse];
-        }
-        if ('depparsing' in result.json && !Array.isArray(result.json.depparsing.parse[0].dependency)) {
-            result.json.depparsing.parse[0].dependency = [result.json.depparsing.parse[0].dependency];
+        var namedEntities = [];
+        if ('namedEntities' in result.json) {
+            result.json.namedEntities.entity.forEach(function(entity) {
+                namedEntities[entity.tokenIDs] = entity.value;
+            });
         }
 
         // Generate table
@@ -39,15 +29,18 @@ window.TaggerFormResult = React.createClass({
         if ('depparsing' in result.json) {
             tableHeaders.push(<th key="depparse">Dep parse - gov / func</th>);
         }
+        if ('namedEntities' in result.json) {
+            tableHeaders.push(<th key="named-entities">Entity</th>);
+        }
 
         tableHeaders.push(<th key="echr">Start char</th>);
         tableHeaders.push(<th key="schr">End char</th>);
 
         var sentenceIdx = 0;
         var previousSentenceSum = 0;
-        var tokens = result.json.tokens.token;
 
         var bodyRows = result.json.tokens.token.map(function(row, idx) {
+            var tokenId = row.ID;
             var tds = [];
             tds.push(<td key="idx"><strong>{idx - previousSentenceSum + 1}.</strong></td>);
             tds.push(<td key="surf">{row.text}</td>);
@@ -70,6 +63,12 @@ window.TaggerFormResult = React.createClass({
 
                 var func = result.json.depparsing.parse[sentenceIdx].dependency[idx - previousSentenceSum].func;
                 tds.push(<td key="depparse">{govIds} / {func}</td>)
+            }
+
+            if ('namedEntities' in result.json && tokenId in namedEntities) {
+                tds.push(<td key="namedEntity">{namedEntities[tokenId]}</td>)
+            } else if ('namedEntities' in result.json) {
+                tds.push(<td key="namedEntity">-</td>)
             }
 
             tds.push(<td key="schr">{row.startChar}</td>);

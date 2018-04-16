@@ -110,7 +110,7 @@
 
     });
 
-    var baseUrl = '/api/v1/';
+    var baseUrl = "{{ url_for('api_router.index') }}";
     $('#search-form').submit(function(e) {
         e.preventDefault();
     });
