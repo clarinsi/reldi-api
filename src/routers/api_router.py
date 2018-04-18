@@ -265,8 +265,8 @@ class ApiRouter(Blueprint):
                             if tid in namedEntities:
                                 csvResult[-1].append(namedEntities[tid]['value'])
 
-                            csvResult[-1].append(token['startChar'])
-                            csvResult[-1].append(token['endChar'])
+                            csvResult[-1].append(token['start'])
+                            csvResult[-1].append(token['end'])
 
                         csvResult.append([])
 
@@ -274,7 +274,8 @@ class ApiRouter(Blueprint):
                         w = csv.writer(f, delimiter="\t")
                         w.writerows(csvResult)
 
-                except:
+                except Exception, e:
+                    print str(e)
                     with open(filePath, 'w') as f:
                         f.write(raw)
 
