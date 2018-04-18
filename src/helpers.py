@@ -124,8 +124,6 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
     token_id = 0
     for s_idx, sentence in enumerate(result):
         token_ids = []
-        ner=None
-        ner_seq_token_ids=[]
 
         if depparse_idx is not None:
             output['depparsing']['parse'].append({
@@ -136,8 +134,8 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
 
             output['tokens']['token'].append({
                 'ID': "t_" + str(token_id),
-                'startChar': str(token[0][1]),
-                'endChar': str(token[0][2]),
+                'start': str(token[0][1]),
+                'end': str(token[0][2]),
                 'text': token[0][0]
             })
             token_ids.append("t_" + str(token_id))
@@ -155,21 +153,12 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
                     'text': token[tag_idx]
                 })
             if ner_tag_idx is not None:
-                token_ner=token[ner_tag_idx]
-                if ner and (token_ner.startswith("O") or token_ner.startswith("B")):
-                    output['namedEntities']['entity'].append({
-                        'ID': 'nt_' + str(len(output['namedEntities'])),
-                        'tokenIDs': " ".join(ner_seq_token_ids),
-                        'value': ner
-                    })
-                    ner = None
-                    ner_seq_token_ids=[]
-
-                if not token_ner.startswith("O"):
-                    ner_seq_token_ids.append('t_' + str(token_id))
-
-                if token_ner.startswith("B"):
-                    ner=token_ner[2:]
+                token_ner = token[ner_tag_idx]
+                output['namedEntities']['entity'].append({
+                    'ID': 'nt_' + str(len(output['namedEntities'])),
+                    'tokenIDs': 't_' + str(token_id),
+                    'value': token_ner
+                })
 
             if correction_idx is not None:
                 output['orthography']['correction'].append({

@@ -66,14 +66,14 @@ window.TaggerFormResult = React.createClass({
             }
 
             if ('namedEntities' in result.json && tokenId in namedEntities) {
-                tds.push(<td key="namedEntity">{namedEntities[tokenId]}</td>)
-            } else if ('namedEntities' in result.json) {
+                const entityLabel = namedEntities[tokenId];
+                tds.push(<td key="namedEntity">{entityLabel}</td>)
+            } else if ('namedEntities' in result.json)  {
                 tds.push(<td key="namedEntity">-</td>)
             }
 
-            tds.push(<td key="schr">{row.startChar}</td>);
-            tds.push(<td key="echr">{row.endChar}</td>);
-
+            tds.push(<td key="schr">{row.start}</td>);
+            tds.push(<td key="echr">{row.end}</td>);
 
             if ('depparsing' in result.json && (idx - previousSentenceSum == result.json.depparsing.parse[sentenceIdx].dependency.length - 1)) {
                 previousSentenceSum += (result.json.depparsing.parse[sentenceIdx].dependency.length);

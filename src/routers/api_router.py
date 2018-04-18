@@ -214,6 +214,7 @@ class ApiRouter(Blueprint):
                     lemmas = {}
                     tokens = {}
                     parse = {}
+                    namedEntities = {}
 
                     if 'POStags' in data:
                         for tag in data['POStags']['tag']:
@@ -226,6 +227,10 @@ class ApiRouter(Blueprint):
                     if 'tokens' in data:
                         for token in data['tokens']['token']:
                             tokens[token['ID']] = token
+
+                    if 'namedEntities' in data:
+                        for entity in data['namedEntities']['entity']:
+                            namedEntities[entity['tokenIDs']] = entity
 
                     if 'depparsing' in data:
                         previousTokenSum = 0
@@ -257,6 +262,8 @@ class ApiRouter(Blueprint):
                             if tid in parse:
                                 csvResult[-1].append(parse[tid]['govIDs'])
                                 csvResult[-1].append(parse[tid]['func'])
+                            if tid in namedEntities:
+                                csvResult[-1].append(namedEntities[tid]['value'])
 
                             csvResult[-1].append(token['startChar'])
                             csvResult[-1].append(token['endChar'])
@@ -468,7 +475,6 @@ class ApiRouter(Blueprint):
 
             text = get_text(format, request)
             segmenter = dc['segmenter.' + lang]
-
 
             # Format properly
             result = map(lambda x: map(lambda y: (y,), x), segmenter.segment(text))
