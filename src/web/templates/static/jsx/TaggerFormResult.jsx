@@ -11,7 +11,28 @@ window.TaggerFormResult = React.createClass({
             return false;
         }
 
+        // Normalize data
+        if (!Array.isArray(result.json.tokens.token)) {
+            result.json.tokens.token = [result.json.tokens.token];
+        }
+        if ('POStags' in result.json && !Array.isArray(result.json.POStags.tag)) {
+            result.json.POStags.tag = [result.json.POStags.tag];
+        }
+        if ('lemmas' in result.json && !Array.isArray(result.json.lemmas.lemma)) {
+            result.json.lemmas.lemma = [result.json.lemmas.lemma];
+        }
+        if ('namedEntities' in result.json && !Array.isArray(result.json.namedEntities.entity)) {
+            result.json.namedEntities.entity = [result.json.namedEntities.entity];
+        }
+        if ('depparsing' in result.json && !Array.isArray(result.json.depparsing.parse)) {
+            result.json.depparsing.parse = [result.json.depparsing.parse];
+        }
+        if ('depparsing' in result.json && !Array.isArray(result.json.depparsing.parse[0].dependency)) {
+            result.json.depparsing.parse[0].dependency = [result.json.depparsing.parse[0].dependency];
+        }
+
         var namedEntities = [];
+        console.log(result);
         if ('namedEntities' in result.json) {
             result.json.namedEntities.entity.forEach(function(entity) {
                 namedEntities[entity.tokenIDs] = entity.value;
