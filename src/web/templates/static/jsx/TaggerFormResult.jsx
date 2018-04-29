@@ -32,7 +32,6 @@ window.TaggerFormResult = React.createClass({
         }
 
         var namedEntities = [];
-        console.log(result);
         if ('namedEntities' in result.json) {
             result.json.namedEntities.entity.forEach(function(entity) {
                 namedEntities[entity.tokenIDs] = entity.value;

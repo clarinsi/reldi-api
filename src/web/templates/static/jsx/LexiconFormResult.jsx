@@ -1,13 +1,20 @@
+var table;
+
 window.LexiconFormResult = React.createClass({
 
     componentDidMount: function() {
-        var table = $('#lexicon-results').DataTable({
+        table = $('#lexicon-results').DataTable({
             data: [],
-            columns: [{ title: "Surface form" }, { title: "Tag" }, { title: "Lemma" }]
+            columns: [
+                { title: "Surface form" },
+                { title: "Tag" },
+                { title: "Lemma" }
+            ]
         });
     },
 
     componentWillReceiveProps: function(nextProps) {
+
         if (nextProps.result == undefined) {
             return;
         }
@@ -16,11 +23,11 @@ window.LexiconFormResult = React.createClass({
             return;
         }
 
-        var table = $('#lexicon-results').dataTable();
-        table.fnClearTable();
+        table.rows().remove();
         if (nextProps.result.data.length > 0) {
-            table.fnAddData(nextProps.result.data);
+            table.rows.add(nextProps.result.data);
         }
+        table.draw();
     },
 
     render: function() {
@@ -38,15 +45,7 @@ window.LexiconFormResult = React.createClass({
                 <label htmlFor="textArea" className="col-md-12 control-label">Result</label>
                 <ReactBootstrap.Tabs defaultActiveKey={1} id="uncontrolled-tab-example" bsStyle="pills">
                     <ReactBootstrap.Tab eventKey={1} title="Table">
-                        <table id="lexicon-results" className="table" cellSpacing="0" width="100%" >
-                            <thead>
-                                <tr>
-                                    <th>Surface</th>
-                                    <th>Tags</th>
-                                    <th>Lemma</th>
-                                </tr>
-                            </thead>
-                        </table>
+                        <table id="lexicon-results" className="table" cellSpacing="0" width="100%" />
                     </ReactBootstrap.Tab>
                     <ReactBootstrap.Tab eventKey={2} title="Raw">
                         <div className="col-md-12">
