@@ -30,15 +30,7 @@ Hello {0},
 
 please click the following link to confirm your email address {1}""".format(username, confirm_email_url)
 
-        try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.login(self.mailbox_username, self.mailbox_password)
-            server.sendmail(sender, receivers, message)
-            server.close()
-        except SMTPException:
-            print "Error: unable to send email"
+        self.send(message, receivers, sender)
 
     def sendAccessRequestEmail(self, username, note, login_link):
 
@@ -62,15 +54,7 @@ Click the link to log in and review the user details: {2}
 
 {1}""".format(username, note, login_link)
 
-        try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.login(self.mailbox_username, self.mailbox_password)
-            server.sendmail(sender, receivers, message)
-            server.close()
-        except SMTPException:
-            print "Error: unable to send email"
+        self.send(message, receivers, sender)
 
     def sendUserActivatedEmail(self, username, email, login_url):
 
@@ -89,15 +73,7 @@ your ReLDI account has been activated.
 
 Click the link to go to the login page: {2}""".format(username, email, login_url)
 
-        try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.login(self.mailbox_username, self.mailbox_password)
-            server.sendmail(sender, receivers, message)
-            server.close()
-        except SMTPException:
-            print "Error: unable to send email"
+        self.send(message, receivers, sender)
 
 
     def sendUserReactivatedEmail(self, username, email, login_url):
@@ -120,15 +96,7 @@ your ReLDI account has been re-activated.
 
 Click the link to go to the login page: {2}""".format(username, email, login_url)
 
-        try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.login(self.mailbox_username, self.mailbox_password)
-            server.sendmail(sender, receivers, message)
-            server.close()
-        except SMTPException:
-            print "Error: unable to send email"
+        self.send(message, receivers, sender)
 
     def sendUserBlockedEmail(self, username, email):
 
@@ -148,15 +116,7 @@ Hello {0},
 
 your ReLDI account has been blocked by the administrator.""".format(username, email)
 
-        try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.login(self.mailbox_username, self.mailbox_password)
-            server.sendmail(sender, receivers, message)
-            server.close()
-        except SMTPException:
-            print "Error: unable to send email"
+        self.send(message, receivers, sender)
 
     def sendEmailForgotPasswordEmail(self, username, email, forgot_password_email_url):
 
@@ -176,12 +136,14 @@ Hello {0},
 
 please click the following link to confirm your password reset {1}""".format(username, forgot_password_email_url)
 
+        self.send(message, receivers, sender)
+
+    def send(self, message, receivers, sender):
         try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.login(self.mailbox_username, self.mailbox_password)
-            server.sendmail(sender, receivers, message)
-            server.close()
-        except SMTPException:
-            print "Error: unable to send email"
+            server = smtplib.SMTP('localhost')
+            headers = ("From: %s\r\nTo: %s\r\n\r\n" % (sender, ", ".join(receivers)))
+            payload = headers + message
+            server.sendmail(sender, receivers, payload)
+            server.quit()
+        except SMTPException, e:
+            print "Error: unable to send email " + str(e)
