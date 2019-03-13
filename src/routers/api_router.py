@@ -10,6 +10,7 @@ from functools import wraps
 from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
 import re, os, json, csv, traceback
+import zipfile
 from HTMLParser import HTMLParser
 
 class ServerError(Exception):
@@ -203,85 +204,133 @@ class ApiRouter(Blueprint):
                 if authToken is None or not authToken.isValid():
                     raise Unauthorized('Invalid token')
 
-                result = api_method(*args, **kwargs)
-                filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request))
+                is_archive = True \
+                    if 'file' in request.files and request.files['file'].mimetype == "application/zip" \
+                    else False
 
-                raw = result.get_data()
-                try:
-                    data = json.loads(raw)
-                    csvResult = []
-                    posTags = {}
-                    lemmas = {}
-                    tokens = {}
-                    parse = {}
-                    namedEntities = {}
+                if is_archive:
+                    zip_archive_filename = os.path.join(self.config['UPLOAD_FOLDER'],
+                                                        get_filename_request_id(request.files['file'].filename))
+                    request.files['file'].save(zip_archive_filename)
+                    zip_archive = zipfile.ZipFile(zip_archive_filename)
 
-                    if 'POStags' in data:
-                        for tag in data['POStags']['tag']:
-                            posTags[tag['tokenIDs']] = tag
+                    files_to_process = sorted(zip_archive.namelist())
+                    for file_to_process in files_to_process:
+                        with zip_archive.open(file_to_process, 'r') as f:
+                            kwargs['file_'] = f
+                            result = api_method(*args, **kwargs)
+                            process_result(result, file_to_process)
 
-                    if 'lemmas' in data:
-                        for lemma in data['lemmas']['lemma']:
-                            lemmas[lemma['tokenIDs']] = lemma
+                    zip_archive.close()
+                    delete_file(zip_archive_filename)
+                    create_zipfile(files_to_process)
 
-                    if 'tokens' in data:
-                        for token in data['tokens']['token']:
-                            tokens[token['ID']] = token
+                    return '{"filetype":"zip", "tokens":{"token":[]}}'
 
-                    if 'namedEntities' in data:
-                        for entity in data['namedEntities']['entity']:
-                            namedEntities[entity['tokenIDs']] = entity
-
-                    if 'depparsing' in data:
-                        previousTokenSum = 0
-                        for sentence in data['depparsing']['parse']:
-                            for token in sentence['dependency']:
-                                if 'govIDs' in token:
-                                    parse[token['depIDs']] = {
-                                        'govIDs': int(token['govIDs'].split('_')[1]) - previousTokenSum + 1,
-                                        'func': token['func']
-                                    }
-                                else:
-                                    parse[token['depIDs']] = {
-                                        'govIDs': '0',
-                                        'func': 'root'
-                                    }
-                            previousTokenSum += len(sentence['dependency'])
-
-                    for sentence in data['sentences']['sentence']:
-                        for idx, tid in enumerate(sentence['tokenIDs'].split(' ')):
-                            csvResult.append([])
-                            token = tokens[tid]
-                            csvResult[-1].append(idx + 1)
-                            csvResult[-1].append(token['text'])
-
-                            if tid in posTags:
-                                csvResult[-1].append(posTags[tid]['text'])
-                            if tid in lemmas:
-                                csvResult[-1].append(lemmas[tid]['text'])
-                            if tid in parse:
-                                csvResult[-1].append(parse[tid]['govIDs'])
-                                csvResult[-1].append(parse[tid]['func'])
-                            if tid in namedEntities:
-                                csvResult[-1].append(namedEntities[tid]['value'])
-
-                            csvResult[-1].append(token['start'])
-                            csvResult[-1].append(token['end'])
-
-                        csvResult.append([])
-
-                    with open(filePath, 'w') as f:
-                        w = csv.writer(f, delimiter="\t")
-                        w.writerows(csvResult)
-
-                except Exception, e:
-                    print str(e)
-                    with open(filePath, 'w') as f:
-                        f.write(raw)
-
-                return result
+                else:
+                    result = api_method(*args, **kwargs)
+                    return process_result(result)
 
             return post_request
+
+        def process_result(result, filename=None):
+            if filename:
+                filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_filename_request_id(filename))
+            else:
+                filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request))
+
+            raw = result.get_data()
+            try:
+                data = json.loads(raw)
+                csvResult = []
+                posTags = {}
+                lemmas = {}
+                tokens = {}
+                parse = {}
+                namedEntities = {}
+
+                if 'POStags' in data:
+                    for tag in data['POStags']['tag']:
+                        posTags[tag['tokenIDs']] = tag
+
+                if 'lemmas' in data:
+                    for lemma in data['lemmas']['lemma']:
+                        lemmas[lemma['tokenIDs']] = lemma
+
+                if 'tokens' in data:
+                    for token in data['tokens']['token']:
+                        tokens[token['ID']] = token
+
+                if 'namedEntities' in data:
+                    for entity in data['namedEntities']['entity']:
+                        namedEntities[entity['tokenIDs']] = entity
+
+                if 'depparsing' in data:
+                    previousTokenSum = 0
+                    for sentence in data['depparsing']['parse']:
+                        for token in sentence['dependency']:
+                            if 'govIDs' in token:
+                                parse[token['depIDs']] = {
+                                    'govIDs': int(token['govIDs'].split('_')[1]) - previousTokenSum + 1,
+                                    'func': token['func']
+                                }
+                            else:
+                                parse[token['depIDs']] = {
+                                    'govIDs': '0',
+                                    'func': 'root'
+                                }
+                        previousTokenSum += len(sentence['dependency'])
+
+                for sentence in data['sentences']['sentence']:
+                    for idx, tid in enumerate(sentence['tokenIDs'].split(' ')):
+                        csvResult.append([])
+                        token = tokens[tid]
+                        csvResult[-1].append(idx + 1)
+                        csvResult[-1].append(token['text'])
+
+                        if tid in posTags:
+                            csvResult[-1].append(posTags[tid]['text'])
+                        if tid in lemmas:
+                            csvResult[-1].append(lemmas[tid]['text'])
+                        if tid in parse:
+                            csvResult[-1].append(parse[tid]['govIDs'])
+                            csvResult[-1].append(parse[tid]['func'])
+                        if tid in namedEntities:
+                            csvResult[-1].append(namedEntities[tid]['value'])
+
+                        csvResult[-1].append(token['start'])
+                        csvResult[-1].append(token['end'])
+
+                    csvResult.append([])
+
+                with open(filePath, 'w') as f:
+                    w = csv.writer(f, delimiter="\t")
+                    w.writerows(csvResult)
+
+            except Exception, e:
+                print str(e)
+                with open(filePath, 'w') as f:
+                    f.write(raw)
+
+            return result
+
+        def delete_file(filename):
+            if os.path.exists(filename):
+                os.remove(filename)
+
+        def get_filename_request_id(filename):
+            name, extension = os.path.splitext(filename)
+            return name + "-" + get_request_id(request) + extension
+
+        def create_zipfile(files):
+            zip_filename = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request) + ".zip")
+            zipf = zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED)
+            for f in files:
+                filename = get_filename_request_id(f)
+                filepath = os.path.join(self.config['UPLOAD_FOLDER'], filename)
+                zipf.write(filepath, filename)
+                delete_file(filepath)
+            zipf.close()
 
         def get_format(request):
             params = request.form if request.method == 'POST' else request.args
@@ -332,20 +381,24 @@ class ApiRouter(Blueprint):
                 except Exception as e:
                     raise InvalidUsage(e.message)
 
-        def get_text(format, request):
+        def get_text(format, request, file_=None):
             '''
 
             @param format:
             @type format: string
             @param request:
             @type request: string
+            @param file_:
+            @type file_: file
             @return:
             @rtype: string
             '''
             params = request.form if request.method == 'POST' else request.args
             files = request.files
             if format == 'json':
-                if 'file' in files:
+                if file_:
+                    return file_.read()
+                elif 'file' in files:
                     return files['file'].read()
                 else:
                     return params.get('text')
@@ -462,11 +515,13 @@ class ApiRouter(Blueprint):
 
         @self.route('/<lang>/segment', methods=['GET', 'POST'])
         @authenticate
-        def segment(lang):
+        def segment(lang, file_=None):
             '''
 
             @param lang:
             @type lang: string
+            @param file_:
+            @type file_: file
             @return:
             @rtype: string
             '''
@@ -474,7 +529,7 @@ class ApiRouter(Blueprint):
             if not isset(format):
                 raise InvalidUsage('Please specify a format')
 
-            text = get_text(format, request)
+            text = get_text(format, request, file_)
             segmenter = dc['segmenter.' + lang]
 
             # Format properly
@@ -488,11 +543,13 @@ class ApiRouter(Blueprint):
 
         @self.route('/<lang>/restore', methods=['GET', 'POST'])
         @authenticate
-        def restore(lang):
+        def restore(lang, file_):
             '''
 
             @param lang:
             @type lang: string
+            @param file_:
+            @type file_: file
             @return:
             @rtype: string
             '''
@@ -500,7 +557,7 @@ class ApiRouter(Blueprint):
             if not isset(format):
                 raise InvalidUsage('Please specify a format')
 
-            text = get_text(format, request)
+            text = get_text(format, request, file_)
             restorer = dc['restorer.' + lang]
             result = restorer.restore(text)
             if format == 'json':
@@ -512,11 +569,13 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/tag', methods=['GET', 'POST'])
         @authenticate
         @save_file
-        def tag(lang):
+        def tag(lang, file_=None):
             '''
 
             @param lang:
             @type lang: string
+            @param file_:
+            @type file_: file
             @return:
             @rtype: string
             '''
@@ -525,7 +584,7 @@ class ApiRouter(Blueprint):
             if not isset(format):
                 raise InvalidUsage('Please specify a format')
 
-            text = get_text(format, request)
+            text = get_text(format, request, file_)
             tagger = dc['tagger.' + lang]
             result = tagger.tag(text)
             if format == 'json':
@@ -552,11 +611,13 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/lemmatise', methods=['GET', 'POST'])
         @authenticate
         @save_file
-        def lemmatise(lang):
+        def lemmatise(lang, file_=None):
             '''
 
             @param lang:
             @type lang: string
+            @param file_:
+            @type file_: file
             @return:
             @rtype: string
             '''
@@ -564,7 +625,7 @@ class ApiRouter(Blueprint):
             if not isset(format):
                 raise InvalidUsage('Please specify a format')
 
-            text = get_text(format, request)
+            text = get_text(format, request, file_)
             lemmatiser = dc['lemmatiser.' + lang]
             result = lemmatiser.lemmatise(text)
             if format == 'json':
@@ -591,13 +652,15 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/tag_lemmatise', methods=['GET', 'POST'])
         @authenticate
         @save_file
-        def tag_lematise(lang):
+        def tag_lematise(lang, file_=None):
             '''
 
             @return:
             @rtype:
             @param lang:
             @type lang: string
+            @param file_:
+            @type file_: file
             @return:
             @rtype: string
             '''
@@ -605,7 +668,7 @@ class ApiRouter(Blueprint):
             if not isset(format):
                 raise InvalidUsage('Please specify a format')
 
-            text = get_text(format, request)
+            text = get_text(format, request, file_)
             lemmatiser = dc['lemmatiser.' + lang]
             result = lemmatiser.tagLemmatise(text)
             if format == 'json':
@@ -632,11 +695,13 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/tag_lemmatise_depparse', methods=['GET', 'POST'])
         @authenticate
         @save_file
-        def tag_lemmatise_depparse(lang):
+        def tag_lemmatise_depparse(lang, file_=None):
             '''
 
             @param lang:
             @type lang: string
+            @param file_:
+            @type file_: file
             @return:
             @rtype: string
             '''
@@ -644,7 +709,7 @@ class ApiRouter(Blueprint):
             if not isset(format):
                 raise InvalidUsage('Please specify a format')
 
-            text = get_text(format, request)
+            text = get_text(format, request, file_)
             dependency_parser = dc['dependency_parser.' + lang]
             result = dependency_parser.parse(text)
             if format == 'json':
@@ -671,11 +736,13 @@ class ApiRouter(Blueprint):
         @self.route('/<lang>/tag_lemmatise_ner', methods=['GET', 'POST'])
         @authenticate
         @save_file
-        def tag_lemmatise_ner(lang):
+        def tag_lemmatise_ner(lang, file_=None):
             '''
 
             @param lang:
             @type lang: string
+            @param file_:
+            @type file_: file
             @return:
             @rtype: string
             '''
@@ -684,7 +751,7 @@ class ApiRouter(Blueprint):
             if not isset(format):
                 raise InvalidUsage('Please specify a format')
 
-            text = get_text(format, request)
+            text = get_text(format, request, file_)
             # tagger = dc['tagger.' + lang]
             tagger = dc['ner_tagger.' + lang]
 

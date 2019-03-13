@@ -11,6 +11,16 @@ window.TaggerFormResult = React.createClass({
             return false;
         }
 
+        var archive = false;
+        var defaultKey = 1;
+        var downloadUrl = this.props.downloadUrl + this.props.requestId;
+
+        if ('filetype' in result.json){
+            archive = true;
+            defaultKey = 3;
+            downloadUrl = this.props.downloadUrl + this.props.requestId + '.' + result.json.filetype;
+        }
+
         // Normalize data
         if (!Array.isArray(result.json.tokens.token)) {
             result.json.tokens.token = [result.json.tokens.token];
@@ -112,9 +122,9 @@ window.TaggerFormResult = React.createClass({
         return (
             <div className="form-group">
                 <label htmlFor="textArea" className="col-md-12 control-label">Result</label>
-                <ReactBootstrap.Tabs defaultActiveKey={1} id="uncontrolled-tab-example" bsStyle="pills">
-                    <ReactBootstrap.Tab eventKey={1} title="Table">
-                        <table id="lexicon-results" className="table" cellSpacing="0" width="100%" >
+                <ReactBootstrap.Tabs defaultActiveKey={defaultKey} id="uncontrolled-tab-example" bsStyle="pills">
+                    <ReactBootstrap.Tab eventKey={1} title="Table" disabled={archive}>
+                        <table id="lexicon-results" className="table" cellSpacing="0" width="100%">
                             <thead>
                                 <tr>
                                     {tableHeaders}
@@ -125,14 +135,14 @@ window.TaggerFormResult = React.createClass({
                             </tbody>
                         </table>
                     </ReactBootstrap.Tab>
-                    <ReactBootstrap.Tab eventKey={2} title="Raw">
+                    <ReactBootstrap.Tab eventKey={2} title="Raw" disabled={archive}>
                         <div className="col-md-12">
-                            <textarea readOnly="true" className="form-control" rows="20" value={result.raw} />
+                            <textarea readOnly="true" className="form-control" rows="20" value={result.raw}/>
                         </div>
                     </ReactBootstrap.Tab>
                     <ReactBootstrap.Tab eventKey={3} title="Download">
                         <div className="col-md-12">
-                            <a href={this.props.downloadUrl + this.props.requestId}
+                            <a href={downloadUrl}
                                 disabled={this.props.requestId == ''}>Download</a>
                         </div>
                     </ReactBootstrap.Tab>
