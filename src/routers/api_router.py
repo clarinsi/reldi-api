@@ -205,7 +205,12 @@ class ApiRouter(Blueprint):
                     raise Unauthorized('Invalid token')
 
                 is_archive = True \
-                    if 'file' in request.files and request.files['file'].mimetype == "application/zip" \
+                    if 'file' in request.files \
+                       and request.files['file'].mimetype in ["application/zip", "application/x-zip",
+                                                              "application/x-zip-compressed",
+                                                              "application/octet-stream",
+                                                              "application/x-compress",
+                                                              "application/x-compressed", "multipart/x-zip"]\
                     else False
 
                 if is_archive:
@@ -214,7 +219,8 @@ class ApiRouter(Blueprint):
                     request.files['file'].save(zip_archive_filename)
                     zip_archive = zipfile.ZipFile(zip_archive_filename)
 
-                    files_to_process = sorted(zip_archive.namelist())
+                    files_to_process = [name for name in sorted(zip_archive.namelist())
+                                        if "__MACOSX" not in name and not is_dir(name)]
                     for file_to_process in files_to_process:
                         with zip_archive.open(file_to_process, 'r') as f:
                             kwargs['file_'] = f
@@ -313,6 +319,14 @@ class ApiRouter(Blueprint):
                     f.write(raw)
 
             return result
+
+        def is_dir(filename):
+            if filename.endswith('/'):
+                full_path = os.path.join(self.config['UPLOAD_FOLDER'], filename)
+                if not os.path.isdir(full_path):
+                    os.mkdir(full_path)
+                return True
+            return False
 
         def delete_file(filename):
             if os.path.exists(filename):
@@ -586,7 +600,13 @@ class ApiRouter(Blueprint):
 
             text = get_text(format, request, file_)
             tagger = dc['tagger.' + lang]
-            result = tagger.tag(text)
+            try:
+                result = tagger.tag(text)
+
+            except UnicodeDecodeError:
+                text = ""
+                result = ""
+
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, tag_idx=1), ensure_ascii=False)
             elif format == 'tcf':
@@ -627,7 +647,12 @@ class ApiRouter(Blueprint):
 
             text = get_text(format, request, file_)
             lemmatiser = dc['lemmatiser.' + lang]
-            result = lemmatiser.lemmatise(text)
+            try:
+                result = lemmatiser.lemmatise(text)
+            except UnicodeDecodeError:
+                text = ""
+                result = ""
+
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, lemma_idx=1), ensure_ascii=False)
             elif format == 'tcf':
@@ -670,7 +695,12 @@ class ApiRouter(Blueprint):
 
             text = get_text(format, request, file_)
             lemmatiser = dc['lemmatiser.' + lang]
-            result = lemmatiser.tagLemmatise(text)
+            try:
+                result = lemmatiser.tagLemmatise(text)
+            except UnicodeDecodeError:
+                text = ""
+                result = ""
+
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1), ensure_ascii=False)
             elif format == 'tcf':
@@ -711,7 +741,12 @@ class ApiRouter(Blueprint):
 
             text = get_text(format, request, file_)
             dependency_parser = dc['dependency_parser.' + lang]
-            result = dependency_parser.parse(text)
+            try:
+                result = dependency_parser.parse(text)
+            except UnicodeDecodeError:
+                text = ""
+                result = ""
+
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), ensure_ascii=False)
             elif format == 'tcf':
@@ -755,7 +790,11 @@ class ApiRouter(Blueprint):
             # tagger = dc['tagger.' + lang]
             tagger = dc['ner_tagger.' + lang]
 
-            result = tagger.tag(text)
+            try:
+                result = tagger.tag(text)
+            except UnicodeDecodeError:
+                result = ""
+                text = ""
 
             if format == 'json':
                 return jsonify(jsonTCF(lang, text, result, tag_idx=1,lemma_idx=2,ner_tag_idx=3), ensure_ascii=False)
