@@ -11,6 +11,8 @@ from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
 import re, os, json, csv, traceback
 import zipfile
+import textract
+import mimetypes
 from HTMLParser import HTMLParser
 
 class ServerError(Exception):
@@ -334,7 +336,7 @@ class ApiRouter(Blueprint):
 
         def get_filename_request_id(filename):
             name, extension = os.path.splitext(filename)
-            return name + "-" + get_request_id(request) + extension
+            return name + "-" + get_request_id(request)
 
         def create_zipfile(files):
             zip_filename = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request) + ".zip")
@@ -345,6 +347,14 @@ class ApiRouter(Blueprint):
                 zipf.write(filepath, filename)
                 delete_file(filepath)
             zipf.close()
+
+        def is_word_file(filename):
+            mime = mimetypes.MimeTypes().guess_type(filename)[0]
+            return mime in ["application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                            "application/msword"]
+
+        def read_word_file(filename):
+            return textract.process(filename)
 
         def get_format(request):
             params = request.form if request.method == 'POST' else request.args
@@ -411,8 +421,21 @@ class ApiRouter(Blueprint):
             files = request.files
             if format == 'json':
                 if file_:
+                    if is_word_file(file_.name):
+                        saved_file = os.path.join(self.config['UPLOAD_FOLDER'], file_.name)
+                        with open(saved_file, 'w') as f:
+                            f.write(file_.read())
+                        text = read_word_file(saved_file)
+                        delete_file(saved_file)
+                        return text
                     return file_.read()
                 elif 'file' in files:
+                    if is_word_file(files['file'].filename):
+                        saved_file = os.path.join(self.config['UPLOAD_FOLDER'], files['file'].filename)
+                        files['file'].save(saved_file)
+                        text = read_word_file(saved_file)
+                        delete_file(saved_file)
+                        return text
                     return files['file'].read()
                 else:
                     return params.get('text')
