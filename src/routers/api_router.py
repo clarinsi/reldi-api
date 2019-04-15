@@ -12,6 +12,7 @@ from ..models.auth_token_model import AuthTokenModel
 import re, os, json, csv, traceback
 import zipfile
 import textract
+import subprocess
 import mimetypes
 from HTMLParser import HTMLParser
 
@@ -210,7 +211,7 @@ class ApiRouter(Blueprint):
                     if 'file' in request.files \
                        and request.files['file'].mimetype in ["application/zip", "application/x-zip",
                                                               "application/x-zip-compressed",
-                                                              "application/octet-stream",
+                                                              #"application/octet-stream",
                                                               "application/x-compress",
                                                               "application/x-compressed", "multipart/x-zip"]\
                     else False
@@ -354,6 +355,14 @@ class ApiRouter(Blueprint):
                             "application/msword"]
 
         def read_word_file(filename):
+            name, extension = os.path.splitext(filename)
+            if extension == '.doc':
+                subprocess.call(['soffice', '--headless', '--convert-to', 'docx',
+                                 '--outdir', self.config['UPLOAD_FOLDER'], filename])
+                docx_filename = os.path.join(self.config['UPLOAD_FOLDER'], name + ".docx")
+                text = textract.process(docx_filename)
+                delete_file(docx_filename)
+                return text
             return textract.process(filename)
 
         def get_format(request):
