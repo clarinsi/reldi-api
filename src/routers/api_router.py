@@ -336,8 +336,8 @@ class ApiRouter(Blueprint):
                 os.remove(filename)
 
         def get_filename_request_id(filename):
-            name, extension = os.path.splitext(filename)
-            return name + "-" + get_request_id(request)
+            #name, extension = os.path.splitext(filename)
+            return filename + "-" + get_request_id(request) + ".txt"
 
         def create_zipfile(files):
             zip_filename = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request) + ".zip")
@@ -358,7 +358,7 @@ class ApiRouter(Blueprint):
             name, extension = os.path.splitext(filename)
             if extension == '.doc':
                 subprocess.call(['soffice', '--headless', '--convert-to', 'docx',
-                                 '--outdir', self.config['UPLOAD_FOLDER'], filename])
+                                 '--outdir', os.path.dirname(filename), filename])
                 docx_filename = os.path.join(self.config['UPLOAD_FOLDER'], name + ".docx")
                 text = textract.process(docx_filename)
                 delete_file(docx_filename)
