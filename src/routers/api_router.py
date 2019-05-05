@@ -11,7 +11,7 @@ from ..models.user_model import UserModel
 from ..models.auth_token_model import AuthTokenModel
 import re, os, json, csv, traceback
 import zipfile
-import textract
+import docx2txt
 import subprocess
 import mimetypes
 from HTMLParser import HTMLParser
@@ -211,7 +211,6 @@ class ApiRouter(Blueprint):
                     if 'file' in request.files \
                        and request.files['file'].mimetype in ["application/zip", "application/x-zip",
                                                               "application/x-zip-compressed",
-                                                              #"application/octet-stream",
                                                               "application/x-compress",
                                                               "application/x-compressed", "multipart/x-zip"]\
                     else False
@@ -336,7 +335,6 @@ class ApiRouter(Blueprint):
                 os.remove(filename)
 
         def get_filename_request_id(filename):
-            #name, extension = os.path.splitext(filename)
             return filename + "-" + get_request_id(request) + ".txt"
 
         def create_zipfile(files):
@@ -360,10 +358,10 @@ class ApiRouter(Blueprint):
                 subprocess.call(['soffice', '--headless', '--convert-to', 'docx',
                                  '--outdir', os.path.dirname(filename), filename])
                 docx_filename = os.path.join(self.config['UPLOAD_FOLDER'], name + ".docx")
-                text = textract.process(docx_filename)
+                text = docx2txt.process(docx_filename)
                 delete_file(docx_filename)
                 return text
-            return textract.process(filename)
+            return docx2txt.process(filename)
 
         def get_format(request):
             params = request.form if request.method == 'POST' else request.args
