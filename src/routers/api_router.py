@@ -312,7 +312,7 @@ class ApiRouter(Blueprint):
                     csvResult.append([])
 
                 with open(filePath, 'w') as f:
-                    w = csv.writer(f, delimiter="\t")
+                    w = csv.writer(f, delimiter="\t", quotechar='', escapechar='\\', quoting=csv.QUOTE_NONE)
                     w.writerows(csvResult)
 
             except Exception, e:
