@@ -136,6 +136,9 @@ def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, c
                 'ID': "t_" + str(token_id),
                 'start': str(token[0][1]),
                 'end': str(token[0][2]),
+                'paragraph': str(token[0][3]),
+                'sentence': str(token[0][4]),
+                'token': str(t_idx+1),
                 'text': token[0][0]
             })
             token_ids.append("t_" + str(token_id))

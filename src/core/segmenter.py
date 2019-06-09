@@ -18,11 +18,17 @@ class Segmenter(object, ):
 
         lines = filter(lambda x: x.strip() != '', sentence.replace('\xef\xbb\xbf', '').splitlines())
         result = []
-        for line in lines:
+        for cntp, line in enumerate(lines):
             ssplitter=sentence_split_nonstd if non_standard_sentence_split else sentence_split
 
             tokens = ssplitter(tokenize(self.tokenizer, unicode(line)), self.lang)
-            result.extend(tokens)
+
+            enriched_tokens = []
+            for cnts, sentence in enumerate(tokens):
+                enriched_tokens.append([(token[0], token[1], token[2], str(cntp+1), str(cnts+1))
+                                        for token in sentence])
+
+            result.extend(enriched_tokens)
 
         return result
 

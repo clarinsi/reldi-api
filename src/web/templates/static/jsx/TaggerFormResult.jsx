@@ -63,6 +63,9 @@ window.TaggerFormResult = React.createClass({
             tableHeaders.push(<th key="named-entities">Entity</th>);
         }
 
+        tableHeaders.push(<th key="par">Paragraph</th>);
+        tableHeaders.push(<th key="sent">Sentence</th>);
+        tableHeaders.push(<th key="token">Token</th>);
         tableHeaders.push(<th key="echr">Start char</th>);
         tableHeaders.push(<th key="schr">End char</th>);
 
@@ -102,6 +105,9 @@ window.TaggerFormResult = React.createClass({
                 tds.push(<td key="namedEntity">-</td>)
             }
 
+            tds.push(<td key="par">{row.paragraph}</td>);
+            tds.push(<td key="sent">{row.sentence}</td>);
+            tds.push(<td key="token">{row.token}</td>);
             tds.push(<td key="schr">{row.start}</td>);
             tds.push(<td key="echr">{row.end}</td>);
 

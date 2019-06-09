@@ -306,6 +306,9 @@ class ApiRouter(Blueprint):
                         if tid in namedEntities:
                             csvResult[-1].append(namedEntities[tid]['value'])
 
+                        csvResult[-1].append(token['paragraph'])
+                        csvResult[-1].append(token['sentence'])
+                        csvResult[-1].append(token['token'])
                         csvResult[-1].append(token['start'])
                         csvResult[-1].append(token['end'])
 
