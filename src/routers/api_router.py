@@ -245,7 +245,7 @@ class ApiRouter(Blueprint):
             if filename:
                 filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_filename_request_id(filename))
             else:
-                filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request))
+                filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request) + ".txt")
 
             raw = result.get_data()
             try:

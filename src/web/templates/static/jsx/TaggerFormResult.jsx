@@ -13,12 +13,14 @@ window.TaggerFormResult = React.createClass({
 
         var archive = false;
         var defaultKey = 1;
-        var downloadUrl = this.props.downloadUrl + this.props.requestId;
+        var downloadUrl = this.props.downloadUrl + this.props.requestId + ".txt";
+        var downloadLabel = "Download .txt"
 
         if ('filetype' in result.json){
             archive = true;
             defaultKey = 3;
             downloadUrl = this.props.downloadUrl + this.props.requestId + '.' + result.json.filetype;
+            downloadLabel = "Download ." + result.json.filetype;
         }
 
         // Normalize data
@@ -149,7 +151,7 @@ window.TaggerFormResult = React.createClass({
                     <ReactBootstrap.Tab eventKey={3} title="Download">
                         <div className="col-md-12">
                             <a href={downloadUrl}
-                                disabled={this.props.requestId == ''}>Download</a>
+                                disabled={this.props.requestId == ''}>{downloadLabel}</a>
                         </div>
                     </ReactBootstrap.Tab>
                 </ReactBootstrap.Tabs>
