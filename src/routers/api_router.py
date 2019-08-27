@@ -12,6 +12,7 @@ from ..models.auth_token_model import AuthTokenModel
 import re, os, json, csv, traceback
 import zipfile
 import docx2txt
+import textract
 import subprocess
 import mimetypes
 from HTMLParser import HTMLParser
@@ -355,6 +356,10 @@ class ApiRouter(Blueprint):
             return mime in ["application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             "application/msword"]
 
+        def is_pdf_file(filename):
+            mime = mimetypes.MimeTypes().guess_type(filename)[0]
+            return mime in ["application/pdf"]
+
         def read_word_file(filename):
             name, extension = os.path.splitext(filename)
             if extension == '.doc':
@@ -365,6 +370,9 @@ class ApiRouter(Blueprint):
                 delete_file(docx_filename)
                 return text
             return docx2txt.process(filename)
+
+        def read_pdf_file(filename):
+            return textract.process(filename)
 
         def get_format(request):
             params = request.form if request.method == 'POST' else request.args
@@ -431,19 +439,20 @@ class ApiRouter(Blueprint):
             files = request.files
             if format == 'json':
                 if file_:
-                    if is_word_file(file_.name):
+                    if is_word_file(file_.name) or is_pdf_file(file_.name):
                         saved_file = os.path.join(self.config['UPLOAD_FOLDER'], file_.name)
                         with open(saved_file, 'w') as f:
                             f.write(file_.read())
-                        text = read_word_file(saved_file)
+                        text = read_word_file(saved_file) if is_word_file(file_.name) else read_pdf_file(saved_file)
                         delete_file(saved_file)
                         return text
                     return file_.read()
                 elif 'file' in files:
-                    if is_word_file(files['file'].filename):
+                    if is_word_file(files['file'].filename) or is_pdf_file(files['file'].filename):
                         saved_file = os.path.join(self.config['UPLOAD_FOLDER'], files['file'].filename)
                         files['file'].save(saved_file)
-                        text = read_word_file(saved_file)
+                        text = read_word_file(saved_file) if is_word_file(files['file'].filename) \
+                            else read_pdf_file(saved_file)
                         delete_file(saved_file)
                         return text
                     return files['file'].read()
