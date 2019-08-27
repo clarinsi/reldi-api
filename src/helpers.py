@@ -92,11 +92,12 @@ def jsonResponse(query, data):
     }, ensure_ascii=False)
 
 
-def jsonTCF(lang, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, correction_idx=None, depparse_idx = None, output_sentences=True):
+def jsonTCF(lang, filename, text, result, lemma_idx=None, tag_idx=None,ner_tag_idx=None, correction_idx=None, depparse_idx = None, output_sentences=True):
     """
     Transforms an object into a API json response similar to the TCF format
     """
     output = {}
+    output['filename'] = filename
     output['text'] = text
     output['tokens'] = {
         'token': []

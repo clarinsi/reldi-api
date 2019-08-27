@@ -234,7 +234,8 @@ class ApiRouter(Blueprint):
                     delete_file(zip_archive_filename)
                     create_zipfile(files_to_process)
 
-                    return '{"filetype":"zip", "tokens":{"token":[]}}'
+                    return '{"filename":"' + request.files['file'].filename + \
+                           '", "filetype":"zip", "tokens":{"token":[]}}'
 
                 else:
                     result = api_method(*args, **kwargs)
@@ -246,7 +247,8 @@ class ApiRouter(Blueprint):
             if filename:
                 filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_filename_request_id(filename))
             else:
-                filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request) + ".txt")
+                filename = request.files['file'].filename if 'file' in request.files else "input"
+                filePath = os.path.join(self.config['UPLOAD_FOLDER'], get_filename_request_id(filename))
 
             raw = result.get_data()
             try:
@@ -342,7 +344,8 @@ class ApiRouter(Blueprint):
             return filename + "-" + get_request_id(request) + ".txt"
 
         def create_zipfile(files):
-            zip_filename = os.path.join(self.config['UPLOAD_FOLDER'], get_request_id(request) + ".zip")
+            zip_filename = os.path.join(self.config['UPLOAD_FOLDER'],
+                                        request.files['file'].filename + "-" + get_request_id(request) + ".zip")
             zipf = zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED)
             for f in files:
                 filename = get_filename_request_id(f)
@@ -591,8 +594,9 @@ class ApiRouter(Blueprint):
             # Format properly
             result = map(lambda x: map(lambda y: (y,), x), segmenter.segment(text))
 
+            filename = request.files['file'].filename if 'file' in request.files else 'input'
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, filename, text, result), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result), mimetype='text/xml')
 
@@ -616,8 +620,9 @@ class ApiRouter(Blueprint):
             text = get_text(format, request, file_)
             restorer = dc['restorer.' + lang]
             result = restorer.restore(text)
+            filename = request.files['file'].filename if 'file' in request.files else 'input'
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, correction_idx=1), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, filename, text, result, correction_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, correction_idx=1), mimetype='text/xml')
 
@@ -649,8 +654,9 @@ class ApiRouter(Blueprint):
                 text = ""
                 result = ""
 
+            filename = request.files['file'].filename if 'file' in request.files else 'input'
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, tag_idx=1), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, filename, text, result, tag_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, tag_idx=1), mimetype='text/xml')
 
@@ -695,8 +701,9 @@ class ApiRouter(Blueprint):
                 text = ""
                 result = ""
 
+            filename = request.files['file'].filename if 'file' in request.files else 'input'
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, lemma_idx=1), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, filename, text, result, lemma_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=1), mimetype='text/xml')
 
@@ -743,8 +750,9 @@ class ApiRouter(Blueprint):
                 text = ""
                 result = ""
 
+            filename = request.files['file'].filename if 'file' in request.files else 'input'
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, filename, text, result, lemma_idx=2, tag_idx=1), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1), mimetype='text/xml')
 
@@ -789,8 +797,9 @@ class ApiRouter(Blueprint):
                 text = ""
                 result = ""
 
+            filename = request.files['file'].filename if 'file' in request.files else 'input'
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, filename, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, lemma_idx=2, tag_idx=1, depparse_idx=3), mimetype='text/xml')
 
@@ -838,8 +847,9 @@ class ApiRouter(Blueprint):
                 result = ""
                 text = ""
 
+            filename = request.files['file'].filename if 'file' in request.files else 'input'
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result, tag_idx=1,lemma_idx=2,ner_tag_idx=3), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, filename, text, result, tag_idx=1,lemma_idx=2,ner_tag_idx=3), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result, tag_idx=1,lemma_idx=2,ner_tag_idx=3), mimetype='text/xml')
 
@@ -905,8 +915,9 @@ class ApiRouter(Blueprint):
 
             result = csmtiser.tag(text)
 
+            filename = request.files['file'].filename if 'file' in request.files else 'input'
             if format == 'json':
-                return jsonify(jsonTCF(lang, text, result), ensure_ascii=False)
+                return jsonify(jsonTCF(lang, filename, text, result), ensure_ascii=False)
             elif format == 'tcf':
                 return Response(TCF(lang, text, result), mimetype='text/xml')
 

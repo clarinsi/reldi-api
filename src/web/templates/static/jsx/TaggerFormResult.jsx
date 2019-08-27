@@ -13,13 +13,13 @@ window.TaggerFormResult = React.createClass({
 
         var archive = false;
         var defaultKey = 1;
-        var downloadUrl = this.props.downloadUrl + this.props.requestId + ".txt";
+        var downloadUrl = this.props.downloadUrl + result.json.filename + '-' + this.props.requestId + ".txt";
         var downloadLabel = "Download .txt"
 
         if ('filetype' in result.json){
             archive = true;
             defaultKey = 3;
-            downloadUrl = this.props.downloadUrl + this.props.requestId + '.' + result.json.filetype;
+            downloadUrl = this.props.downloadUrl + result.json.filename + '-' + this.props.requestId + '.' + result.json.filetype;
             downloadLabel = "Download ." + result.json.filetype;
         }
 
