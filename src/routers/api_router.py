@@ -12,10 +12,11 @@ from ..models.auth_token_model import AuthTokenModel
 import re, os, json, csv, traceback
 import zipfile
 import docx2txt
-import textract
 import subprocess
 import mimetypes
 from HTMLParser import HTMLParser
+from tika import parser
+from bs4 import BeautifulSoup
 
 class ServerError(Exception):
     """
@@ -375,7 +376,11 @@ class ApiRouter(Blueprint):
             return docx2txt.process(filename)
 
         def read_pdf_file(filename):
-            return textract.process(filename).replace("\n", " ")
+            html_data = parser.from_file(filename, xmlContent=True)['content']
+            soup = BeautifulSoup(html_data, 'html.parser')
+            paragraphs = soup.find_all('p')
+            text = [paragraph.text.replace("\n", " ") for paragraph in paragraphs if paragraph.text]
+            return "\n".join(text)
 
         def get_format(request):
             params = request.form if request.method == 'POST' else request.args
