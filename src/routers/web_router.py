@@ -70,6 +70,9 @@ class WebRouter(Blueprint):
             password = request.form.get('password')
             response = make_response(redirect(url_for('.login')))
 
+            if username == "user":
+                flash('Invalid username or password', 'danger')
+
             if username is None or password is None:
                 flash('Invalid username or password', 'danger')
 
