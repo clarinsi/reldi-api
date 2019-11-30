@@ -60,6 +60,9 @@ class UserModel(Model):
     def isAdmin(self):
         return self.role == 'admin'
 
+    def isAnonymous(self):
+        return self.username == 'user'
+
     def block(self):
         self.status = 'blocked'
 

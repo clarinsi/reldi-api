@@ -49,7 +49,6 @@ class WebRouter(Blueprint):
 
             return wrapper
 
-        @self.route('/', methods=['GET'])
         @self.route('/login', methods=['GET'])
         def login():
             auth_token_string = request.cookies.get('auth-token')
@@ -58,6 +57,8 @@ class WebRouter(Blueprint):
                 user = UserModel.getByPk(authToken.user_id)
                 if user.isAdmin():
                     return make_response(redirect(url_for('.admin')))
+                elif user.isAnonymous():
+                    return Response(render_template('login.html'))
                 else:
                     return make_response(redirect(url_for('.query')))
 
@@ -85,13 +86,14 @@ class WebRouter(Blueprint):
 
             return response
 
+        @self.route('/', methods=['GET'])
         @self.route('/anonymous_login', methods=['GET'])
         def anonymous_login():
             user = UserModel.getByUsername('user')
             token = user.generateAnonymousToken()
             token.save()
 
-            response = make_response(redirect(url_for('.login')))
+            response = make_response(redirect(url_for('.query')))
             response.set_cookie('auth-token', token.token)
 
             return response
@@ -103,7 +105,7 @@ class WebRouter(Blueprint):
             if authToken:
                 authToken.delete()
 
-            response = make_response(redirect(url_for('.login')))
+            response = make_response(redirect(url_for('.anonymous_login')))
             response.set_cookie('auth-token', '', expires=0)
 
             return response
@@ -242,7 +244,12 @@ class WebRouter(Blueprint):
         @self.route('/query')
         @authenticate(['admin', 'user'])
         def query():
-            return render_template('search.html')
+            auth_token_string = request.cookies.get('auth-token')
+            authToken = AuthTokenModel.getByAttributeSingle('token', auth_token_string)
+            if authToken and authToken.isValid():
+                user = UserModel.getByPk(authToken.user_id)
+                return render_template('search.html') if not user.isAnonymous() \
+                    else render_template('search_anonymous.html')
 
 
         @authenticate(['user'])

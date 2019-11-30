@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="panel panel-default">
+
+    {% with title = 'Query' %}
+        {% include 'parts/heading_anonymous.html' %}
+    {% endwith %}
+    <div id="search-panel" class="panel-body">
+
+    </div>
+</div>
+{% endblock %}
+
+
+{% block react %}
+<script type="text/babel">
+    var downloadUrl = "{{ url_for('web_router.download', requestId='') }}";
+    ReactDOM.render(
+        <SearchForm downloadUrl={downloadUrl} />,
+        document.getElementById('search-panel')
+    );
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    function generateGuid() {
+         var S4 = function() {
+            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        };
+        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+    }
+
+    var baseUrl = "{{ url_for('api_router.index') }}";
+</script>
+{% endblock %}
