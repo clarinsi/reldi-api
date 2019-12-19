@@ -17,10 +17,10 @@ class MailService(object):
         """
         Sends out an email containing a link for confirming a registered user's email address.
         """
-        sender = 'noreply@projectreldi.com'
+        sender = 'noreply@cl-services.ijs.si'
         receivers = [email]
 
-        message = """From: Project ReLDI <noreply@projectreldi.com>
+        message = """From: Project ReLDI <noreply@cl-services.ijs.si>
 MIME-Version: 1.0
 Content-type: text/plain
 To: <{1}>
@@ -37,13 +37,13 @@ please click the following link to confirm your email address {1}""".format(user
         """
         Sends out an email to the administrator containing a client's request for accessing the API.
         """
-        sender = 'noreply@projectreldi.com'
+        sender = 'noreply@cl-services.ijs.si'
         receivers = ['nljubesi@gmail.com']
 
         if note != "":
             note = "The following note has been left by the user: {0}".format(note)
 
-        message = """From: Project ReLDI <noreply@projectreldi.com>
+        message = """From: Project ReLDI <noreply@cl-services.ijs.si>
 MIME-Version: 1.0
 Content-type: text/plain
 To: <{0}>
@@ -58,10 +58,10 @@ Click the link to log in and review the user details: {2}
 
     def sendUserActivatedEmail(self, username, email, login_url):
 
-        sender = 'noreply@projectreldi.com'
+        sender = 'noreply@cl-services.ijs.si'
         receivers = [email]
 
-        message = """From: Project ReLDI <noreply@projectreldi.com>
+        message = """From: Project ReLDI <noreply@cl-services.ijs.si>
 MIME-Version: 1.0
 Content-type: text/plain
 To: <{1}>
@@ -81,10 +81,10 @@ Click the link to go to the login page: {2}""".format(username, email, login_url
         """
         Sends out an email to the user once their account has been reactivated
         """
-        sender = 'noreply@projectreldi.com'
+        sender = 'noreply@cl-services.ijs.si'
         receivers = [email]
 
-        message = """From: Project ReLDI <noreply@projectreldi.com>
+        message = """From: Project ReLDI <noreply@cl-services.ijs.si>
 MIME-Version: 1.0
 Content-type: text/plain
 To: <{1}>
@@ -103,10 +103,10 @@ Click the link to go to the login page: {2}""".format(username, email, login_url
         """
         Sends out an email to the user once their account has been blocked.
         """
-        sender = 'noreply@projectreldi.com'
+        sender = 'noreply@cl-services.ijs.si'
         receivers = [email]
 
-        message = """From: Project ReLDI <noreply@projectreldi.com>
+        message = """From: Project ReLDI <noreply@cl-services.ijs.si>
 MIME-Version: 1.0
 Content-type: text/plain
 To: <{1}>
@@ -123,10 +123,10 @@ your ReLDI account has been blocked by the administrator.""".format(username, em
         """
         Sends out an email containing a password reset link
         """
-        sender = 'noreply@projectreldi.com'
+        sender = 'noreply@cl-services.ijs.si'
         receivers = [email]
 
-        message = """From: Project ReLDI <noreply@projectreldi.com>
+        message = """From: Project ReLDI <noreply@cl-services.ijs.si>
 MIME-Version: 1.0
 Content-type: text/plain
 To: <{1}>
