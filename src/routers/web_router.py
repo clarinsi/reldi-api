@@ -77,8 +77,13 @@ class WebRouter(Blueprint):
                 flash('Invalid username or password', 'danger')
 
             user = UserModel.getByUsername(username)
+
             if user is None:
                 flash('Invalid username or password', 'danger')
+            elif user.isNotVerified():
+                flash('E-mail address not confirmed. Please check your inbox or '
+                      '<a href="{}" class="alert-link">send the confirmation e-mail again.</a>'.format(
+                    url_for('.confirmation_email')), 'danger')
             else:
                 try:
                     token = user.generateToken(password)
@@ -340,3 +345,28 @@ class WebRouter(Blueprint):
                     dc['mail_service'].sendUserReactivatedEmail(user.username, user.email, url_for('.login', _external=True))
 
             return make_response(redirect(url_for('.admin')))
+
+        @self.route('/confirmation_email')
+        def confirmation_email():
+            form = session.get('form', {})
+            if 'form' in session:
+                del session['form']
+            return render_template('confirmation_email.html', form=form)
+
+        @self.route('/confirmation_email', methods=["POST"])
+        def confirmation_email_send():
+            email = request.form.get("email")
+            user = UserModel.getByEmail(email)
+            if user is not None and user.isNotVerified():
+                dc['mail_service'].sendEmailConfirmationEmail(
+                    user.username,
+                    user.email,
+                    url_for('.confirm_email', activation_token=user.activation_token, _external=True))
+
+                return render_template('confirmation_email_sent.html')
+            elif user is not None and not user.isNotVerified():
+                flash('This e-mail is already verified.', 'danger')
+                return make_response(redirect(url_for('.confirmation_email')))
+            else:
+                flash('This e-mail does not exist in our database.', 'danger')
+                return make_response(redirect(url_for('.confirmation_email')))

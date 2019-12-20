@@ -46,8 +46,6 @@ class UserModel(Model):
             raise ValueError('This user has been blocked')
         if self.isPending():
             raise ValueError('This user has not been approved yet')
-        if self.isNotVerified():
-            raise ValueError('This user has not been verified yet')
 
         token = AuthTokenModel.generate(is_long_lasting)
         token.user_id = self.id
