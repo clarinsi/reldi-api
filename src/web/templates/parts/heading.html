@@ -1,8 +1,18 @@
 <div class="panel-heading" style="overflow: auto">
-    <a href="http://www.clarin.si/info/k-centre/web-services-documentation/#application" class="pull-left">RELDIanno</a>
-    <div class="pull-right">
-        <form method="POST" action="{{url_for('.logout')}}" style="overflow: auto; margin: 0;">
-            <button class="pull-right btn btn-sm" style="margin: 0; padding: 0;">Logout</button>
-        </form>
+    <div class="row">
+        <div class="col-xs-4 pull-left">
+            <b style="font-size:larger; color:mediumblue">ReLDIanno</b>
+        </div>
+        <div class="pull-right">
+            <div class="col-xs-4" style="width: auto">
+                <a href="http://www.clarin.si/info/k-centre/web-services-documentation/#application">Documentation</a>
+            </div>
+            <div class="col-xs-4" style="width: auto">
+                <a href="mailto:helpdesk.classla@clarin.si?subject=ReLDIanno">Report a problem</a>
+            </div>
+            <div class="col-xs-4" style="width: auto">
+                <a href="{{url_for('.logout')}}">Logout</a>
+            </div>
+        </div>
     </div>
 </div>
