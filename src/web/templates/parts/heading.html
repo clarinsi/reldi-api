@@ -11,7 +11,9 @@
                 <a href="mailto:helpdesk.classla@clarin.si?subject=ReLDIanno">Report a problem</a>
             </div>
             <div class="col-xs-4" style="width: auto">
-                <a href="{{url_for('.logout')}}">Logout</a>
+                <form method="POST" action="{{url_for('.logout')}}" style="margin: 0">
+                    <button type="submit" class="btn-link" style="padding: 0; border: 0; color: #009688">Logout</button>
+                </form>
             </div>
         </div>
     </div>
