@@ -1,14 +1,29 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="row">
-	<div class="col-md-8 col-md-offset-2">
+	<div class="col-md-8 col-md-offset-2" style="width: 75%;margin-left: 12.5%">
 		<div class="panel panel-default">
 			<div class="panel-heading" style="overflow: auto">
-				<div class="pull-left">
-					<b style="font-size:larger; color:#009688">ReLDIanno</b>
-				</div>
-				<a href="{{url_for('.forgot_password')}}" class="pull-right">Forgot password?</a>
+			<div class="row">
+        		<div class="col-xs-4 pull-left">
+            		<b style="font-size:larger; color:#009688">ReLDIanno</b>
+        		</div>
+        		<div class="pull-right">
+            		<div class="col-xs-4" style="width: auto">
+                		<a href="http://www.clarin.si/info/k-centre/web-services-documentation/#application">Documentation</a>
+            		</div>
+            		<div class="col-xs-4" style="width: auto">
+                		<a href="mailto:helpdesk.classla@clarin.si?subject=ReLDIanno">Report a problem</a>
+            		</div>
+					<div class="col-xs-4" style="width: auto">
+						<a href="{{url_for('.register')}}">Request access</a>
+					</div>
+            		<div class="col-xs-4" style="width: auto">
+                		<a href="{{url_for('.forgot_password')}}" class="pull-right">Forgot password?</a>
+            		</div>
+        		</div>
 			</div>
+    </div>
 			<div class="panel-body">
 				<form class="form-horizontal" role="form" id="loginForm"
 						method="POST" action="{{url_for('.do_login')}}">
@@ -34,15 +49,7 @@
 					</div>
 				</form>
 			</div>
-			<div class="panel-footer" style="overflow: auto">
-				<div class="pull-left">
-					Not Registered?
-					<a href="{{url_for('.register')}}" class="">Request access here</a>
-				</div>
-				<div class="pull-right">
-					<a href=mailto:helpdesk.classla@clarin.si?subject=ReLDIanno">Report a problem</a>
-				</div>
-			</div>
+			{% include 'parts/footer.html' %}
 		</div>
 	</div>
 </div>
