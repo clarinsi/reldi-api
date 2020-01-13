@@ -42,7 +42,8 @@ window.TaggerForm = React.createClass({
                                 <label htmlFor="input-text" className="col-md-2 control-label no-top-padding">File</label>
                                 <div className="col-md-7">
                                     <input id="tagger-file-chooser" type="file" name="input-file"
-                                        onChange={this.props.onFileSelect} />
+                                        onChange={this.props.onFileSelect} data-toggle="tooltip" title="Supported file types: txt, doc, docx, pdf, zip"
+                                    accept=".txt, .doc, .docx, .pdf, .zip"/>
                                 </div>
                                 <button id="remove-file" className="btn btn-primary btn-xs no-top-margin" onClick={this.removeFile}>
                                     remove
