@@ -305,5 +305,5 @@ def TCF(lang, text, result, lemma_idx=None, ner_tag_idx=None,tag_idx=None, corre
     </D-Spin>""".format(lang, output, cgi.escape(text))
 
     x = etree.parse(StringIO(output.encode('utf-8')), etree.XMLParser(remove_blank_text=True, encoding="utf-8"))
-    return etree.tostring(x.getroot(), pretty_print=True, encoding='UTF-8').decode('utf-8')
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + etree.tostring(x.getroot(), pretty_print=True, encoding='UTF-8').decode('utf-8')
 
