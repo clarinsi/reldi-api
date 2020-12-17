@@ -608,7 +608,7 @@ class ApiRouter(Blueprint):
 
         @self.route('/<lang>/restore', methods=['GET', 'POST'])
         @authenticate
-        def restore(lang, file_):
+        def restore(lang, file_=None):
             '''
 
             @param lang:
